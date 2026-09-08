@@ -113,7 +113,7 @@ developer experience over ecosystem depth.
 
 - The islands concept is an extra layer to learn.
 - Its main advantage — not shipping JS — is mostly wasted here, because nearly every page
-  *is* an interactive app. The benefit applies to the home page and little else.
+  _is_ an interactive app. The benefit applies to the home page and little else.
 
 ### Option E — Next.js
 
@@ -158,17 +158,29 @@ changing.
 
 ---
 
-## 2. Scaffold the project `[ ]`
+## 2. Scaffold the project `[x]` — done 2026-09-08
 
-- [ ] Initialize Vite + React + TypeScript in the repo root.
-- [ ] Add ESLint and Prettier with a minimal, non-argumentative config.
-- [ ] Add Vitest; confirm one trivial test runs.
-- [ ] Set up path aliases (`@/core`, `@/ui`, `@/tools`) so imports stay readable.
-- [ ] Fix the directory layout and record it in the README: `src/core/` (chemistry logic,
+- [x] Initialize Vite + React + TypeScript in the repo root.
+      Vite 8, React 19, TypeScript 6, Node 24 LTS.
+- [x] Add a linter and Prettier with a minimal, non-argumentative config.
+      **Deviation:** the current Vite template ships **oxlint** rather than ESLint, so the
+      project uses oxlint. It is faster, needs less configuration, and keeping the template
+      default is one less thing to maintain. Prettier was added separately.
+- [x] Add Vitest; confirm one trivial test runs. Vitest 5 — note that Vitest 3 pulls its own
+      copy of Vite and conflicts with Vite 8's types.
+- [x] Set up path aliases so imports stay readable. A single `@/` maps to `src/`, declared in
+      both `vite.config.ts` and `tsconfig.app.json`; changing it means editing both.
+- [x] Fix the directory layout and record it in the README: `src/core/` (chemistry logic,
       zero UI), `src/ui/` (shared components), `src/tools/<tool-id>/` (one folder per tool,
-      named for its id in [tools.md](tools.md)), `src/data/` (element and molecule datasets).
-- [ ] Write a real README: what this is, how to run it, how to add a new tool.
-- [ ] Add `.gitignore` and commit the scaffold.
+      named for its id in [tools.md](tools.md)), `src/data/` (element and molecule datasets),
+      `src/styles/`.
+- [x] Write a real README: what this is, how to run it, how to add a new tool.
+- [x] Add `.gitignore` and commit the scaffold.
+- [x] Add `npm run check` (lint, format check, typecheck, test) as the single pre-commit
+      command, and `.claude/launch.json` for the dev server.
+
+Verified: typecheck, lint, tests, and production build all pass, and the built site renders
+with no console errors.
 
 ## 3. Build the design system and teacher-mode conventions `[ ]`
 

@@ -1,8 +1,8 @@
 # Tool Design
 
 Design proposals for every tool on the site. [plan.md](plan.md) is the actionable build
-sequence and consults this document for *what* to build; this document holds the *why* and
-the *what it does*, and does not track scheduling.
+sequence and consults this document for _what_ to build; this document holds the _why_ and
+the _what it does_, and does not track scheduling.
 
 Everything here is **proposed** until reviewed with the teacher — see
 [questions.md](questions.md), which has several questions that could remove tools from this
@@ -20,7 +20,7 @@ expensive, too dangerous, or too invisible to do live, or something where instan
 recalculation lets her run ten "what ifs" in the time one would take by hand.
 
 A calculator with a text box does not earn a page on its own. If a tool's whole value is
-producing a number, it should be folded into a tool that also *shows* something.
+producing a number, it should be folded into a tool that also _shows_ something.
 
 ## Conventions every tool follows
 
@@ -43,7 +43,7 @@ These are built once in the design system and are not repeated in each tool belo
 **Tier 3** is drills and bell-ringers — individually small, collectively the things she'd
 use most often.
 
-Tier is *not* build order. Build order should follow the unit she teaches next
+Tier is _not_ build order. Build order should follow the unit she teaches next
 (questions.md #6).
 
 ---
@@ -74,7 +74,7 @@ comparing two properties becomes a toggle instead of two board drawings.
 - Detail panel on click: all properties for the selected element.
 - Trend plot as a line chart beside the table, sharing its highlight.
 
-**The standout feature.** *State at temperature* — drag a temperature slider and the table
+**The standout feature.** _State at temperature_ — drag a temperature slider and the table
 recolors as elements melt and boil. It makes "melting point" a physical property of a
 substance rather than a number in a cell, and there is no non-digital way to show it.
 
@@ -161,7 +161,7 @@ and error.
 **Controls**
 
 - Equation input, unbalanced.
-- Mode switch: *demonstrate* (tool balances, steps through its reasoning) or *practice*
+- Mode switch: _demonstrate_ (tool balances, steps through its reasoning) or _practice_
   (student enters coefficients, tool checks without revealing).
 - Randomize a practice equation, with a difficulty setting.
 
@@ -185,7 +185,7 @@ wrong answer with confidence. This is the single highest-stakes correctness case
 **Unit:** stoichiometry
 
 **Why it earns a page.** The hardest unit in the course, and the one where the failure is
-almost always structural rather than arithmetic — students lose track of *where they are* in
+almost always structural rather than arithmetic — students lose track of _where they are_ in
 the conversion chain. A persistent visual mole map fixes exactly that.
 
 **Controls**
@@ -303,8 +303,8 @@ periodic table highlights the corresponding block connects the two directly.
 **Unit:** thermochemistry, states of matter
 
 **Why it earns a page.** The plateau on a heating curve is genuinely counterintuitive —
-adding energy without raising temperature. Seeing particle behavior change *while the
-temperature line stays flat* is the explanation, and it needs both views at once.
+adding energy without raising temperature. Seeing particle behavior change _while the
+temperature line stays flat_ is the explanation, and it needs both views at once.
 
 **Controls**
 

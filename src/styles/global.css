@@ -1,0 +1,55 @@
+/*
+ * Minimal global styles for the scaffold. The real design token system —
+ * projector theme, colorblind-safe palette, type scale — is plan.md item 3.
+ * Resist growing this file; it should stay a reset plus the token entry point.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  --color-bg: #ffffff;
+  --color-fg: #16181d;
+  --color-muted: #5c6370;
+
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --space-3: 0.75rem;
+  --space-6: 1.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #16181d;
+    --color-fg: #f2f4f8;
+    --color-muted: #9aa3b2;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+code {
+  font-family: var(--font-mono);
+}
+
+.placeholder {
+  padding: var(--space-6);
+}
+
+.placeholder__note {
+  color: var(--color-muted);
+  margin-top: var(--space-3);
+}
