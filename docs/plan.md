@@ -15,6 +15,30 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` blocked on
 
 ---
 
+## How we work
+
+**Test-driven wherever practical.** For each new feature: write the failing test first, watch
+it fail for the reason you expect, then write the smallest thing that passes it. A test that
+has never been seen to fail is not evidence of anything.
+
+This applies to both halves of the codebase, for different reasons:
+
+- **`chem-core`** — because wrong chemistry shown to a class is the worst failure this
+  project can produce, and because chemistry has known-correct answers. Textbook problems
+  make excellent fixtures: the expected value exists before the code does.
+- **Components and tools** — because their requirements are behavioral and phrased the way a
+  test already is. "The answer stays hidden until she clicks" is a test. Writing it first
+  keeps the component honest about what it actually promises.
+
+Where TDD does not fit — visual polish, canvas rendering, animation feel, layout on a
+projector — say so and verify it by looking at it instead. Do not write a hollow test to
+claim coverage of something a test cannot judge.
+
+**Every feature ships with its tests**, in the same commit. `npm run check` (lint, format,
+typecheck, test) must pass before committing.
+
+---
+
 ## 1. Decide the language and framework `[x]` — DECIDED: Vite + React + TypeScript
 
 **Decision (2026-09-07): Vite + React + TypeScript**, with the sub-decisions below. The
@@ -151,8 +175,10 @@ changing.
       comes up (questions.md #24).
 - [x] **Styling:** plain CSS with custom properties, so a projector theme (huge type, high
       contrast) and a student theme are a token swap rather than a rewrite.
-- [x] **Testing:** Vitest, applied to `chem-core` only. UI tests are not worth the cost
-      here. Wrong chemistry is.
+- [x] **Testing:** ~~Vitest, applied to `chem-core` only. UI tests are not worth the cost
+      here.~~ **Superseded 2026-09-08:** Vitest plus React Testing Library, covering
+      components and tools as well as `chem-core`, and written **test-first wherever
+      practical**. See "How we work" above.
 - [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
       static. Deferred to item 9.
 
@@ -196,8 +222,11 @@ classroom.
 - [ ] Build the shared components:
   - [ ] `ToolShell` — title, description, controls area, output area, reset.
   - [ ] `Slider` — large hit target, live numeric readout, keyboard-steppable.
-  - [ ] `RevealAnswer` — hides a result until clicked. This one component is what makes the
-        site teachable rather than merely informative.
+  - [x] `RevealAnswer` — hides a result until clicked. This one component is what makes the
+        site teachable rather than merely informative. Built test-first as the first
+        exercise of the component test setup; styling is still minimal pending the tokens
+        above. Hidden content is not rendered at all rather than merely `display: none`,
+        so it cannot be read out of the DOM.
   - [ ] `NumberField` — units-aware, rejects nonsense input gracefully.
   - [ ] `ResetButton` and `RandomizeButton`.
 - [ ] Implement the site-wide keyboard conventions (arrows adjust the focused control, `R`

@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 // Imported from vitest/config, not vite, so the `test` block below is typed.
 import { defineConfig } from 'vitest/config'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -15,9 +14,26 @@ export default defineConfig({
     },
   },
   test: {
-    // chem-core is the only thing worth testing (see docs/plan.md item 1).
-    // Tests live beside the code they cover, as <name>.test.ts.
-    include: ['src/**/*.test.ts'],
-    environment: 'node',
+    // Two projects, because the two kinds of test want different environments.
+    // Each inherits the plugins and aliases above; only the differences go here.
+    // Keeping chem-core in `node` keeps it fast and makes it obvious when a
+    // supposedly pure module has quietly grown a DOM dependency.
+    projects: [
+      {
+        test: {
+          name: 'core',
+          include: ['src/core/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      {
+        test: {
+          name: 'ui',
+          include: ['src/{ui,tools,app}/**/*.test.{ts,tsx}', 'src/*.test.tsx'],
+          environment: 'jsdom',
+          setupFiles: ['./src/test/setup.ts'],
+        },
+      },
+    ],
   },
 })

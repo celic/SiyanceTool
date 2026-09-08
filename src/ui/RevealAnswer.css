@@ -1,0 +1,20 @@
+/* Minimal styling only. The real token system is plan.md item 3. */
+
+.reveal__button {
+  font: inherit;
+  padding: var(--space-3) var(--space-6);
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.reveal__button:focus-visible {
+  outline: 3px solid currentColor;
+  outline-offset: 2px;
+}
+
+.reveal__content:not(:empty) {
+  margin-top: var(--space-3);
+}

@@ -72,20 +72,61 @@ src/
 docs/        planning and design documents
 ```
 
-Tests live beside the code they cover, named `<name>.test.ts`. Only `src/core/` is expected
-to be tested — that is where being wrong actually costs something.
-
 Imports use the `@/` alias for `src/`, e.g. `import { parseFormula } from '@/core/formula'`.
 The alias is declared in both `vite.config.ts` and `tsconfig.app.json`; changing it means
 editing both.
+
+## Testing
+
+Vitest, with [React Testing Library](https://testing-library.com/react) for components.
+Tests live beside the code they cover, named `<name>.test.ts` or `<name>.test.tsx`.
+
+There are two test projects, because the two kinds of test want different environments:
+
+| Project | Covers                         | Environment |
+| ------- | ------------------------------ | ----------- |
+| `core`  | `src/core/**/*.test.ts`        | `node`      |
+| `ui`    | `src/{ui,tools}/**/*.test.tsx` | `jsdom`     |
+
+Keeping `chem-core` in a `node` environment is deliberate: it is fast, and it fails loudly
+if a module that is supposed to be pure chemistry quietly grows a DOM dependency.
+
+```bash
+npm test                 # everything, once
+npm run test:watch       # watch mode
+npx vitest --project ui  # just the component tests
+```
+
+### Write the test first
+
+**Each new feature is developed test-first wherever practical.** Write the failing test,
+watch it fail for the reason you expect, then write the smallest thing that passes it. A
+test that has never been seen to fail proves nothing.
+
+This is easier here than in most projects, because both halves of the codebase hand you the
+expected answer before the code exists:
+
+- **`chem-core`** — chemistry has known-correct answers. Use textbook problems as fixtures.
+- **Components** — the requirements are already phrased as behavior. "The answer stays
+  hidden until she clicks" is a test. `src/ui/RevealAnswer.test.tsx` is the worked example.
+
+Test what a user of the tool can observe — roles, labels, visible text — not internal state
+or implementation details. Query by accessible role wherever possible: it verifies the
+component is reachable by keyboard and screen reader at the same time as verifying it works,
+which matters for a site driven from across a classroom.
+
+Where TDD genuinely does not fit — visual polish, canvas rendering, animation feel, layout on
+a projector — say so and verify by looking at it. Do not write a hollow test to claim
+coverage of something a test cannot judge.
 
 ## Adding a tool
 
 1. Give it a design entry in [docs/tools.md](docs/tools.md) first, with a stable `id`. That
    id is the route, the folder name, and the config key.
 2. Create `src/tools/<id>/`.
-3. Register it, so it appears on the home page and gets a route.
-4. Put any chemistry it needs in `src/core/`, with tests — not in the tool folder.
+3. Write the tests before the tool, working from the behavior its design entry describes.
+4. Register it, so it appears on the home page and gets a route.
+5. Put any chemistry it needs in `src/core/`, with its own tests — not in the tool folder.
 
 Tools can be switched on and off without touching their source; see `tools.config.json`.
 
