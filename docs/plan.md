@@ -15,9 +15,12 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` blocked on
 
 ---
 
-## 1. Decide the language and framework `[?]` — needs sign-off before anything else
+## 1. Decide the language and framework `[x]` — DECIDED: Vite + React + TypeScript
 
-This is item one because it is the only decision here that is expensive to reverse.
+**Decision (2026-09-07): Vite + React + TypeScript**, with the sub-decisions below. The
+analysis that follows is kept as the record of why, and of what was rejected.
+
+This was item one because it is the only decision here that is expensive to reverse.
 Everything below assumes an answer.
 
 ### What the choice actually has to serve
@@ -139,19 +142,19 @@ changing.
 
 ### Sub-decisions that follow from item 1
 
-- [ ] **Rendering split:** SVG for charts and diagrams (styleable, accessible, few
+- [x] **Rendering split:** SVG for charts and diagrams (styleable, accessible, few
       elements); Canvas 2D for particle simulations (hundreds of particles at 60fps);
       Three.js only for the 3D molecule viewer. Do not use SVG for particles.
-- [ ] **Charting:** hand-rolled SVG, for full control over projector legibility. Reconsider
+- [x] **Charting:** hand-rolled SVG, for full control over projector legibility. Reconsider
       a library only if a tool needs high-frequency streaming plots.
-- [ ] **3D:** `three.js` directly, or `3Dmol.js`. Evaluate when `vsepr-viewer` comes up.
-- [ ] **Styling:** plain CSS with custom properties, so a projector theme (huge type, high
-      contrast) and a student theme are a token swap rather than a rewrite. Tailwind is
-      acceptable if preferred; the design-token requirement is the part that matters.
-- [ ] **Testing:** Vitest, applied to `chem-core` only. UI tests are not worth the cost
+- [ ] **3D:** `three.js` directly, or `3Dmol.js`. Deferred — evaluate when `vsepr-viewer`
+      comes up (questions.md #24).
+- [x] **Styling:** plain CSS with custom properties, so a projector theme (huge type, high
+      contrast) and a student theme are a token swap rather than a rewrite.
+- [x] **Testing:** Vitest, applied to `chem-core` only. UI tests are not worth the cost
       here. Wrong chemistry is.
 - [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
-      static. Decide in item 9.
+      static. Deferred to item 9.
 
 ---
 

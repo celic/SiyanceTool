@@ -11,9 +11,10 @@ Answer format: add the answer inline under the question and mark it `ANSWERED`.
 
 ## For you (project decisions)
 
-1. **Which framework?** — **blocking on item 1.** The plan recommends Vite + React +
-   TypeScript, with SvelteKit as the runner-up. Do you already know one of these well? Your
-   familiarity should outweigh the recommendation.
+1. **Which framework?** — `ANSWERED (2026-09-07)`: **Vite + React + TypeScript**, along with
+   the recommended sub-decisions — SVG for charts, Canvas 2D for particle simulations, plain
+   CSS with custom properties, Vitest on `chem-core`. The 3D library and the host remain
+   deferred (#24 and plan.md item 9).
 2. **Who maintains this in a year?** If the answer is "a student" or "the teacher," that
    argues for the simplest possible stack, even at the cost of duplication.
 3. **Is "SiyanceTool" the real name?** It affects the repo, the page titles, and any domain.
