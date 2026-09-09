@@ -1,0 +1,152 @@
+/*
+ * Design tokens — the single place colour, type, spacing and line weight are
+ * decided. Components reference these and never hard-code a value.
+ *
+ * There are two independent axes:
+ *
+ *   Light / dark      follows the operating system (prefers-color-scheme).
+ *   Normal / projector  chosen explicitly, via [data-display='projector'] on
+ *                       the root. About the room, not the time of day.
+ *
+ * That gives four combinations, all of which have to work. Projector mode is
+ * layered on top of whichever colour scheme is active, so it only ever changes
+ * what it needs to: sizes, weights, and contrast.
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* --- Type ------------------------------------------------------------- */
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-3xl: 2.5rem;
+
+  --weight-normal: 400;
+  --weight-medium: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  /* --- Spacing ---------------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* --- Lines and shape -------------------------------------------------- */
+  --border-width: 1px;
+  --border-width-strong: 2px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  --focus-width: 3px;
+  --focus-offset: 2px;
+
+  /* --- Colour: light ---------------------------------------------------- */
+  --color-bg: #ffffff;
+  --color-surface: #f5f6f8;
+  --color-fg: #16181d;
+  --color-muted: #5c6370;
+  --color-border: #d3d7de;
+  --color-accent: #0b5cad;
+  --color-accent-fg: #ffffff;
+  --color-focus: #0b5cad;
+
+  /* --- Categorical data palette ----------------------------------------- *
+   * Okabe–Ito. Chosen because it stays distinguishable under all three
+   * common types of colour blindness, which matters more here than usual:
+   * indicator colours and flame tests are literally the subject being taught.
+   * Identical in every mode, so a chart never changes meaning when she
+   * switches to the projector. Always pair a colour with a label or shape —
+   * see docs/plan.md item 12. */
+  --data-1: #e69f00; /* orange */
+  --data-2: #56b4e9; /* sky blue */
+  --data-3: #009e73; /* bluish green */
+  --data-4: #f0e442; /* yellow */
+  --data-5: #0072b2; /* blue */
+  --data-6: #d55e00; /* vermillion */
+  --data-7: #cc79a7; /* reddish purple */
+  --data-8: #4d4d4d; /* grey */
+}
+
+/* --- Colour: dark ------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #16181d;
+    --color-surface: #22252c;
+    --color-fg: #f2f4f8;
+    --color-muted: #9aa3b2;
+    --color-border: #3a3f4a;
+    --color-accent: #7cb7f0;
+    --color-accent-fg: #10131a;
+    --color-focus: #7cb7f0;
+  }
+}
+
+/* --- Projector: size and weight ----------------------------------------- *
+ * Roughly a 1.5x bump on type and a doubling of every line weight. A
+ * classroom projector is often 1024x768 and read from the back of the room,
+ * where hairlines disappear entirely. */
+:root[data-display='projector'] {
+  --text-sm: 1.125rem;
+  --text-base: 1.5rem;
+  --text-lg: 1.875rem;
+  --text-xl: 2.25rem;
+  --text-2xl: 3rem;
+  --text-3xl: 4rem;
+
+  --weight-normal: 500;
+  --weight-medium: 700;
+  --weight-bold: 800;
+
+  --space-3: 1rem;
+  --space-4: 1.25rem;
+  --space-6: 2rem;
+  --space-8: 2.5rem;
+
+  --border-width: 2px;
+  --border-width-strong: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --focus-width: 5px;
+  --focus-offset: 3px;
+}
+
+/* --- Projector: contrast ------------------------------------------------ *
+ * Projectors wash out mid-tones badly, so the greys that read as "quiet" on a
+ * laptop become invisible on a wall. Muted text moves much closer to the
+ * foreground, and the page goes to pure black or white at the extremes. */
+:root[data-display='projector'] {
+  --color-bg: #ffffff;
+  --color-surface: #eef0f3;
+  --color-fg: #000000;
+  --color-muted: #333941;
+  --color-border: #6b727d;
+  --color-accent: #08447f;
+  --color-focus: #08447f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-display='projector'] {
+    --color-bg: #000000;
+    --color-surface: #1b1e24;
+    --color-fg: #ffffff;
+    --color-muted: #d5dae2;
+    --color-border: #8a929e;
+    --color-accent: #a9d1f7;
+    --color-accent-fg: #000000;
+    --color-focus: #a9d1f7;
+  }
+}

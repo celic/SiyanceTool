@@ -1,0 +1,36 @@
+.display-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.display-toggle:hover {
+  background: var(--color-surface);
+}
+
+/* Pressed state carries a filled icon as well as a colour change, so the
+   on/off distinction does not rely on colour alone. */
+.display-toggle[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.display-toggle__icon {
+  width: 1em;
+  height: 0.75em;
+  border: var(--border-width-strong) solid currentColor;
+  border-radius: 2px;
+}
+
+.display-toggle[aria-pressed='true'] .display-toggle__icon {
+  background: currentColor;
+}

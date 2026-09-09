@@ -1,31 +1,9 @@
 /*
- * Minimal global styles for the scaffold. The real design token system —
- * projector theme, colorblind-safe palette, type scale — is plan.md item 3.
- * Resist growing this file; it should stay a reset plus the token entry point.
+ * Reset and base styles. Every value here comes from a token — if you need a
+ * number that is not in tokens.css, add it there rather than inlining it.
  */
 
-:root {
-  color-scheme: light dark;
-
-  --color-bg: #ffffff;
-  --color-fg: #16181d;
-  --color-muted: #5c6370;
-
-  --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
-
-  --space-3: 0.75rem;
-  --space-6: 1.5rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #16181d;
-    --color-fg: #f2f4f8;
-    --color-muted: #9aa3b2;
-  }
-}
+@import './tokens.css';
 
 *,
 *::before,
@@ -38,18 +16,52 @@ body {
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-sans);
-  line-height: 1.5;
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-normal);
+}
+
+h1,
+h2,
+h3 {
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+
+h1 {
+  font-size: var(--text-3xl);
+}
+
+h2 {
+  font-size: var(--text-xl);
+}
+
+h3 {
+  font-size: var(--text-lg);
 }
 
 code {
   font-family: var(--font-mono);
+  font-size: 0.9em;
 }
 
-.placeholder {
-  padding: var(--space-6);
+a {
+  color: var(--color-accent);
 }
 
-.placeholder__note {
-  color: var(--color-muted);
-  margin-top: var(--space-3);
+/* One focus treatment for the whole site. Thick and offset so it survives a
+   projector, and never removed — she may be driving this by keyboard. */
+:focus-visible {
+  outline: var(--focus-width) solid var(--color-focus);
+  outline-offset: var(--focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

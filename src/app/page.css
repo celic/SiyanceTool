@@ -6,6 +6,8 @@
 }
 
 .page__lede {
-  margin: 0 0 var(--space-6);
+  margin: 0 0 var(--space-8);
   max-width: 60ch;
+  font-size: var(--text-lg);
+  color: var(--color-muted);
 }

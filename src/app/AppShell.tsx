@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
 
 import type { PageDefinition } from '@/app/navigation'
+import { DisplayModeToggle } from '@/ui/DisplayModeToggle'
 import '@/app/AppShell.css'
 
 export interface AppShellProps {
@@ -68,6 +69,8 @@ export function AppShell({ children, pages }: AppShellProps) {
           </span>
           {open ? 'Close menu' : 'Menu'}
         </button>
+
+        <DisplayModeToggle />
       </header>
 
       {open && (

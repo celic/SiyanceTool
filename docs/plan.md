@@ -208,30 +208,45 @@ changing.
 Verified: typecheck, lint, tests, and production build all pass, and the built site renders
 with no console errors.
 
-## 3. Build the design system and teacher-mode conventions `[ ]`
+## 3. Build the design system and teacher-mode conventions `[~]`
 
 Implements the "conventions every tool follows" section of [tools.md](tools.md). Establish
 these before building tools, not after — they are what make the site usable live in a
 classroom.
 
-- [ ] Define CSS custom-property tokens: color, type scale, spacing, focus rings.
-- [ ] Build the **projector theme**: oversized type, high contrast, thick lines. Verify it
-      is readable from the back of a classroom, not just on a laptop.
-- [ ] Verify the palette is colorblind-safe. This matters more than usual here, since
-      indicator colors and flame tests are literally about color.
+- [x] Define CSS custom-property tokens: color, type scale, spacing, line weights, focus
+      rings. In `src/styles/tokens.css`, which is the only place these values are decided.
+- [x] Build the **projector theme**. Implemented as a second axis, independent of light/dark:
+      `[data-display='projector']` on the root, toggled from a control in the header and
+      remembered in localStorage. Roughly 1.5x on type, doubled line weights, and contrast
+      pushed to pure black/white at the extremes, because projectors wash out mid-tones and
+      hairlines disappear from the back of a room. All four combinations of
+      light/dark x normal/projector have to work; all four were checked.
+- [x] Add a colorblind-safe categorical palette (`--data-1` … `--data-8`, Okabe–Ito) for
+      charts and diagrams. Identical in every mode, so a chart never changes meaning when
+      she switches to the projector.
+- [ ] Verify the palette against real classroom hardware. The colour choices are
+      theoretically sound, but "readable from the back of the room" is a claim about a
+      specific projector and has not been tested on one (questions.md #11).
 - [ ] Build the shared components:
   - [ ] `ToolShell` — title, description, controls area, output area, reset.
   - [ ] `Slider` — large hit target, live numeric readout, keyboard-steppable.
   - [x] `RevealAnswer` — hides a result until clicked. This one component is what makes the
         site teachable rather than merely informative. Built test-first as the first
-        exercise of the component test setup; styling is still minimal pending the tokens
-        above. Hidden content is not rendered at all rather than merely `display: none`,
-        so it cannot be read out of the DOM.
+        exercise of the component test setup, and since moved onto the tokens above.
+        Hidden content is not rendered at all rather than merely `display: none`, so it
+        cannot be read out of the DOM.
   - [ ] `NumberField` — units-aware, rejects nonsense input gracefully.
   - [ ] `ResetButton` and `RandomizeButton`.
 - [ ] Implement the site-wide keyboard conventions (arrows adjust the focused control, `R`
       resets, `Space` reveals) so she is not hunting with a mouse mid-lesson.
 - [ ] Confirm the shell works at both 1024x768 and 1920x1080.
+
+**Note on scaling:** components size themselves from tokens rather than pixels — the
+burger bars use `em`, the navigation panel's top offset is computed from the type scale —
+so switching to projector mode reflows everything rather than overlapping it. Any new
+component needs the same discipline; a hard-coded pixel value will break in projector mode
+and nowhere else.
 
 ## 4. Build `chem-core`, the shared chemistry library `[ ]`
 

@@ -76,6 +76,30 @@ Imports use the `@/` alias for `src/`, e.g. `import { parseFormula } from '@/cor
 The alias is declared in both `vite.config.ts` and `tsconfig.app.json`; changing it means
 editing both.
 
+## Styling and the projector theme
+
+All colour, type, spacing, line weight and focus values live in
+[src/styles/tokens.css](src/styles/tokens.css). Components reference tokens and never
+hard-code a value — a raw pixel size will look fine on a laptop and break in projector mode,
+which is the one place nobody looks.
+
+There are two independent axes:
+
+- **Light / dark** follows the operating system.
+- **Normal / projector** is chosen explicitly, from the control in the header, and
+  remembered. It sets `data-display="projector"` on the root element.
+
+Projector mode is about the room rather than the time of day: roughly 1.5x type, doubled
+line weights, and contrast pushed to pure black or white, because classroom projectors are
+often low-resolution, wash out mid-tones, and get read from twenty feet away. Both axes
+combine, so **all four combinations have to work** — check them when changing anything
+visual.
+
+For charts, use the categorical palette (`--data-1` … `--data-8`). It is the Okabe–Ito
+colourblind-safe set, identical in every mode so a chart never changes meaning when the
+display mode changes. Always pair a colour with a label or shape; colour alone never carries
+meaning on this site.
+
 ## Testing
 
 Vitest, with [React Testing Library](https://testing-library.com/react) for components.

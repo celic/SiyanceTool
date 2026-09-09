@@ -1,20 +1,19 @@
-/* Minimal styling only. The real token system is plan.md item 3. */
-
 .reveal__button {
   font: inherit;
+  font-weight: var(--weight-medium);
   padding: var(--space-3) var(--space-6);
-  border: 2px solid currentColor;
-  border-radius: 6px;
+  border: var(--border-width-strong) solid var(--color-accent);
+  border-radius: var(--radius);
   background: transparent;
-  color: inherit;
+  color: var(--color-accent);
   cursor: pointer;
 }
 
-.reveal__button:focus-visible {
-  outline: 3px solid currentColor;
-  outline-offset: 2px;
+.reveal__button:hover {
+  background: var(--color-surface);
 }
 
 .reveal__content:not(:empty) {
-  margin-top: var(--space-3);
+  margin-top: var(--space-4);
+  font-size: var(--text-lg);
 }
