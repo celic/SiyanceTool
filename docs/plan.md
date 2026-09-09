@@ -259,13 +259,27 @@ later is painful — which is why it comes before the tools. Each tool's entry i
 - [ ] **Tests for every one of the above**, using known textbook problems with known answers
       as fixtures.
 
-## 5. App shell, routing, and home page `[ ]`
+## 5. App shell, routing, and home page `[~]`
 
-- [ ] Route per tool, using each tool's id from [tools.md](tools.md) as its path.
-- [ ] Home page: a grid of tool cards grouped by unit, each with a one-line description,
-      generated from the registry in item 6 rather than hand-maintained. This is the page
-      she lands on in front of the class, so it has to be scannable in about three seconds.
-- [ ] Handle unknown routes gracefully.
+- [x] Routing, via React Router. Route per tool, using each tool's id from
+      [tools.md](tools.md) as its path.
+- [x] **Navigation:** a burger control in the top left opening a side panel of pages.
+      The panel is unmounted when closed rather than hidden with CSS, so nothing inside it
+      is tabbable or readable while a lesson is on screen. Escape closes it, clicking away
+      closes it, and focus moves into the panel on open and back to the burger on close —
+      she is driving this from across a room and cannot afford to lose the tab order.
+- [x] Handle unknown routes gracefully — a calm page with a way back, since the likeliest
+      way to land there is a stale bookmark opened in front of a class.
+- [~] Home page. Currently an honest empty state. Becomes a grid of tool cards grouped by
+  unit once the registry exists (item 6) — it must be scannable in about three seconds.
+- [ ] Replace the hand-written page list in `src/app/pages.ts` with the registry (item 6).
+      Until then, adding a page means editing that file.
+
+**Verified in the browser, not just in tests:** the panel's stacking initially covered the
+burger, so the close control was unclickable while the panel was open. jsdom has no layout,
+so the test asserting "closes from the same control" passed the whole time. Fixed by lifting
+the header above the panel. Worth remembering the next time a component's tests are green
+but the thing has never been looked at.
 
 ## 6. Tool registry and on/off config `[ ]`
 
