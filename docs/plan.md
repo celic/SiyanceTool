@@ -208,7 +208,7 @@ changing.
 Verified: typecheck, lint, tests, and production build all pass, and the built site renders
 with no console errors.
 
-## 3. Build the design system and teacher-mode conventions `[~]`
+## 3. Build the design system and teacher-mode conventions `[~]` — components done
 
 Implements the "conventions every tool follows" section of [tools.md](tools.md). Establish
 these before building tools, not after — they are what make the site usable live in a
@@ -228,18 +228,30 @@ classroom.
 - [ ] Verify the palette against real classroom hardware. The colour choices are
       theoretically sound, but "readable from the back of the room" is a claim about a
       specific projector and has not been tested on one (questions.md #11).
-- [ ] Build the shared components:
-  - [ ] `ToolShell` — title, description, controls area, output area, reset.
-  - [ ] `Slider` — large hit target, live numeric readout, keyboard-steppable.
+- [x] Build the shared components:
+  - [x] `ToolShell` — title, description, controls area, output area, reset. Controls and
+        output are separate labelled landmarks, so a screen reader user can jump between
+        "the knobs" and "the answer" without walking the page.
+  - [x] `Slider` — native range input, so keyboard stepping, touch, and announcements come
+        for free. The value is always shown as text as well: a knob position is unreadable
+        from the back of a room, and the number is the thing being taught.
   - [x] `RevealAnswer` — hides a result until clicked. This one component is what makes the
         site teachable rather than merely informative. Built test-first as the first
         exercise of the component test setup, and since moved onto the tokens above.
         Hidden content is not rendered at all rather than merely `display: none`, so it
         cannot be read out of the DOM.
-  - [ ] `NumberField` — units-aware, rejects nonsense input gracefully.
-  - [ ] `ResetButton` and `RandomizeButton`.
-- [ ] Implement the site-wide keyboard conventions (arrows adjust the focused control, `R`
-      resets, `Space` reveals) so she is not hunting with a mouse mid-lesson.
+  - [x] `NumberField` — units-aware, explains bad input instead of swallowing it.
+        Deliberately `type="text"` with a decimal input mode rather than `type="number"`:
+        number inputs silently discard characters they dislike, so a student typing `12o`
+        just sees `12` with nothing to explain the loss, and they change value on scroll,
+        which is a hazard when the page is scrolled in front of a class.
+  - [x] `ResetButton` and `RandomizeButton`. Randomize is labelled "New problem", which is
+        what it means to the person pressing it.
+- [x] Implement the site-wide keyboard conventions so she is not hunting with a mouse
+      mid-lesson. Arrows adjust the focused control and `Space` reveals, both native to the
+      elements chosen; `R` resets, implemented in `ToolShell` and guarded against firing
+      while she is typing into a field — `R` is a letter that appears in chemical formulae,
+      and wiping her input would be worse than having no shortcut.
 - [ ] Confirm the shell works at both 1024x768 and 1920x1080.
 
 **Note on scaling:** components size themselves from tokens rather than pixels — the

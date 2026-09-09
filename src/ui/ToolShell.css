@@ -1,0 +1,49 @@
+.tool__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.tool__title {
+  margin: 0;
+}
+
+.tool__description {
+  margin: var(--space-3) 0 0;
+  max-width: 60ch;
+  font-size: var(--text-lg);
+  color: var(--color-muted);
+}
+
+.tool__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* The regions are landmarks for assistive technology, not visual sections —
+   a heading over a row of sliders reading "Controls" is noise on screen. */
+.tool__region-heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.tool__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  align-items: flex-end;
+  padding: var(--space-6);
+  margin-bottom: var(--space-8);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}

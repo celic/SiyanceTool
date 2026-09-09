@@ -1,0 +1,33 @@
+.action-button {
+  font: inherit;
+  font-weight: var(--weight-medium);
+  /* Generous target: this gets clicked in a hurry, sometimes on a touchscreen
+     panel at the front of a room. */
+  padding: var(--space-3) var(--space-6);
+  border: var(--border-width-strong) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: inherit;
+  cursor: pointer;
+}
+
+.action-button:hover:not(:disabled) {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-button--primary {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+
+.action-button--primary:hover:not(:disabled) {
+  background: var(--color-accent);
+  filter: brightness(1.1);
+}
