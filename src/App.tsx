@@ -1,17 +1,15 @@
-import { BrowserRouter, Route, Routes } from 'react-router'
+import { BrowserRouter } from 'react-router'
 
+import { AppRoutes } from '@/app/AppRoutes'
 import { AppShell } from '@/app/AppShell'
-import { HomePage } from '@/app/HomePage'
-import { NotFoundPage } from '@/app/NotFoundPage'
+import { buildPages } from '@/app/navigation'
+import { RESOLVED_TOOLS } from '@/app/tools'
 
 export function App() {
   return (
     <BrowserRouter>
-      <AppShell>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+      <AppShell pages={buildPages(RESOLVED_TOOLS)}>
+        <AppRoutes tools={RESOLVED_TOOLS} />
       </AppShell>
     </BrowserRouter>
   )

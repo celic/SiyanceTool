@@ -281,7 +281,7 @@ so the test asserting "closes from the same control" passed the whole time. Fixe
 the header above the panel. Worth remembering the next time a component's tests are green
 but the thing has never been looked at.
 
-## 6. Tool registry and on/off config `[ ]`
+## 6. Tool registry and on/off config `[x]` — done 2026-09-08
 
 Every tool must be switchable on or off from a single config file, without touching the
 tool's source or the home page. This matters for three reasons: half-finished tools can live
@@ -289,33 +289,42 @@ on `main` without appearing in class; she can hide tools for units she has not t
 the home page shows only what is relevant right now; and a broken tool can be disabled in one
 commit rather than reverted.
 
-- [ ] Define a `ToolDefinition` type: `id`, `title`, `unit`, `description`, `tier`,
-      `component`, and any tool-specific defaults.
-- [ ] Each tool self-registers a `ToolDefinition` from its own folder, so adding a tool means
-      adding one folder and one registry line.
-- [ ] Add a **`tools.config.json`** at the repo root — plain JSON, editable by someone who
-      does not write code — mapping each tool id to at minimum `{ "enabled": true|false }`.
-      Keep the format readable and hand-editable; this file is a user interface.
-- [ ] Support per-tool option overrides in the same file (default units, difficulty,
-      whether the reveal gate starts open), so classroom preferences do not require a code
-      change.
-- [ ] Derive **both** the route table and the home page grid from registry + config, so a
-      disabled tool cannot be reached by typing its URL and cannot appear in navigation.
-- [ ] Give a disabled tool's URL a clear "this tool is turned off" page, not a generic 404 —
-      if she has a stale bookmark mid-lesson, she should know what happened.
-- [ ] Validate the config at startup: unknown tool ids and malformed entries fail loudly in
-      development, and are ignored with a console warning in production. A typo must never
-      silently disable a tool she is about to teach with.
-- [ ] Treat an id missing from the config as enabled by default, so adding a tool does not
-      require editing config in two places.
-- [ ] Test: a disabled tool is absent from the home page, is unreachable by direct URL, and
-      its absence breaks nothing else.
-- [ ] Document the file in the README, including how to turn a tool off without a developer.
+- [x] Define a `ToolDefinition` type: `id`, `title`, `unit`, `description`, `tier`,
+      `component`, and any tool-specific defaults. In `src/tools/registry.ts`.
+- [x] Each tool self-registers a `ToolDefinition` from its own folder, so adding a tool means
+      adding one folder and one line in `src/tools/index.ts`.
+- [x] Add a **`tools.config.json`** at the repo root, mapping each tool id to
+      `{ "enabled": true|false }`. Entries are nested under a top-level `tools` key so later
+      additions — named presets per class period, questions.md #29 — have somewhere to go
+      without colliding with a tool id.
+- [x] Support per-tool option overrides in the same file, merged over the tool's
+      `defaultOptions`.
+- [x] Derive **both** the route table and the home page grid from registry + config.
+- [x] Give a disabled tool's URL a clear "this tool is turned off" page naming the tool,
+      not a generic 404.
+- [x] Validate the config at startup: unknown tool ids and malformed entries throw in
+      development and warn in production. Every problem is reported at once, so one pass
+      fixes the file.
+- [x] Treat an id missing from the config as enabled by default.
+- [x] Test: a disabled tool is absent from the home page, unreachable by direct URL, and its
+      absence breaks nothing else.
+- [x] Document the file in the README, including how to turn a tool off without a developer.
 
-**Open question:** should this be build-time (disabled tools excluded from the bundle) or
-runtime (shipped but hidden)? Runtime is simpler and allows a config-only redeploy;
-build-time gives smaller bundles and keeps unfinished work off the wire. Recommendation:
-**runtime**, unless bundle size becomes a real problem on the school network.
+**Decision on the open question below: runtime**, as recommended — disabled tools ship but
+are unreachable. Note the practical limit: `tools.config.json` is imported, so it is compiled
+into the bundle and editing it needs a rebuild. If she needs to edit it on a live site
+without a developer, it moves to `public/` and is fetched at runtime (questions.md #27, #28).
+
+**Verified end to end in the browser** with a throwaway tool, since with no real tools yet
+nothing else would have exercised the wiring: enabled, it appeared on the home page grouped
+by unit, in the navigation panel, and at its own route; disabled, it vanished from both and
+its URL explained itself; misspelled in config, the site refused to start and named the bad
+entry. The throwaway tool was then removed.
+
+**Known rough edge:** the development-mode failure is a thrown error, so the page goes blank
+and the explanation is in the console rather than on screen. Loud enough for a developer,
+but if this file ever becomes something the teacher edits directly, it needs to render the
+problem on the page instead.
 
 ## 7. Tier 1 tools `[ ]`
 

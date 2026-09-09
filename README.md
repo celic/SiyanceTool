@@ -119,16 +119,49 @@ Where TDD genuinely does not fit — visual polish, canvas rendering, animation 
 a projector — say so and verify by looking at it. Do not write a hollow test to claim
 coverage of something a test cannot judge.
 
+## Turning tools on and off
+
+`tools.config.json`, at the repository root, controls which tools appear. It needs no
+programming — it is a plain list of tool names with a true/false switch:
+
+```json
+{
+  "tools": {
+    "gas-laws": { "enabled": false },
+    "titration": { "enabled": true, "options": { "pressureUnit": "kPa" } }
+  }
+}
+```
+
+- **A tool you don't list is on.** You only need an entry to switch something off or to
+  change one of its settings.
+- **`"enabled": false` hides it completely.** It disappears from the menu and the home page,
+  and typing its address shows a page saying it is turned off — not a confusing "not found".
+- **`options`** overrides that tool's own defaults, for classroom preferences like which
+  pressure units to show. Each tool's available options are listed in
+  [docs/tools.md](docs/tools.md).
+
+Use it to hide tools for units you haven't taught yet, so the home page only shows what is
+relevant this week, and to park a half-finished tool without deleting it.
+
+**If you misspell a tool name**, the site refuses to start in development and names the bad
+entry, rather than silently ignoring it — a typo must never leave a tool switched on that
+you meant to switch off. A deployed site keeps working and logs a warning instead, so a bad
+edit can't take the site down mid-lesson.
+
+> Changing this file currently requires rebuilding the site, because it is compiled in. If it
+> needs to be editable on a live site without a developer, it moves to `public/` and gets
+> fetched at runtime — see [docs/questions.md](docs/questions.md) #27 and #28.
+
 ## Adding a tool
 
 1. Give it a design entry in [docs/tools.md](docs/tools.md) first, with a stable `id`. That
    id is the route, the folder name, and the config key.
 2. Create `src/tools/<id>/`.
 3. Write the tests before the tool, working from the behavior its design entry describes.
-4. Register it, so it appears on the home page and gets a route.
+4. Export a `ToolDefinition` from the folder and add one line to `src/tools/index.ts`.
 5. Put any chemistry it needs in `src/core/`, with its own tests — not in the tool folder.
 
-Tools can be switched on and off without touching their source; see `tools.config.json`.
-
-> Registration and `tools.config.json` are not built yet — they are plan.md item 6. Until
-> then, this section describes the intended shape rather than working code.
+Step 4 is the only wiring. Routing, the navigation panel, and the home page all derive from
+that list, so none of them need editing — and the tool is switchable from
+`tools.config.json` without any further work.

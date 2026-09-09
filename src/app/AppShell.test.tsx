@@ -4,11 +4,14 @@ import { MemoryRouter } from 'react-router'
 import { describe, expect, it } from 'vitest'
 
 import { AppShell } from '@/app/AppShell'
+import type { PageDefinition } from '@/app/navigation'
+
+const pages: PageDefinition[] = [{ id: 'home', title: 'Home', path: '/' }]
 
 function renderShell(children = <p>page content</p>) {
   return render(
     <MemoryRouter>
-      <AppShell>{children}</AppShell>
+      <AppShell pages={pages}>{children}</AppShell>
     </MemoryRouter>,
   )
 }

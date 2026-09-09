@@ -1,11 +1,13 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { NavLink } from 'react-router'
 
-import { PAGES } from '@/app/pages'
+import type { PageDefinition } from '@/app/navigation'
 import '@/app/AppShell.css'
 
 export interface AppShellProps {
   children: ReactNode
+  /** Pages listed in the panel. Derived from the tool registry by `App`. */
+  pages: PageDefinition[]
 }
 
 /**
@@ -19,7 +21,7 @@ export interface AppShellProps {
  * classroom: opening the panel moves focus to the first page, and closing it
  * puts focus back on the burger, so she never loses her place in the tab order.
  */
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({ children, pages }: AppShellProps) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -79,7 +81,7 @@ export function AppShell({ children }: AppShellProps) {
           />
           <nav id={panelId} className="shell__panel" aria-label="Tools">
             <ul className="shell__page-list">
-              {PAGES.map((page, index) => (
+              {pages.map((page, index) => (
                 <li key={page.id}>
                   <NavLink
                     ref={index === 0 ? firstLinkRef : undefined}

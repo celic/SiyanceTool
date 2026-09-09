@@ -13,8 +13,9 @@ Answer format: add the answer inline under the question and mark it `ANSWERED`.
 
 1. **Which framework?** — `ANSWERED (2026-09-07)`: **Vite + React + TypeScript**, along with
    the recommended sub-decisions — SVG for charts, Canvas 2D for particle simulations, plain
-   CSS with custom properties, Vitest on `chem-core`. The 3D library and the host remain
-   deferred (#24 and plan.md item 9).
+   CSS with custom properties, Vitest for tests. The 3D library and the host remain deferred
+   (#24 and plan.md item 9). Test scope was later widened beyond `chem-core` to components
+   and tools, written test-first — see plan.md "How we work".
 2. **Who maintains this in a year?** If the answer is "a student" or "the teacher," that
    argues for the simplest possible stack, even at the cost of duplication.
 3. **Is "SiyanceTool" the real name?** It affects the repo, the page titles, and any domain.
@@ -92,10 +93,11 @@ having them.
     since a teacher may want to hand-tweak a bookmarked scenario.
 26. **Do any tools need a random seed** so a "randomized" problem set can be reproduced from
     a shared link? Relevant to plan.md items 8 and 11 together.
-27. **Should the tool on/off config be build-time or runtime?** Runtime (ship everything,
-    hide what is disabled) is simpler and lets a config-only change redeploy in seconds.
-    Build-time gives smaller bundles and keeps unfinished tools off the wire entirely. The
-    plan recommends runtime unless bundle size becomes a real problem on the school network.
+27. **Should the tool on/off config be build-time or runtime?** — `ANSWERED (2026-09-08)`:
+    **runtime** — disabled tools ship but are unreachable. One caveat that turns into
+    question #28: `tools.config.json` is imported, so it is compiled into the bundle and
+    editing it needs a rebuild. Moving it to `public/` and fetching it at runtime is the
+    upgrade if that becomes a problem.
 28. **Who is expected to edit `tools.config.json`?** If the teacher edits it herself, the
     format has to survive a hand edit — which argues for plain JSON with comments in the
     README, or possibly a simple settings page in the site itself rather than a file. If
