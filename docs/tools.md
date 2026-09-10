@@ -95,7 +95,10 @@ last place, with no artificial noise added.
 
 - **Task picker:** Sandbox · 2A Solid by subtraction · 2B Solid by Tare · 3 Liquid in a cup
   · 4 Gas in a balloon · 5 Metric is amazing. Picking a task puts the right items on the
-  bench and shows that task's steps from the lab, in the lab's own words.
+  bench and shows that task's steps from the lab, in the lab's own words. It does not touch
+  the balance: the lab's tasks run on continuously (2B starts with the sphere still in the
+  boat from 2A), so only Reset clears the bench, and anything still on the balance from an
+  earlier task stays visible.
 - **The balance:** Power, Tare (label configurable to Zero).
 - **Bench items**, each a button that moves it between the bench and the pan: weigh boat,
   sphere, cup, empty balloon, inflated balloon. The sphere and the balloons sit in the weigh
@@ -113,7 +116,8 @@ last place, with no artificial noise added.
   projector. The readout shows exactly what a real balance shows — including `-12.34` after
   lifting a tared cup off, `0.00` after a tare, and nothing at all while powered off.
 - A **record table** mirroring the worksheet's blanks for the chosen task: each blank has a
-  "Record" button that captures the current readout. The calculation each task asks for —
+  "Record" button that captures the current readout. Readings persist across tasks, because
+  2B compares against 2A. The calculation each task asks for —
   `(boat + sphere) − boat`, `(boat + balloon + air) − (boat + balloon)`, mass versus volume —
   is shown behind the **reveal gate** with the recorded numbers substituted in, so she can
   ask the class first.

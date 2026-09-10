@@ -34,6 +34,25 @@ function renderAt(path: string) {
 }
 
 describe('AppRoutes', () => {
+  it('hands each tool its resolved options, so config reaches the page', () => {
+    const withOptions: ResolvedTool = {
+      ...resolved('gas-laws', true),
+      options: { pressureUnit: 'kPa' },
+    }
+    withOptions.definition = {
+      ...withOptions.definition,
+      component: ({ options }) => <p>{`unit: ${String(options.pressureUnit)}`}</p>,
+    }
+
+    render(
+      <MemoryRouter initialEntries={['/gas-laws']}>
+        <AppRoutes tools={[withOptions]} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('unit: kPa')).toBeVisible()
+  })
+
   it('shows the home page at the root', () => {
     renderAt('/')
 

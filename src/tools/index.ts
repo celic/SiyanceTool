@@ -1,3 +1,4 @@
+import { massBalanceTool } from '@/tools/mass-balance/index'
 import type { ToolDefinition } from '@/tools/registry'
 
 /**
@@ -6,7 +7,5 @@ import type { ToolDefinition } from '@/tools/registry'
  * Adding a tool means adding its folder under `src/tools/` and one line here.
  * Routing, the navigation panel, and the home page all derive from this list,
  * so nothing else needs editing to add a tool.
- *
- * Empty for now — the first tool is `mass-balance`, docs/plan.md item 1.
  */
-export const TOOLS: ToolDefinition[] = []
+export const TOOLS: ToolDefinition[] = [massBalanceTool]

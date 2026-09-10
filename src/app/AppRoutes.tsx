@@ -23,13 +23,19 @@ export function AppRoutes({ tools }: AppRoutesProps) {
     <Routes>
       <Route path="/" element={<HomePage tools={tools} />} />
 
-      {tools.map(({ definition, enabled }) => {
+      {tools.map(({ definition, enabled, options }) => {
         const Tool = definition.component
         return (
           <Route
             key={definition.id}
             path={toolPath(definition.id)}
-            element={enabled ? <Tool /> : <ToolDisabledPage title={definition.title} />}
+            element={
+              enabled ? (
+                <Tool options={options} />
+              ) : (
+                <ToolDisabledPage title={definition.title} />
+              )
+            }
           />
         )
       })}

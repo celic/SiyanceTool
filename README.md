@@ -192,7 +192,10 @@ edit can't take the site down mid-lesson.
    `reference/`, say so in the entry — requested tools build ahead of proposed ones.
 2. Create `src/tools/<id>/`.
 3. Write the tests before the tool, working from the behavior its design entry describes.
-4. Export a `ToolDefinition` from the folder and add one line to `src/tools/index.ts`.
+4. Export a `ToolDefinition` from the folder and add one line to `src/tools/index.ts`. The
+   component is rendered with `{ options }` — its `defaultOptions` with any overrides from
+   `tools.config.json` merged in — so classroom preferences reach it without a code change.
+   `src/tools/mass-balance/` is the worked example.
 5. Put any chemistry it needs in `src/core/`, with its own tests — not in the tool folder.
 
 Step 4 is the only wiring. Routing, the navigation panel, and the home page all derive from

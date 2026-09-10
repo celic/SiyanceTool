@@ -1,0 +1,304 @@
+/* Two columns — the bench and balance on the left, the worksheet on the
+   right — collapsing to one when the window is narrow. Every size here comes
+   from a token, so projector mode reflows the whole page rather than
+   overlapping it. */
+.mass-balance {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-8);
+}
+
+@media (max-width: 60rem) {
+  .mass-balance {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Controls -------------------------------------------------------- */
+
+.mass-balance__tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mass-balance__tasks legend {
+  font-weight: var(--weight-medium);
+  margin-bottom: var(--space-2);
+}
+
+.mass-balance__task {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  cursor: pointer;
+}
+
+.mass-balance__task:has(:checked) {
+  border-color: var(--color-accent);
+  font-weight: var(--weight-medium);
+}
+
+.mass-balance__cylinder {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.mass-balance__dates {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-4);
+}
+
+.mass-balance__dates .number-field__input {
+  width: 5ch;
+}
+
+.mass-balance__total {
+  margin: 0;
+}
+
+.mass-balance__pour {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* --- The balance ------------------------------------------------------ */
+
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.balance-figure {
+  display: block;
+  width: 100%;
+  max-width: 32rem;
+  height: auto;
+  color: var(--color-fg);
+}
+
+.balance-figure__body {
+  fill: var(--color-surface);
+  stroke: currentColor;
+  stroke-width: var(--border-width-strong);
+}
+
+.balance-figure__stem {
+  fill: currentColor;
+}
+
+.balance-figure__pan {
+  fill: var(--color-bg);
+  stroke: currentColor;
+  stroke-width: var(--border-width-strong);
+}
+
+.balance-figure__item {
+  fill: var(--color-bg);
+  stroke: currentColor;
+  stroke-width: var(--border-width-strong);
+  stroke-linejoin: round;
+}
+
+.balance-figure__water {
+  /* Paired with the "water" label beside it: colour is never the only clue. */
+  fill: var(--data-2);
+  stroke: none;
+}
+
+.balance-figure__label {
+  fill: currentColor;
+  stroke: none;
+  font-family: var(--font-sans);
+  font-size: 12px; /* SVG user units, scaled with the drawing, not with type. */
+  font-weight: var(--weight-medium);
+}
+
+.balance__front {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 32rem;
+  padding: var(--space-4);
+  border: var(--border-width-strong) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+/* The display is what the back row needs to read. It is the biggest thing
+   on the page, and it keeps its height while blank so the layout does not
+   jump when the balance is switched on. */
+.balance__display {
+  flex: 1 1 8ch;
+  min-height: calc(var(--text-3xl) * var(--leading-tight));
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width-strong) solid var(--color-fg);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  font-family: var(--font-mono);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+  text-align: right;
+}
+
+.balance__unit {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-normal);
+}
+
+.balance__buttons {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.balance__button {
+  font: inherit;
+  font-weight: var(--weight-medium);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-strong) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: inherit;
+  cursor: pointer;
+}
+
+.balance__button[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+
+.balance__button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.balance__note {
+  margin: 0;
+  max-width: 32rem;
+  color: var(--color-muted);
+}
+
+/* --- The bench -------------------------------------------------------- */
+
+.bench {
+  margin-top: var(--space-6);
+}
+
+.bench__heading,
+.worksheet__heading {
+  margin: 0 0 var(--space-3);
+}
+
+.bench__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bench__item {
+  font: inherit;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-strong) solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: inherit;
+  cursor: pointer;
+}
+
+.bench__item[aria-pressed='true'] {
+  border-color: var(--color-accent);
+  background: var(--color-surface);
+  font-weight: var(--weight-medium);
+}
+
+.bench__where {
+  color: var(--color-muted);
+}
+
+.bench__water {
+  margin: var(--space-3) 0 0;
+}
+
+/* Paired with the alert role and the wording: never colour alone. */
+.bench__refusal {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border-left: var(--border-width-strong) solid var(--data-6);
+  background: var(--color-surface);
+  font-weight: var(--weight-medium);
+}
+
+/* --- The worksheet ---------------------------------------------------- */
+
+.worksheet__steps {
+  margin: 0 0 var(--space-6);
+  padding-left: var(--space-6);
+}
+
+.worksheet__steps li + li {
+  margin-top: var(--space-2);
+}
+
+.worksheet__step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.worksheet__step input {
+  margin-top: 0.35em;
+  flex: none;
+}
+
+.worksheet__records {
+  width: 100%;
+  margin-bottom: var(--space-6);
+  border-collapse: collapse;
+}
+
+.worksheet__records th,
+.worksheet__records td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.worksheet__value {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.worksheet__hint {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.worksheet__worked p {
+  margin: 0;
+}
+
+.worksheet__worked p + p {
+  margin-top: var(--space-2);
+}

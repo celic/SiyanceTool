@@ -10,6 +10,16 @@ export type ToolTier = 1 | 2 | 3
 export type ToolOptions = Record<string, unknown>
 
 /**
+ * What every tool component is handed. `options` is the tool's
+ * `defaultOptions` with the config file's overrides merged over it, so a
+ * classroom preference reaches the tool without the tool knowing where it
+ * came from. A tool that has no options can simply ignore the prop.
+ */
+export interface ToolProps {
+  options: ToolOptions
+}
+
+/**
  * Everything the app needs to know about a tool without importing it.
  *
  * A tool declares one of these in its own folder and adds itself to
@@ -26,8 +36,8 @@ export interface ToolDefinition {
   /** One line, shown on the home page card. Say what it does, not what it is. */
   description: string
   tier: ToolTier
-  /** The tool itself. */
-  component: ComponentType
+  /** The tool itself. Rendered with its resolved options. */
+  component: ComponentType<ToolProps>
   /**
    * Defaults for this tool's options. `tools.config.json` overrides individual
    * keys, so a classroom preference never requires a code change.

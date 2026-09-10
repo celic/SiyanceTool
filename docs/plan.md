@@ -55,69 +55,42 @@ Items are ordered by priority below. Requested tools are marked ★ in their hea
 
 ---
 
-## 1. ★ `mass-balance` — the first tool `[ ]`
+## 1. ★ `mass-balance` — the first tool `[~]` — built 2026-09-10, awaiting demo
 
 **Requested.** Source:
 [`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
 Design: [tools.md](tools.md#mass-balance--using-a-balance). Lab Tasks 2A, 2B, 3, 4 and 5
 must be possible on the page.
 
-This goes first for two reasons beyond being requested: it needs no element data and no
-formula parser, so it does not wait on `chem-core` (item 3), and it is the first tool to run
-end to end through the shell, registry, config, and reveal gate — which the throwaway tool
-used to verify the registry never did with real content.
+This went first for two reasons beyond being requested: it needs no element data and no
+formula parser, so it did not wait on `chem-core` (item 3), and it is the first tool to run
+end to end through the shell, registry, config, and reveal gate with real content.
 
-- [ ] **Balance model in `chem-core`**, `src/core/balance.ts`, test-first in the `node`
-      project. Pure state and pure functions, no DOM.
-  - [ ] State: `powered`, `decimals` (1 or 2), `tareOffset`, and the set of items on the
-        pan, each with a true mass held to three decimals.
-  - [ ] `reading()` returns `round(load − tareOffset, decimals)`; the readout string is
-        exactly what a balance shows — `-2.35`, `0.00`, and _nothing_ while powered off.
-  - [ ] `tare()` sets the offset to the current load. Tare while powered off does nothing.
-        Power off then on clears the tare, as a real balance does.
-  - [ ] Containment: the sphere and balloons go in the weigh boat, the weigh boat and the
-        cup go on the pan, water goes in the cup and only while the cup is off the pan. The
-        model refuses an illegal move with a reason, so the UI can show the lab's own warning
-        rather than inventing one.
-  - [ ] Water: `massOfWater(mL, density)` with density defaulting to exactly 1.000 g/mL.
-  - [ ] Item dataset with realistic mass ranges and a `randomize()`: weigh boat 1–3 g,
-        marble ~5 g, cup 5–15 g, empty balloon 2–3 g, inflated balloon = empty + a few
-        tenths of a gram (the _balance reading_, not the air's true mass — see the tool's
-        design entry for why, and questions.md #34).
-  - [ ] **Fixtures from the lab itself.** Task 2A: boat 2.35, boat + sphere 7.47, sphere
-        5.12. Task 2B on the same true masses: tare, then sphere reads 5.13 — one unit in
-        the last place different from 2A, from rounding alone. That discrepancy is the test
-        that the model holds three decimals internally and rounds only on display. Task 3:
-        cup tared, cup lifted off reads negative the cup's mass. Task 4: subtraction of two
-        readings. Task 5: 73 mL reads 73.00 g at the default density.
-- [ ] **The balance in SVG**, `src/tools/mass-balance/`. Pan, readout, Power, Tare. The
-      readout is the biggest thing on the page — it is what the back row needs to read.
-      Sized from tokens, not pixels, so projector mode reflows it. Items on the pan are drawn
-      on the pan, so the picture and the number agree.
-- [ ] **Bench and items.** Each item is a button that moves it between bench and pan, with
-      its current location in the accessible name ("Weigh boat — on the balance"). The
-      graduated cylinder is a `NumberField` in mL plus a "Pour into cup" action. Illegal
-      moves show the model's reason inline, in the lab's own words.
-- [ ] **Record table.** One row per blank in the chosen task, a "Record" button capturing
-      the current readout, and the task's calculation behind `RevealAnswer` with the recorded
-      numbers substituted in, at the balance's precision and no more. For 2B, the reveal
-      compares with 2A's result and says whether they match and why they might not.
-- [ ] **Task picker** with the five tasks plus Sandbox. Choosing a task lays out the bench,
-      resets the balance, and shows the task's steps as a checklist. Task 5 adds four
-      "day of the month" fields whose sum sets the cylinder volume. Stretch: steps tick
-      themselves as the state matches.
-- [ ] **Options** read from `tools.config.json`: `decimals`, `tareLabel`, `waterDensity`.
-      Documented in the tool's design entry.
-- [ ] **Register** it in `src/tools/index.ts`; delete `src/core/scaffold.ts` and its test
-      now that a real core module exists.
-- [ ] **Component tests**, test-first: the answer stays hidden until revealed; recording
-      captures what the readout shows; pouring into a cup on the balance is refused and the
-      refusal is visible; the readout is empty while powered off; `R` resets; every control is
-      reachable by keyboard.
-- [ ] **Verify by eye** — this is where TDD stops: all four display modes, the readout
-      legible at 1024x768, and a keyboard-only walk through all five tasks. Look at it
-      before calling it done; the navigation panel's tests were green while its close
-      button was unclickable.
+- [x] **Balance model in `chem-core`**, `src/core/balance.ts`, test-first in the `node`
+      project — 31 tests, fixtures taken from the lab's own numbers, including the one-unit
+      disagreement between the subtraction and tare methods that Task 2B asks about.
+- [x] **The balance in SVG**, `src/tools/mass-balance/`, with the display as HTML so the
+      reading is a live region rather than a picture of a number.
+- [x] **Bench and items**, with each item's location in its accessible name. **Deviation
+      from the design:** choosing a task does _not_ reset the balance. The lab's tasks run on
+      continuously — 2B starts with the sphere still in the boat from 2A, and Task 3 begins
+      "remove the weigh boat and sphere" — so the bench keeps continuity and only Reset
+      clears it. Items from a previous task that are still on the balance stay visible.
+- [x] **Record table** with the calculation behind the reveal gate; 2B compares with 2A.
+      The visible button text is just "Record" (the row header says what), because the full
+      wording wrapped to four lines at projector type on a 1024-wide screen.
+- [x] **Task picker** with the five tasks plus Sandbox, and the steps as a checklist she can
+      tick by hand. Auto-ticking steps remains the stretch goal.
+- [x] **Options** `decimals`, `tareLabel`, `waterDensity`, read leniently so a bad value in
+      config falls back to the default. This needed one registry change: `AppRoutes` now
+      renders each tool with `{ options }`, which it had not been doing.
+- [x] **Registered**; `src/core/scaffold.ts` deleted.
+- [x] **Component tests**, 18 of them, behavioural: hidden until revealed, refusals visible,
+      display blank while off, `R` resets, options honoured and bad options survived.
+- [~] **Verify by eye.** Done in the browser: dark/normal, dark/projector, and
+  light/projector at 1024x768 (no horizontal overflow, 64px display, doubled strokes,
+  single-line table rows). Still to do: light/normal by eye, 1920x1080, and a
+  keyboard-only walk through all five tasks.
 - [ ] **Demo it to the teacher before building anything else.** Bring questions.md #30–#36
       — they are all about matching her actual balances and balloons, and the answers may
       change the defaults.
@@ -125,7 +98,7 @@ used to verify the registry never did with real content.
 ## 2. Foundation leftovers `[ ]`
 
 What remains of the design system and app shell. Everything else in those areas is done
-and recorded in the README. None of this blocks item 1.
+and recorded in the README.
 
 - [ ] Verify the categorical palette on real classroom hardware. The colour choices are
       theoretically sound, but "readable from the back of the room" is a claim about a
@@ -140,8 +113,8 @@ and recorded in the README. None of this blocks item 1.
 
 Pure functions, no UI, fully unit-tested. Most tools depend on this, and retrofitting it
 later is painful — which is why it comes before the proposed tools. Each tool's entry in
-[tools.md](tools.md) lists which of these it needs. The balance model from item 1 is the
-first module to land here.
+[tools.md](tools.md) lists which of these it needs. The balance model from item 1
+(`src/core/balance.ts`) is the first module here.
 
 - [ ] Element dataset: symbol, name, Z, atomic mass, group, period, block, electron
       configuration, electronegativity, radii, melting and boiling points, common oxidation
