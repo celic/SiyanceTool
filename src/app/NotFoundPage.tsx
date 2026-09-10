@@ -7,8 +7,8 @@ import '@/app/page.css'
  * lands here is a stale bookmark opened in front of a class, and the only
  * useful thing at that moment is a way back.
  *
- * When the tool registry lands (docs/plan.md item 6), a tool that exists but is
- * switched off gets its own distinct page saying so, rather than this one.
+ * A tool that exists but is switched off gets its own distinct page saying so
+ * (`ToolDisabledPage`), not this one.
  */
 export function NotFoundPage() {
   return (

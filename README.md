@@ -11,13 +11,20 @@ There is no backend. Everything runs in the browser.
 
 ## Documentation
 
-| Document                               | What it holds                                              |
-| -------------------------------------- | ---------------------------------------------------------- |
-| [docs/plan.md](docs/plan.md)           | The actionable build sequence, and the framework decision. |
-| [docs/tools.md](docs/tools.md)         | Design proposals for every tool: what each does, and why.  |
-| [docs/questions.md](docs/questions.md) | Open questions, with the blocking ones marked.             |
+| Document                               | What it holds                                                        |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| [docs/plan.md](docs/plan.md)           | The actionable build sequence — only the work still ahead.           |
+| [docs/tools.md](docs/tools.md)         | Design entries for every tool: what each does, and why.              |
+| [docs/questions.md](docs/questions.md) | Open questions, with the blocking ones marked.                       |
+| [reference/](reference/)               | Material from the teacher — labs, worksheets — tools are built from. |
 
-Start with `docs/plan.md`. It consults `docs/tools.md` for what to build.
+Start with `docs/plan.md`. It consults `docs/tools.md` for what to build. Finished plan
+items are removed from the plan and recorded in the [decision record](#decision-record) at
+the end of this file.
+
+Tools come in two kinds. **Requested** tools trace back to something in `reference/` and
+build first; **proposed** tools were suggested by the planning docs and follow. The
+distinction is marked ★ in both documents.
 
 ## Requirements
 
@@ -48,10 +55,10 @@ npm run dev
 Vite 8 + React 19 + TypeScript 6, with Vitest for tests, oxlint for linting, and Prettier
 for formatting. Styling is plain CSS with custom properties — no CSS framework.
 
-The reasoning behind this choice, and the options rejected, are recorded in
-[docs/plan.md](docs/plan.md) item 1. In short: ~17 tools sharing one set of controls makes
-component reuse the dominant cost, and wrong chemistry shown to a class is the worst
-failure mode, so a typed, testable, component-based stack wins.
+The reasoning behind this choice, and the options rejected, are in the
+[decision record](#framework-vite--react--typescript). In short: ~17 tools sharing one set
+of controls makes component reuse the dominant cost, and wrong chemistry shown to a class is
+the worst failure mode, so a typed, testable, component-based stack wins.
 
 Two conventions worth knowing up front:
 
@@ -70,6 +77,7 @@ src/
   data/      element and molecule datasets
   styles/    global styles and design tokens
 docs/        planning and design documents
+reference/   source material from the teacher (labs, worksheets); read-only input to docs/
 ```
 
 Imports use the `@/` alias for `src/`, e.g. `import { parseFormula } from '@/core/formula'`.
@@ -180,7 +188,8 @@ edit can't take the site down mid-lesson.
 ## Adding a tool
 
 1. Give it a design entry in [docs/tools.md](docs/tools.md) first, with a stable `id`. That
-   id is the route, the folder name, and the config key.
+   id is the route, the folder name, and the config key. If it comes from something in
+   `reference/`, say so in the entry — requested tools build ahead of proposed ones.
 2. Create `src/tools/<id>/`.
 3. Write the tests before the tool, working from the behavior its design entry describes.
 4. Export a `ToolDefinition` from the folder and add one line to `src/tools/index.ts`.
@@ -189,3 +198,131 @@ edit can't take the site down mid-lesson.
 Step 4 is the only wiring. Routing, the navigation panel, and the home page all derive from
 that list, so none of them need editing — and the tool is switchable from
 `tools.config.json` without any further work.
+
+## Shared components
+
+Everything in `src/ui/` exists because it repeats on nearly every tool. Use these rather than
+rebuilding them per tool; if one does not fit, change it for everyone.
+
+- **`ToolShell`** — title, description, controls area, output area, and the actions that are
+  always in the same place. Controls and output are separate labelled landmarks, so a screen
+  reader user can jump between "the knobs" and "the answer" without walking the page. It also
+  owns the `R`-to-reset shortcut, guarded against firing while she is typing into a field —
+  `R` is a letter that appears in chemical formulae, and wiping her input would be worse than
+  having no shortcut.
+- **`Slider`** — a native range input, so keyboard stepping, touch, and announcements come for
+  free. The value is always shown as text as well: a knob position is unreadable from the
+  back of a room, and the number is the thing being taught.
+- **`RevealAnswer`** — hides a result until clicked. This one component is what makes the
+  site teachable rather than merely informative. Hidden content is not rendered at all rather
+  than merely `display: none`, so it cannot be read out of the DOM.
+- **`NumberField`** — units-aware, and explains bad input instead of swallowing it.
+  Deliberately `type="text"` with a decimal input mode rather than `type="number"`: number
+  inputs silently discard characters they dislike, so a student typing `12o` just sees `12`
+  with nothing to explain the loss, and they change value on scroll, which is a hazard when
+  the page is scrolled in front of a class.
+- **`ResetButton`** and **`RandomizeButton`** — Randomize is labelled "New problem", which is
+  what it means to the person pressing it.
+
+Site-wide keyboard conventions: arrows adjust the focused control and `Space` reveals, both
+native to the elements chosen; `R` resets.
+
+Components size themselves from tokens rather than pixels — the burger bars use `em`, the
+navigation panel's top offset is computed from the type scale — so switching to projector
+mode reflows everything rather than overlapping it. Any new component needs the same
+discipline.
+
+## Decision record
+
+Finished items from [docs/plan.md](docs/plan.md) land here, with the reasoning that went
+into them, so the plan only ever holds what is still ahead. Dates are when the item closed.
+
+### Framework: Vite + React + TypeScript — 2026-09-07
+
+The only decision that was expensive to reverse, so it was made first. It had to serve five
+things: ~17 tools sharing one look and one set of controls (reuse is the dominant cost);
+correctness of the chemistry (the core has to be testable); two opposite rendering needs
+(data-driven pages and 60fps particle simulations); static hosting with no server; and
+maintainability by someone who is not the original author.
+
+| Option                                   | Verdict                                                                                                                                                                                                                         |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plain HTML + CSS + JS, no build step     | Zero tooling and works from a USB stick, but no component model — the shell and controls get copy-pasted ~17 times — and no type checking, so a wrong atomic mass fails silently. Viable for three tools, painful at seventeen. |
+| **Vite + React + TypeScript** — _chosen_ | Component reuse addresses the dominant cost directly; TypeScript makes element data and units checkable; largest ecosystem; the build is plain static files; most likely known by a future maintainer.                          |
+| SvelteKit, static adapter                | The closest runner-up. Smaller output and a reactivity model that suits slider-driven simulations, but a smaller ecosystem (3D, charting) and a smaller pool of people who know it.                                             |
+| Astro with islands                       | Its main advantage — shipping no JavaScript — is wasted on a site where nearly every page is an interactive app.                                                                                                                |
+| Next.js                                  | Mostly server rendering, API routes, and caching: machinery for a project whose defining constraint is that there is no server.                                                                                                 |
+| Python (Streamlit / Shiny / Jupyter)     | Needs a running server, breaking the core constraint; slider interactions round-trip to it; not projector-polished. Ruled out.                                                                                                  |
+
+React's one real cost is that its re-render model is a poor fit for per-frame animation.
+The mitigation is a deliberate convention rather than something to discover halfway through:
+**simulations own a `<canvas>` and run their loop outside React**, with React managing only
+the surrounding controls. It becomes a documented pattern when the first simulation is built.
+
+Sub-decisions that followed: SVG for charts and diagrams, Canvas 2D for particles, Three.js
+only for the 3D viewer; hand-rolled SVG charts for full control over projector legibility;
+plain CSS with custom properties so the projector theme is a token swap; Vitest — originally
+for `chem-core` only, widened on 2026-09-08 to components and tools as well, written
+test-first (see "Write the test first" above). The 3D library and the host are still open in
+the plan.
+
+### Scaffold — 2026-09-08
+
+Vite 8, React 19, TypeScript 6, on Node 24 LTS. Two things worth knowing:
+
+- The Vite template now ships **oxlint** rather than ESLint, and the project kept it: faster,
+  less configuration, one less thing to maintain. Prettier was added separately.
+- **Vitest 5**, not 3 — Vitest 3 pulls its own copy of Vite and conflicts with Vite 8's types.
+
+The `@/` alias, the directory layout, `npm run check`, and `.claude/launch.json` for the dev
+server all date from here. Typecheck, lint, tests, and production build all passed, and the
+built site rendered with no console errors.
+
+### Design system and shared components — 2026-09-09
+
+Tokens in `src/styles/tokens.css`, the projector theme as a second axis independent of
+light/dark (see "Styling and the projector theme" above), the Okabe–Ito categorical palette,
+and the components listed under "Shared components". All four light/dark x normal/projector
+combinations were checked. `RevealAnswer` was built test-first as the first exercise of the
+component test setup. What remains — checking the palette on the actual projector, and the
+shell at 1024x768 — is in the plan as foundation leftovers.
+
+### App shell, navigation, and routing — 2026-09-08
+
+React Router, one route per tool id. Navigation is a burger control opening a side panel.
+The panel is unmounted when closed rather than hidden with CSS, so nothing inside it is
+tabbable or readable while a lesson is on screen; Escape closes it, clicking away closes it,
+and focus moves into the panel on open and back to the burger on close — she is driving this
+from across a room and cannot afford to lose the tab order. Unknown routes get a calm page
+with a way back, since the likeliest way to land there is a stale bookmark opened in front of
+a class. The home page is a grid of tool cards grouped by unit, meant to be scannable in
+about three seconds, with an honest empty state until the first tool ships.
+
+**Verified in the browser, not just in tests:** the panel's stacking initially covered the
+burger, so the close control was unclickable while the panel was open. jsdom has no layout,
+so the test asserting "closes from the same control" passed the whole time. Fixed by lifting
+the header above the panel. Worth remembering the next time a component's tests are green
+but the thing has never been looked at.
+
+### Tool registry and `tools.config.json` — 2026-09-08
+
+Every tool is switchable on or off from one config file without touching its source or the
+home page: half-finished tools can live on `main` without appearing in class, tools for
+untaught units can be hidden, and a broken tool can be disabled in one commit rather than
+reverted. How to use the file is under "Turning tools on and off" above.
+
+**Decision: runtime, not build-time** — disabled tools ship but are unreachable. The
+practical limit is that the file is imported, so it is compiled into the bundle and editing
+it needs a rebuild; if she needs to edit it on a live site without a developer, it moves to
+`public/` and is fetched at runtime (questions.md #27, #28).
+
+**Verified end to end in the browser** with a throwaway tool, since with no real tools yet
+nothing else would have exercised the wiring: enabled, it appeared on the home page grouped
+by unit, in the navigation panel, and at its own route; disabled, it vanished from both and
+its URL explained itself; misspelled in config, the site refused to start and named the bad
+entry. The throwaway tool was then removed.
+
+**Known rough edge:** the development-mode failure is a thrown error, so the page goes blank
+and the explanation is in the console rather than on screen. Loud enough for a developer,
+but if this file ever becomes something the teacher edits directly, it needs to render the
+problem on the page instead.

@@ -11,6 +11,21 @@ list entirely.
 Each tool has a stable `id`. That id is the route (`/gas-laws`), the source folder
 (`src/tools/gas-laws/`), and the key in the tool config file that turns it on or off.
 
+## Where tools come from
+
+Every tool is one of two kinds, and the kind decides its priority:
+
+- **★ Requested** — traced to material in [`reference/`](../reference/): a lab, worksheet,
+  or note supplied by the teacher. The entry names its source file. A requested tool builds
+  before any proposed tool, regardless of tier.
+- **Proposed** — suggested here, on the reasoning in "what makes a tool worth a page". Every
+  entry below is proposed unless it says otherwise.
+
+When new material lands in `reference/`, it is read for tools the same way: what in it is
+better on a projector than on paper, and which parts a page can actually capture. Not every
+part of a lab can — a page cannot teach what a weigh boat feels like — and the entry says
+what it leaves out.
+
 ---
 
 ## What makes a tool worth a page
@@ -43,8 +58,122 @@ These are built once in the design system and are not repeated in each tool belo
 **Tier 3** is drills and bell-ringers — individually small, collectively the things she'd
 use most often.
 
-Tier is _not_ build order. Build order should follow the unit she teaches next
-(questions.md #6).
+Tier is _not_ build order. Requested tools come first; after that, build order should follow
+the unit she teaches next (questions.md #6).
+
+---
+
+# ★ Requested
+
+## `mass-balance` — Using a balance
+
+**Unit:** states of matter, lab skills · **Source:** ★ requested —
+[`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md)
+· **Pattern proved:** interactive SVG apparatus, and the first tool end to end
+
+The lab puts four students around a $1200 balance most of them have never used, and asks
+them to mass a solid, a liquid, and a gas. The page is a simulated digital balance she can
+drive on the projector to rehearse the whole procedure with the class before anyone touches
+the real one.
+
+**Why it earns a page.** The things that break balances or wreck data all happen in the first
+minute: pressing on the pan, pouring into a container while it sits on the balance, forgetting
+to tare, and lifting a tared cup off and panicking at a negative number. A simulation lets
+the class make those mistakes for free. It also holds still on moments a real balance cannot:
+the readout going negative when the tared cup comes off, and the subtraction method and the
+tare method landing on the same sphere — or, sometimes, on numbers 0.01 g apart, which is
+exactly the question Task 2B asks.
+
+**What it models.** A digital top-loading balance: a pan, a power button, a Tare/Zero
+button, and a readout in grams to one or two decimal places. Tare is an offset, not magic —
+the reading is always `round(load − tareOffset, decimals)` — and every task below falls out of
+that one rule. Masses are held to three decimals internally and rounded only on the readout,
+so two readings subtracted can legitimately differ from one tared reading by a unit in the
+last place, with no artificial noise added.
+
+**Controls**
+
+- **Task picker:** Sandbox · 2A Solid by subtraction · 2B Solid by Tare · 3 Liquid in a cup
+  · 4 Gas in a balloon · 5 Metric is amazing. Picking a task puts the right items on the
+  bench and shows that task's steps from the lab, in the lab's own words.
+- **The balance:** Power, Tare (label configurable to Zero).
+- **Bench items**, each a button that moves it between the bench and the pan: weigh boat,
+  sphere, cup, empty balloon, inflated balloon. The sphere and the balloons sit in the weigh
+  boat; the weigh boat and the cup sit on the pan.
+- **Graduated cylinder:** a volume field in mL, and a "pour into cup" action that is only
+  allowed while the cup is on the bench. Pouring while the cup is on the balance is refused,
+  in the lab's own words: _never pour into a container on the balance_.
+- **Task 5 inputs:** four "day of the month" fields whose sum becomes the volume to measure.
+- **New problem** re-rolls every item's mass within a realistic range. **Reset** clears the
+  pan, powers the balance off, and empties the record table.
+
+**Display**
+
+- The balance drawn in SVG, with what is on the pan drawn on it, and a readout sized for the
+  projector. The readout shows exactly what a real balance shows — including `-12.34` after
+  lifting a tared cup off, `0.00` after a tare, and nothing at all while powered off.
+- A **record table** mirroring the worksheet's blanks for the chosen task: each blank has a
+  "Record" button that captures the current readout. The calculation each task asks for —
+  `(boat + sphere) − boat`, `(boat + balloon + air) − (boat + balloon)`, mass versus volume —
+  is shown behind the **reveal gate** with the recorded numbers substituted in, so she can
+  ask the class first.
+- The task's steps as a checklist. Stretch: steps tick themselves as the balance state
+  matches, so the class can see when a step was skipped.
+
+**What it has to get right**
+
+- Tare and negative readings, as above. This is the core of the tool and is unit-tested in
+  `chem-core` as a pure model with no UI.
+- Rounding to the balance's precision, and showing calculations at that same precision —
+  never more digits than the balance gave.
+- **Water.** The lab teaches `1 mL of pure water = 1 g`, so the default density is exactly
+  1.000 g/mL and Task 5 comes out matching. Real water at room temperature is 0.998 g/mL,
+  which is worth a 0.2 g difference on a 100 mL sample; configurable, see questions.md #33.
+- **The balloon.** A balance does **not** read the full mass of the air inside a balloon —
+  the balloon displaces its own volume of room air, and buoyancy cancels all but the small
+  excess from the balloon's overpressure. A real inflated party balloon reads only a few
+  tenths of a gram more than an empty one, not the 3–4 g the air actually masses. The tool
+  must show a balance reading (a small positive difference), not the true air mass, or the
+  class will get a different number on the real balance and trust neither. The range needs
+  checking against her balloons: questions.md #34.
+- Item masses in plausible ranges: a plastic weigh boat around 1–3 g ("Is it LIGHT or
+  Heavy?"), a glass marble around 5 g, a plastic cup 5–15 g, an empty balloon 2–3 g.
+
+**Options** (`tools.config.json`)
+
+| Option         | Default  | What it does                                                      |
+| -------------- | -------- | ----------------------------------------------------------------- |
+| `decimals`     | `2`      | Readout precision, `1` or `2`, to match the classroom's balances. |
+| `tareLabel`    | `"Tare"` | `"Tare"` or `"Zero"`, whichever her balances say.                 |
+| `waterDensity` | `1`      | g/mL used when water is poured. `0.998` for realism.              |
+
+**How the lab maps onto the page**
+
+| Lab task                             | On the page                                                                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2A — solid by subtraction            | Boat on pan, record; sphere into boat, record; reveal `(boat + sphere) − boat`.                                                                               |
+| 2B — solid by Tare                   | Sphere out, boat stays; Tare shows `0.00`; sphere in, record; compare with 2A — the tool says whether the two agree, and why they may not.                    |
+| 3 — liquid in a cup                  | Clear pan, Tare; cup on, record; Tare; cup **off** — the readout goes negative and the page says why; pour on the bench; cup back on, record the water alone. |
+| 4 — gas in a balloon                 | Boat + empty balloon, record; swap for inflated balloon, record; reveal the subtraction.                                                                      |
+| 5 — metric is amazing                | Four dates sum to a volume; pour that volume; mass it; reveal mass beside volume and how close they are.                                                      |
+| 1 — parts of the balance             | Partly: power-on, decimals, units, and the weigh boat's mass are all there. The lid and "do not press the pan" are not — see below.                           |
+| 6 — think (pencil, soda can, gas)    | Not captured. Free writing; the sandbox mode is where she can act out an answer.                                                                              |
+| Roles, equipment match, units circle | Not captured. Paper.                                                                                                                                          |
+
+**Not captured, deliberately.** A page cannot teach what "light" feels like or stop a hand
+pressing on a pan, so those warnings stay on the worksheet. Reading a graduated cylinder's
+meniscus is `lab-measurement`'s job, so here the cylinder is just a number field. The balance
+lid is left out of the first version; add it if she wants the "open the lid" step rehearsed
+(questions.md #35).
+
+**Depends on:** a `chem-core` balance model (`src/core/balance.ts`) — the tare arithmetic,
+rounding, item dataset, and water conversion. No element data, no formula parser, which is
+why it can be the first tool built.
+
+**Risks.** The balloon number and the water density are both places where "what the lab
+says", "what the balance reads", and "what is physically true" differ, and the tool has to
+pick the one that matches what her class will see on the real bench. The record table
+partly duplicates the paper worksheet; whether that is wanted or noise is questions.md #36.
 
 ---
 
@@ -431,6 +560,8 @@ Practice reading a graduated cylinder meniscus, a burette, and a triple-beam bal
 sig figs enforced including the estimated digit. Randomized values, instant feedback.
 
 Pairs naturally with `sig-figs`, and is the most directly transferable to actual lab work.
+Reading an instrument is this tool's job; the _procedure_ for using a digital balance —
+tare, containers, subtraction — is [`mass-balance`](#mass-balance--using-a-balance).
 
 ---
 

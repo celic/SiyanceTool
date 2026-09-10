@@ -11,6 +11,10 @@ This document is the **actionable build sequence**. It does not describe what th
 [tools.md](tools.md) is the design document for that, and every tool item below consults it.
 Open questions raised along the way live in [questions.md](questions.md).
 
+**Completed items are removed from this document** and recorded in the README under
+"Decision record", so this file only ever holds work that is still ahead. Item numbers
+shift when that happens; references elsewhere are updated at the same time.
+
 Status legend: `[ ]` todo · `[~]` in progress · `[x]` done · `[?]` blocked on a decision
 
 ---
@@ -37,234 +41,107 @@ claim coverage of something a test cannot judge.
 **Every feature ships with its tests**, in the same commit. `npm run check` (lint, format,
 typecheck, test) must pass before committing.
 
----
+## Priority
 
-## 1. Decide the language and framework `[x]` — DECIDED: Vite + React + TypeScript
+Tools are one of two kinds, and the kind decides where they sit in this plan:
 
-**Decision (2026-09-07): Vite + React + TypeScript**, with the sub-decisions below. The
-analysis that follows is kept as the record of why, and of what was rejected.
+- **★ Requested** — traced to material the teacher supplied in [`reference/`](../reference/).
+  These build first, ahead of anything proposed, whatever tier the proposal was given. The
+  tool's entry in [tools.md](tools.md) names its source file.
+- **Proposed** — suggested by the planning docs. Ordered by tier, then by the unit she
+  teaches next (questions.md #6).
 
-This was item one because it is the only decision here that is expensive to reverse.
-Everything below assumes an answer.
-
-### What the choice actually has to serve
-
-1. **~17 tools sharing one look and one set of controls.** Sliders, reveal-answer gates,
-   reset buttons, and the page shell repeat on every tool. Reuse is the dominant cost.
-2. **Correctness of the chemistry.** A balancer that returns wrong coefficients in front of
-   a class is the worst possible failure. The chemistry core has to be testable.
-3. **Two very different rendering needs.** Data-driven pages (periodic table) and 60fps
-   particle simulations (gas laws) have opposite performance profiles.
-4. **Static hosting, no server.** The build output must be plain files.
-5. **Maintainability by someone who is not the original author** — possibly a teacher, a
-   student, or a future contributor.
-
-### Option A — Plain HTML + CSS + vanilla JS, no build step
-
-**Pros**
-
-- Zero tooling. No npm, no build, no dependency upgrades to babysit.
-- Files can be opened directly from disk or a USB stick, so it works with no internet at all.
-- Deployable literally anywhere, including a school's own file share.
-- Native ES modules mean a shared `chem-core` still works without a bundler.
-- Lowest barrier for a student who wants to read the source and understand it.
-
-**Cons**
-
-- No component model. The page shell, sliders, and reveal gate get copy-pasted ~17 times, so
-  a single design change means editing 17 files.
-- No type checking. A typo in an element's atomic mass, or a unit mixup between kPa and atm,
-  fails silently and shows a wrong number to the class.
-- Manual DOM updating for slider-driven simulations gets messy fast, and it is exactly the
-  kind of code that develops subtle bugs.
-- Many small module requests without bundling; noticeable on a slow school network.
-
-**Verdict:** viable for two or three tools, painful at seventeen.
-
-### Option B — Vite + React + TypeScript ← recommended
-
-**Pros**
-
-- Component reuse directly addresses the dominant cost: one `ToolShell`, one `Slider`, one
-  `RevealAnswer`, used by every tool.
-- TypeScript makes the chemistry data and unit handling checkable at compile time. Element
-  data, formula parse trees, and reaction structures all get real types.
-- Largest ecosystem of the options — mature 3D (`three` / `react-three-fiber`), charting,
-  and routing, plus the most worked examples when stuck.
-- Vite's production build is **plain static files**, so the no-backend constraint holds
-  exactly and hosting stays free.
-- Fast hot reload, which matters a lot when tuning how a simulation feels.
-- The most widely known of these options, so a future maintainer is likeliest to know it.
-
-**Cons**
-
-- Requires Node and a build step; the source is no longer directly viewable in a browser.
-- React's re-render model is a poor fit for per-frame particle animation. Mitigation:
-  simulations own a `canvas` and run their loop outside React, with React managing only the
-  surrounding controls. This is a standard pattern, but it is a real caveat and needs to be
-  a deliberate convention rather than something discovered halfway through.
-- More concepts to learn than plain JS for a student contributor.
-- Larger bundle than Svelte for equivalent output (not a practical problem at this size).
-
-### Option C — SvelteKit with the static adapter
-
-**Pros**
-
-- Compiles to small vanilla JS; no framework runtime shipped to the browser.
-- Its reactivity model is an unusually natural fit for slider-driven simulations — "when
-  temperature changes, recompute pressure" is close to a one-liner.
-- Less boilerplate than React, and often the most pleasant of these to write.
-- Scoped styles are built in, so the design system needs less discipline to stay clean.
-
-**Cons**
-
-- Smaller ecosystem, particularly for 3D molecular rendering and charting.
-- Smaller pool of people who know it, which matters if this outlives its author.
-- Fewer worked examples to lean on when building something unfamiliar.
-
-**Verdict:** the closest runner-up. Pick this if the author already knows Svelte, or values
-developer experience over ecosystem depth.
-
-### Option D — Astro with React or Svelte islands
-
-**Pros**
-
-- Multi-page by default, which matches "one page per tool" exactly.
-- Ships near-zero JavaScript on pages that do not need it, so the index loads instantly.
-- Can mix frameworks per island if the 3D viewer wants something different.
-
-**Cons**
-
-- The islands concept is an extra layer to learn.
-- Its main advantage — not shipping JS — is mostly wasted here, because nearly every page
-  _is_ an interactive app. The benefit applies to the home page and little else.
-
-### Option E — Next.js
-
-**Pros:** excellent routing and ecosystem, and static export is supported.
-
-**Cons:** most of what Next.js provides is server rendering, API routes, and caching —
-machinery this project explicitly does not need. It adds server concepts to a project whose
-defining constraint is that there is no server. Overkill.
-
-### Option F — Python (Streamlit / Shiny / Jupyter)
-
-**Pros:** familiar to science teachers, with excellent numeric and plotting libraries.
-
-**Cons:** requires a running server, which breaks the core constraint and adds hosting cost
-and a cold-start delay. Interactions round-trip to the server, so slider-driven simulation
-feels sluggish. The UI is not projector-polished and is hard to customize. **Ruled out**,
-but named here so the decision is on the record.
-
-### Recommendation
-
-**Vite + React + TypeScript.** Reuse across many pages and provable correctness of the
-chemistry are the two things that actually decide whether this project succeeds, and that
-combination serves both better than the alternatives. SvelteKit is a defensible alternative
-if the author prefers it — the rest of this plan survives either choice, with only item 2
-changing.
-
-### Sub-decisions that follow from item 1
-
-- [x] **Rendering split:** SVG for charts and diagrams (styleable, accessible, few
-      elements); Canvas 2D for particle simulations (hundreds of particles at 60fps);
-      Three.js only for the 3D molecule viewer. Do not use SVG for particles.
-- [x] **Charting:** hand-rolled SVG, for full control over projector legibility. Reconsider
-      a library only if a tool needs high-frequency streaming plots.
-- [ ] **3D:** `three.js` directly, or `3Dmol.js`. Deferred — evaluate when `vsepr-viewer`
-      comes up (questions.md #24).
-- [x] **Styling:** plain CSS with custom properties, so a projector theme (huge type, high
-      contrast) and a student theme are a token swap rather than a rewrite.
-- [x] **Testing:** ~~Vitest, applied to `chem-core` only. UI tests are not worth the cost
-      here.~~ **Superseded 2026-09-08:** Vitest plus React Testing Library, covering
-      components and tools as well as `chem-core`, and written **test-first wherever
-      practical**. See "How we work" above.
-- [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
-      static. Deferred to item 9.
+Items are ordered by priority below. Requested tools are marked ★ in their headings.
 
 ---
 
-## 2. Scaffold the project `[x]` — done 2026-09-08
+## 1. ★ `mass-balance` — the first tool `[ ]`
 
-- [x] Initialize Vite + React + TypeScript in the repo root.
-      Vite 8, React 19, TypeScript 6, Node 24 LTS.
-- [x] Add a linter and Prettier with a minimal, non-argumentative config.
-      **Deviation:** the current Vite template ships **oxlint** rather than ESLint, so the
-      project uses oxlint. It is faster, needs less configuration, and keeping the template
-      default is one less thing to maintain. Prettier was added separately.
-- [x] Add Vitest; confirm one trivial test runs. Vitest 5 — note that Vitest 3 pulls its own
-      copy of Vite and conflicts with Vite 8's types.
-- [x] Set up path aliases so imports stay readable. A single `@/` maps to `src/`, declared in
-      both `vite.config.ts` and `tsconfig.app.json`; changing it means editing both.
-- [x] Fix the directory layout and record it in the README: `src/core/` (chemistry logic,
-      zero UI), `src/ui/` (shared components), `src/tools/<tool-id>/` (one folder per tool,
-      named for its id in [tools.md](tools.md)), `src/data/` (element and molecule datasets),
-      `src/styles/`.
-- [x] Write a real README: what this is, how to run it, how to add a new tool.
-- [x] Add `.gitignore` and commit the scaffold.
-- [x] Add `npm run check` (lint, format check, typecheck, test) as the single pre-commit
-      command, and `.claude/launch.json` for the dev server.
+**Requested.** Source:
+[`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
+Design: [tools.md](tools.md#mass-balance--using-a-balance). Lab Tasks 2A, 2B, 3, 4 and 5
+must be possible on the page.
 
-Verified: typecheck, lint, tests, and production build all pass, and the built site renders
-with no console errors.
+This goes first for two reasons beyond being requested: it needs no element data and no
+formula parser, so it does not wait on `chem-core` (item 3), and it is the first tool to run
+end to end through the shell, registry, config, and reveal gate — which the throwaway tool
+used to verify the registry never did with real content.
 
-## 3. Build the design system and teacher-mode conventions `[~]` — components done
+- [ ] **Balance model in `chem-core`**, `src/core/balance.ts`, test-first in the `node`
+      project. Pure state and pure functions, no DOM.
+  - [ ] State: `powered`, `decimals` (1 or 2), `tareOffset`, and the set of items on the
+        pan, each with a true mass held to three decimals.
+  - [ ] `reading()` returns `round(load − tareOffset, decimals)`; the readout string is
+        exactly what a balance shows — `-2.35`, `0.00`, and _nothing_ while powered off.
+  - [ ] `tare()` sets the offset to the current load. Tare while powered off does nothing.
+        Power off then on clears the tare, as a real balance does.
+  - [ ] Containment: the sphere and balloons go in the weigh boat, the weigh boat and the
+        cup go on the pan, water goes in the cup and only while the cup is off the pan. The
+        model refuses an illegal move with a reason, so the UI can show the lab's own warning
+        rather than inventing one.
+  - [ ] Water: `massOfWater(mL, density)` with density defaulting to exactly 1.000 g/mL.
+  - [ ] Item dataset with realistic mass ranges and a `randomize()`: weigh boat 1–3 g,
+        marble ~5 g, cup 5–15 g, empty balloon 2–3 g, inflated balloon = empty + a few
+        tenths of a gram (the _balance reading_, not the air's true mass — see the tool's
+        design entry for why, and questions.md #34).
+  - [ ] **Fixtures from the lab itself.** Task 2A: boat 2.35, boat + sphere 7.47, sphere
+        5.12. Task 2B on the same true masses: tare, then sphere reads 5.13 — one unit in
+        the last place different from 2A, from rounding alone. That discrepancy is the test
+        that the model holds three decimals internally and rounds only on display. Task 3:
+        cup tared, cup lifted off reads negative the cup's mass. Task 4: subtraction of two
+        readings. Task 5: 73 mL reads 73.00 g at the default density.
+- [ ] **The balance in SVG**, `src/tools/mass-balance/`. Pan, readout, Power, Tare. The
+      readout is the biggest thing on the page — it is what the back row needs to read.
+      Sized from tokens, not pixels, so projector mode reflows it. Items on the pan are drawn
+      on the pan, so the picture and the number agree.
+- [ ] **Bench and items.** Each item is a button that moves it between bench and pan, with
+      its current location in the accessible name ("Weigh boat — on the balance"). The
+      graduated cylinder is a `NumberField` in mL plus a "Pour into cup" action. Illegal
+      moves show the model's reason inline, in the lab's own words.
+- [ ] **Record table.** One row per blank in the chosen task, a "Record" button capturing
+      the current readout, and the task's calculation behind `RevealAnswer` with the recorded
+      numbers substituted in, at the balance's precision and no more. For 2B, the reveal
+      compares with 2A's result and says whether they match and why they might not.
+- [ ] **Task picker** with the five tasks plus Sandbox. Choosing a task lays out the bench,
+      resets the balance, and shows the task's steps as a checklist. Task 5 adds four
+      "day of the month" fields whose sum sets the cylinder volume. Stretch: steps tick
+      themselves as the state matches.
+- [ ] **Options** read from `tools.config.json`: `decimals`, `tareLabel`, `waterDensity`.
+      Documented in the tool's design entry.
+- [ ] **Register** it in `src/tools/index.ts`; delete `src/core/scaffold.ts` and its test
+      now that a real core module exists.
+- [ ] **Component tests**, test-first: the answer stays hidden until revealed; recording
+      captures what the readout shows; pouring into a cup on the balance is refused and the
+      refusal is visible; the readout is empty while powered off; `R` resets; every control is
+      reachable by keyboard.
+- [ ] **Verify by eye** — this is where TDD stops: all four display modes, the readout
+      legible at 1024x768, and a keyboard-only walk through all five tasks. Look at it
+      before calling it done; the navigation panel's tests were green while its close
+      button was unclickable.
+- [ ] **Demo it to the teacher before building anything else.** Bring questions.md #30–#36
+      — they are all about matching her actual balances and balloons, and the answers may
+      change the defaults.
 
-Implements the "conventions every tool follows" section of [tools.md](tools.md). Establish
-these before building tools, not after — they are what make the site usable live in a
-classroom.
+## 2. Foundation leftovers `[ ]`
 
-- [x] Define CSS custom-property tokens: color, type scale, spacing, line weights, focus
-      rings. In `src/styles/tokens.css`, which is the only place these values are decided.
-- [x] Build the **projector theme**. Implemented as a second axis, independent of light/dark:
-      `[data-display='projector']` on the root, toggled from a control in the header and
-      remembered in localStorage. Roughly 1.5x on type, doubled line weights, and contrast
-      pushed to pure black/white at the extremes, because projectors wash out mid-tones and
-      hairlines disappear from the back of a room. All four combinations of
-      light/dark x normal/projector have to work; all four were checked.
-- [x] Add a colorblind-safe categorical palette (`--data-1` … `--data-8`, Okabe–Ito) for
-      charts and diagrams. Identical in every mode, so a chart never changes meaning when
-      she switches to the projector.
-- [ ] Verify the palette against real classroom hardware. The colour choices are
+What remains of the design system and app shell. Everything else in those areas is done
+and recorded in the README. None of this blocks item 1.
+
+- [ ] Verify the categorical palette on real classroom hardware. The colour choices are
       theoretically sound, but "readable from the back of the room" is a claim about a
       specific projector and has not been tested on one (questions.md #11).
-- [x] Build the shared components:
-  - [x] `ToolShell` — title, description, controls area, output area, reset. Controls and
-        output are separate labelled landmarks, so a screen reader user can jump between
-        "the knobs" and "the answer" without walking the page.
-  - [x] `Slider` — native range input, so keyboard stepping, touch, and announcements come
-        for free. The value is always shown as text as well: a knob position is unreadable
-        from the back of a room, and the number is the thing being taught.
-  - [x] `RevealAnswer` — hides a result until clicked. This one component is what makes the
-        site teachable rather than merely informative. Built test-first as the first
-        exercise of the component test setup, and since moved onto the tokens above.
-        Hidden content is not rendered at all rather than merely `display: none`, so it
-        cannot be read out of the DOM.
-  - [x] `NumberField` — units-aware, explains bad input instead of swallowing it.
-        Deliberately `type="text"` with a decimal input mode rather than `type="number"`:
-        number inputs silently discard characters they dislike, so a student typing `12o`
-        just sees `12` with nothing to explain the loss, and they change value on scroll,
-        which is a hazard when the page is scrolled in front of a class.
-  - [x] `ResetButton` and `RandomizeButton`. Randomize is labelled "New problem", which is
-        what it means to the person pressing it.
-- [x] Implement the site-wide keyboard conventions so she is not hunting with a mouse
-      mid-lesson. Arrows adjust the focused control and `Space` reveals, both native to the
-      elements chosen; `R` resets, implemented in `ToolShell` and guarded against firing
-      while she is typing into a field — `R` is a letter that appears in chemical formulae,
-      and wiping her input would be worse than having no shortcut.
-- [ ] Confirm the shell works at both 1024x768 and 1920x1080.
+- [ ] Confirm the shell and the first tool work at both 1024x768 and 1920x1080.
+- [ ] **3D library:** `three.js` directly, or `3Dmol.js`. Deferred — evaluate when
+      `vsepr-viewer` comes up (questions.md #24).
+- [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
+      static. Deferred to item 6.
 
-**Note on scaling:** components size themselves from tokens rather than pixels — the
-burger bars use `em`, the navigation panel's top offset is computed from the type scale —
-so switching to projector mode reflows everything rather than overlapping it. Any new
-component needs the same discipline; a hard-coded pixel value will break in projector mode
-and nowhere else.
-
-## 4. Build `chem-core`, the shared chemistry library `[ ]`
+## 3. Build `chem-core`, the shared chemistry library `[ ]`
 
 Pure functions, no UI, fully unit-tested. Most tools depend on this, and retrofitting it
-later is painful — which is why it comes before the tools. Each tool's entry in
-[tools.md](tools.md) lists which of these it needs.
+later is painful — which is why it comes before the proposed tools. Each tool's entry in
+[tools.md](tools.md) lists which of these it needs. The balance model from item 1 is the
+first module to land here.
 
 - [ ] Element dataset: symbol, name, Z, atomic mass, group, period, block, electron
       configuration, electronegativity, radii, melting and boiling points, common oxidation
@@ -281,79 +158,13 @@ later is painful — which is why it comes before the tools. Each tool's entry i
 - [ ] Solution math: molarity, dilution, mixing.
 - [ ] Acid/base: pH, pOH, Ka/Kb, and titration curve generation for strong and weak acids.
 - [ ] Thermochemistry: `q = mcΔT`, phase-change enthalpy, heating-curve segments.
-- [ ] Significant figures: counting, rounding, and propagation through operations.
+- [ ] Significant figures: counting, rounding, and propagation through operations. The
+      balance model's fixed-decimal rounding is the seed of this module.
 - [ ] Ion and polyatomic-ion tables for nomenclature.
 - [ ] **Tests for every one of the above**, using known textbook problems with known answers
       as fixtures.
 
-## 5. App shell, routing, and home page `[~]`
-
-- [x] Routing, via React Router. Route per tool, using each tool's id from
-      [tools.md](tools.md) as its path.
-- [x] **Navigation:** a burger control in the top left opening a side panel of pages.
-      The panel is unmounted when closed rather than hidden with CSS, so nothing inside it
-      is tabbable or readable while a lesson is on screen. Escape closes it, clicking away
-      closes it, and focus moves into the panel on open and back to the burger on close —
-      she is driving this from across a room and cannot afford to lose the tab order.
-- [x] Handle unknown routes gracefully — a calm page with a way back, since the likeliest
-      way to land there is a stale bookmark opened in front of a class.
-- [~] Home page. Currently an honest empty state. Becomes a grid of tool cards grouped by
-  unit once the registry exists (item 6) — it must be scannable in about three seconds.
-- [ ] Replace the hand-written page list in `src/app/pages.ts` with the registry (item 6).
-      Until then, adding a page means editing that file.
-
-**Verified in the browser, not just in tests:** the panel's stacking initially covered the
-burger, so the close control was unclickable while the panel was open. jsdom has no layout,
-so the test asserting "closes from the same control" passed the whole time. Fixed by lifting
-the header above the panel. Worth remembering the next time a component's tests are green
-but the thing has never been looked at.
-
-## 6. Tool registry and on/off config `[x]` — done 2026-09-08
-
-Every tool must be switchable on or off from a single config file, without touching the
-tool's source or the home page. This matters for three reasons: half-finished tools can live
-on `main` without appearing in class; she can hide tools for units she has not taught yet, so
-the home page shows only what is relevant right now; and a broken tool can be disabled in one
-commit rather than reverted.
-
-- [x] Define a `ToolDefinition` type: `id`, `title`, `unit`, `description`, `tier`,
-      `component`, and any tool-specific defaults. In `src/tools/registry.ts`.
-- [x] Each tool self-registers a `ToolDefinition` from its own folder, so adding a tool means
-      adding one folder and one line in `src/tools/index.ts`.
-- [x] Add a **`tools.config.json`** at the repo root, mapping each tool id to
-      `{ "enabled": true|false }`. Entries are nested under a top-level `tools` key so later
-      additions — named presets per class period, questions.md #29 — have somewhere to go
-      without colliding with a tool id.
-- [x] Support per-tool option overrides in the same file, merged over the tool's
-      `defaultOptions`.
-- [x] Derive **both** the route table and the home page grid from registry + config.
-- [x] Give a disabled tool's URL a clear "this tool is turned off" page naming the tool,
-      not a generic 404.
-- [x] Validate the config at startup: unknown tool ids and malformed entries throw in
-      development and warn in production. Every problem is reported at once, so one pass
-      fixes the file.
-- [x] Treat an id missing from the config as enabled by default.
-- [x] Test: a disabled tool is absent from the home page, unreachable by direct URL, and its
-      absence breaks nothing else.
-- [x] Document the file in the README, including how to turn a tool off without a developer.
-
-**Decision on the open question below: runtime**, as recommended — disabled tools ship but
-are unreachable. Note the practical limit: `tools.config.json` is imported, so it is compiled
-into the bundle and editing it needs a rebuild. If she needs to edit it on a live site
-without a developer, it moves to `public/` and is fetched at runtime (questions.md #27, #28).
-
-**Verified end to end in the browser** with a throwaway tool, since with no real tools yet
-nothing else would have exercised the wiring: enabled, it appeared on the home page grouped
-by unit, in the navigation panel, and at its own route; disabled, it vanished from both and
-its URL explained itself; misspelled in config, the site refused to start and named the bad
-entry. The throwaway tool was then removed.
-
-**Known rough edge:** the development-mode failure is a thrown error, so the page goes blank
-and the explanation is in the console rather than on screen. Loud enough for a developer,
-but if this file ever becomes something the teacher edits directly, it needs to render the
-problem on the page instead.
-
-## 7. Tier 1 tools `[ ]`
+## 4. Tier 1 tools — proposed `[ ]`
 
 The three Tier 1 tools in [tools.md](tools.md), chosen because each proves a distinct
 technical pattern. Build all three before Tier 2 — they de-risk everything that follows.
@@ -369,22 +180,21 @@ technical pattern. Build all three before Tier 2 — they de-risk everything tha
         later simulation copies this file's structure, so get it right once and write down
         why it is shaped that way.
   - [ ] Profile particle count against frame rate on the actual classroom hardware.
-- [ ] After the first tool ships, demo it before continuing. The feedback will reshape the
-      design system, and that is cheaper to absorb after one tool than after three.
 
-## 8. URL-encoded state `[ ]`
+## 5. URL-encoded state `[ ]`
 
 - [ ] Serialize each tool's full configuration into the query string.
 - [ ] Restore state from the URL on load.
 - [ ] A "copy link to this setup" button on every tool, provided by `ToolShell`.
 - [ ] Decide the encoding format (see questions.md #25) and whether randomized tools need a
-      shareable seed (questions.md #26).
+      shareable seed (questions.md #26). `mass-balance` is the first tool with randomized
+      values, so it is the first to need an answer.
 
 Why this matters: it gives shareable, bookmarkable scenarios with **no backend at all** —
 she can prepare five titrations as bookmarks before class — and it is the migration path to
 a student-facing app later without rearchitecting.
 
-## 9. Deploy `[ ]`
+## 6. Deploy `[ ]`
 
 - [ ] Choose the host (GitHub Pages, Netlify, or Cloudflare Pages).
 - [ ] CI: on push to `main`, run tests, build, and deploy. Fail the deploy if tests fail —
@@ -393,10 +203,11 @@ a student-facing app later without rearchitecting.
       network, before relying on it in a lesson.
 - [ ] Confirm it works on whatever devices students would use (questions.md #12).
 
-## 10. Tier 2 tools `[ ]`
+## 7. Tier 2 tools — proposed `[ ]`
 
 Designs in [tools.md](tools.md#tier-2). **Build order should follow the unit she teaches
-next** (questions.md #6), not the order listed here.
+next** (questions.md #6), not the order listed here — and any newly requested tool jumps
+ahead of all of these.
 
 - [ ] `equation-balancer` — highest correctness stakes on the site; must fail loudly rather
       than answer wrongly.
@@ -407,7 +218,7 @@ next** (questions.md #6), not the order listed here.
 - [ ] `heating-curve`
 - [ ] `emission-spectra`
 
-## 11. Tier 3 tools — drills and bell-ringers `[ ]`
+## 8. Tier 3 tools — drills and bell-ringers, proposed `[ ]`
 
 Designs in [tools.md](tools.md#tier-3--drills-and-bell-ringers). Individually small, and
 collectively likely the most-used pages on the site.
@@ -418,9 +229,10 @@ collectively likely the most-used pages on the site.
 - [ ] `solutions-dilution`
 - [ ] `half-life`
 - [ ] `le-chatelier` — confirm it is in her curriculum at all (questions.md #5).
-- [ ] `lab-measurement`
+- [ ] `lab-measurement` — reading instruments; the balance _procedure_ is already covered
+      by `mass-balance`, so this one is about reading the scale.
 
-## 12. Polish and accessibility `[ ]`
+## 9. Polish and accessibility `[ ]`
 
 - [ ] Keyboard navigation on every tool, verified.
 - [ ] Screen reader labels on all controls; numeric readouts announced on change.
@@ -430,7 +242,7 @@ collectively likely the most-used pages on the site.
 - [ ] Offline support via a service worker, if the school network is unreliable
       (questions.md #14).
 
-## 13. Possible future work — explicitly out of scope for now
+## 10. Possible future work — explicitly out of scope for now
 
 - [ ] Backend API: saved student progress, teacher-assigned problem sets, class scoreboards.
 - [ ] LMS embedding (Canvas, Google Classroom) if that is how it would be assigned.

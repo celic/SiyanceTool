@@ -1,6 +1,6 @@
 /**
  * chem-core lives in this folder: pure chemistry logic, no UI, fully tested.
- * See docs/plan.md item 4 for what goes here.
+ * See docs/plan.md item 3 for what goes here.
  *
  * This file exists only to prove the toolchain (TypeScript, Vitest, the `@/`
  * path alias) is wired up. Delete it once the first real module lands.

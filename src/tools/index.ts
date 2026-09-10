@@ -7,6 +7,6 @@ import type { ToolDefinition } from '@/tools/registry'
  * Routing, the navigation panel, and the home page all derive from this list,
  * so nothing else needs editing to add a tool.
  *
- * Empty for now — the first tools are docs/plan.md item 7.
+ * Empty for now — the first tool is `mass-balance`, docs/plan.md item 1.
  */
 export const TOOLS: ToolDefinition[] = []
