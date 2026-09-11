@@ -80,9 +80,11 @@ end to end through the shell, registry, config, and reveal gate with real conten
       The visible button text is just "Record" (the step says what), because the full
       wording wrapped to four lines at projector type on a 1024-wide screen.
 - [x] **Walkthrough** (restructured 2026-09-10 after the first look): the steps are shown
-      with the current one marked, Back and Next move through them and run on into the next
-      task, and each "Record" step carries its own Record button. No checkboxes. Sandbox is
-      listed last. The balance was redrawn as one object — pan, shroud and stem in SVG,
+      with the current one marked, and the marker moves on by itself when a step's action is
+      taken — each step carries a condition on the action and the balance state; steps with
+      no condition are passed over, and consecutive satisfied steps complete together. Back
+      and Next remain for stepping by hand and run on into the next task. Each "Record" step
+      carries its own Record button. No checkboxes. Sandbox is listed last. The balance was redrawn as one object — pan, shroud and stem in SVG,
       landing on an HTML housing with the display and buttons.
 - [x] **Options** `decimals`, `tareLabel`, `waterDensity`, read leniently so a bad value in
       config falls back to the default. This needed one registry change: `AppRoutes` now

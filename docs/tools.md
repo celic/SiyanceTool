@@ -97,9 +97,15 @@ last place, with no artificial noise added.
 **Controls**
 
 - **Walkthrough.** The page is built from the teacher's side of the projector: the current
-  task's steps are listed in the lab's own words with the current one marked, and **Back** and
-  **Next** move through them. The last step of one task runs on into the first step of the
-  next, the way the lab does, and Next says which task it is handing off to. A task picker
+  task's steps are listed in the lab's own words with the current one marked, and **the
+  marker moves on by itself when a step's action is taken** — press Power and it moves to
+  "place the weigh boat"; record the reading and it moves again. Steps the page cannot
+  detect ("measure out 10 mL", "compare with Task 2A") are passed when a later step's action
+  is taken, and a state that already holds counts as done: starting Task 3 with a clear pan,
+  one Tare press completes both "remove everything" and "press Tare". **Back** and **Next**
+  are still there for stepping through by hand. The last step of one task runs on into the
+  first step of the next, the way the lab does, and Next says which task it is handing off
+  to. A task picker
   (2A, 2B, 3, 4, 5, then Sandbox last) jumps straight to a task's first step. Choosing a task
   does not touch the balance: the lab's tasks run on continuously (2B starts with the sphere
   still in the boat from 2A), so only Reset clears the bench, and anything still on the

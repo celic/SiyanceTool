@@ -1,4 +1,4 @@
-import { roundTo, type ItemId } from '@/core/balance'
+import { roundTo, type BalanceState, type ItemId } from '@/core/balance'
 
 /**
  * The lab's tasks, as the page runs them. Steps are the lab's own words,
@@ -20,12 +20,40 @@ export interface Blank {
 /** Numbers recorded so far, by blank id. Readings in grams; volumes in mL. */
 export type Records = Partial<Record<string, number>>
 
+/**
+ * Something the teacher just did on the page. Steps watch these so the
+ * marker can move on by itself when a step's action is taken.
+ */
+export type Action =
+  | { type: 'power' }
+  | { type: 'tare' }
+  | { type: 'place'; item: ItemId }
+  | { type: 'remove'; item: ItemId }
+  | { type: 'pour' }
+  | { type: 'empty' }
+  | { type: 'record'; blank: string }
+
 export interface Step {
   /** The lab's wording. */
   text: string
   /** The blank this step fills in, if it says "Record". Its button sits on the step. */
   record?: string
+  /**
+   * True when this action, taken from this state, completes the step. A step
+   * without one — "measure out 10 mL", "compare with Task 2A" — cannot be
+   * detected on the page; the marker rests on it until a later step's action
+   * is taken or she presses Next. Only such steps are ever skipped over: a
+   * step with a condition must be met, so pressing Tare twice cannot jump
+   * ahead to the next Tare step.
+   */
+  advance?: (action: Action, state: BalanceState) => boolean
 }
+
+const recorded = (blank: string) => (action: Action) =>
+  action.type === 'record' && action.blank === blank
+const pressed = (type: Action['type']) => (action: Action) => action.type === type
+const off = (state: BalanceState, ...items: ItemId[]) =>
+  items.every((item) => !state.onBalance.includes(item))
 
 export interface Task {
   id: TaskId
@@ -58,14 +86,19 @@ export const TASKS: Task[] = [
     usesCylinder: false,
     usesDates: false,
     steps: [
-      { text: 'Press Power. Wait until the numbers say zero.' },
+      {
+        text: 'Press Power. Wait until the numbers say zero.',
+        advance: (action, state) => action.type === 'power' && state.powered,
+      },
       {
         text: 'Place the weigh boat on the balance GENTLY. Record the mass.',
         record: '2a-boat',
+        advance: recorded('2a-boat'),
       },
       {
         text: 'Place the sphere in the weigh boat. Record the mass — write exactly what the balance tells you.',
         record: '2a-both',
+        advance: recorded('2a-both'),
       },
       {
         text: 'This is the mass of both the sphere and the weigh boat. To get the mass of just the sphere, subtract.',
@@ -96,11 +129,17 @@ export const TASKS: Task[] = [
       {
         text: 'Take the sphere OUT of the weigh boat. Leave the weigh boat on the balance. Record the mass.',
         record: '2b-boat',
+        advance: recorded('2b-boat'),
       },
-      { text: 'Press Tare. Record the number on the balance.', record: '2b-tared' },
+      {
+        text: 'Press Tare. Record the number on the balance.',
+        record: '2b-tared',
+        advance: recorded('2b-tared'),
+      },
       {
         text: 'The balance has removed the mass of the weigh boat. Now add the sphere to the weigh boat. Record the number on the balance.',
         record: '2b-sphere',
+        advance: recorded('2b-sphere'),
       },
       {
         text: 'Compare this number to the number you got in Task 2A. Which method did you find easier? Why?',
@@ -151,20 +190,35 @@ export const TASKS: Task[] = [
     usesCylinder: true,
     usesDates: false,
     steps: [
-      { text: 'Remove the weigh boat and sphere from the balance.' },
-      { text: 'Press Tare and wait until it reads zero.' },
-      { text: 'Measure out 10 mL of water in the graduated cylinder.' },
-      { text: 'Place the empty cup on the balance. Record the mass.', record: '3-cup' },
-      { text: 'Press Tare and wait until it says zero.' },
-      { text: 'Take the cup OFF the balance. Do not press any buttons!' },
+      {
+        text: 'Remove the weigh boat and sphere from the balance.',
+        // A state, not an action: if the pan is already clear, the step is done.
+        advance: (_, state) => off(state, 'weigh-boat', 'sphere'),
+      },
+      { text: 'Press Tare and wait until it reads zero.', advance: pressed('tare') },
+      {
+        text: 'Measure out 10 mL of water in the graduated cylinder.',
+      },
+      {
+        text: 'Place the empty cup on the balance. Record the mass.',
+        record: '3-cup',
+        advance: recorded('3-cup'),
+      },
+      { text: 'Press Tare and wait until it says zero.', advance: pressed('tare') },
+      {
+        text: 'Take the cup OFF the balance. Do not press any buttons!',
+        advance: (action) => action.type === 'remove' && action.item === 'cup',
+      },
       {
         text: 'Pour the water into the cup while the cup is on the bench. NEVER pour into a container on the balance.',
+        advance: pressed('pour'),
       },
       {
         text: 'Place the cup back on the balance. Record the mass.',
         record: '3-water',
+        advance: recorded('3-water'),
       },
-      { text: 'Pour the water back out and rinse the cup.' },
+      { text: 'Pour the water back out and rinse the cup.', advance: pressed('empty') },
     ],
     blanks: [
       { id: '3-cup', label: 'Empty cup', source: 'readout' },
@@ -188,14 +242,20 @@ export const TASKS: Task[] = [
     usesCylinder: false,
     usesDates: false,
     steps: [
-      { text: 'Take everything off the balance. Then press Tare.' },
+      {
+        text: 'Take everything off the balance. Then press Tare.',
+        advance: (action, state) =>
+          action.type === 'tare' && state.onBalance.length === 0,
+      },
       {
         text: 'Place the weigh boat on the balance, then place the empty balloon in the weigh boat. Record the mass.',
         record: '4-empty',
+        advance: recorded('4-empty'),
       },
       {
         text: 'Remove the empty balloon and place the inflated balloon in the weigh boat. Record the mass.',
         record: '4-inflated',
+        advance: recorded('4-inflated'),
       },
       {
         text: 'Now calculate the mass of the air in the balloon by subtracting the two masses.',
@@ -229,12 +289,21 @@ export const TASKS: Task[] = [
       {
         text: 'Enter the day of the month each person in the group was born on. Add them up — that is the volume of water to measure.',
       },
-      { text: 'Place the empty cup on the balance and press Tare.' },
+      {
+        text: 'Place the empty cup on the balance and press Tare.',
+        advance: (action, state) =>
+          action.type === 'tare' && state.onBalance.includes('cup'),
+      },
       {
         text: 'Take the cup off. Pour the measured volume of water into the cup on the bench. Record the volume.',
         record: '5-volume',
+        advance: recorded('5-volume'),
       },
-      { text: 'Place the cup back on the balance. Record the mass.', record: '5-mass' },
+      {
+        text: 'Place the cup back on the balance. Record the mass.',
+        record: '5-mass',
+        advance: recorded('5-mass'),
+      },
       { text: 'How close were the two measurements?' },
     ],
     blanks: [

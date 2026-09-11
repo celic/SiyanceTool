@@ -68,6 +68,56 @@ describe('MassBalance', () => {
       )
     })
 
+    it("moves the marker on by itself when the step's action is taken", async () => {
+      const user = setup()
+      const current = () => screen.getByRole('listitem', { current: 'step' })
+      expect(current()).toHaveTextContent(/press power/i)
+
+      await user.click(button(/power/i))
+      expect(current()).toHaveTextContent(/place the weigh boat/i)
+
+      await user.click(item(/^weigh boat/i))
+      // Placing alone is not the whole step — it also says "Record the mass".
+      expect(current()).toHaveTextContent(/place the weigh boat/i)
+      await user.click(button(/record weigh boat$/i))
+      expect(current()).toHaveTextContent(/place the sphere/i)
+
+      await user.click(item(/^sphere/i))
+      await user.click(button(/record weigh boat \+ sphere/i))
+      expect(current()).toHaveTextContent(/to get the mass of just the sphere/i)
+      expect(button(/^next/i)).toHaveAccessibleName(/2B/)
+    })
+
+    it('carries the marker past steps with nothing to detect when a later action is taken', async () => {
+      const user = setup()
+      await chooseTask(user, /task 3/i)
+      await user.click(button(/power/i))
+      const current = () => screen.getByRole('listitem', { current: 'step' })
+
+      // Step 1, "remove the weigh boat and sphere", is already true on an
+      // empty pan; step 2 is Tare.
+      await user.click(button(/^tare$/i))
+      expect(current()).toHaveTextContent(/measure out 10 mL/i)
+
+      // Nothing on the page can tell the cylinder was read, so recording the
+      // cup — step 4 — moves straight on to step 5.
+      await user.click(item(/^cup/i))
+      await user.click(button(/record empty cup/i))
+      expect(current()).toHaveTextContent(/press tare and wait until it says zero/i)
+    })
+
+    it('does not move the marker for an action that belongs to an earlier step', async () => {
+      const user = setup()
+      const current = () => screen.getByRole('listitem', { current: 'step' })
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+      await user.click(button(/record weigh boat$/i))
+      expect(current()).toHaveTextContent(/place the sphere/i)
+
+      await user.click(button(/record weigh boat$/i))
+      expect(current()).toHaveTextContent(/place the sphere/i)
+    })
+
     it('shows the record button on the step that asks for it, and the value once taken', async () => {
       const user = setup()
       await user.click(button(/power/i))

@@ -23,6 +23,7 @@ import { readSettings } from '@/tools/mass-balance/options'
 import {
   findTask,
   TASKS,
+  type Action,
   type Blank,
   type Records,
   type TaskId,
@@ -79,18 +80,47 @@ export function MassBalance({ options }: ToolProps) {
   const worked = task.worked(records, settings.decimals)
   const blankById = new Map(task.blanks.map((blank) => [blank.id, blank]))
 
-  /** Applies a move, or shows why the balance refused it, in the lab's words. */
-  function apply(result: MoveResult) {
-    if (result.ok) {
-      setBalance(result.state)
-      setRefusal(null)
-    } else {
-      setRefusal(result.reason)
+  /**
+   * Moves the marker on when an action completes the current step.
+   *
+   * Scans forward from the current step: a step with no condition (nothing on
+   * the page can detect "measure out 10 mL") is passed over; a step whose
+   * condition holds is completed and the scan continues, so one Tare press on
+   * an already-clear pan completes both "remove everything" and "press Tare";
+   * the first step whose condition fails stops the scan. The marker lands
+   * after the last completed step. An action for an earlier step — a reading
+   * recorded twice — changes nothing.
+   */
+  function advance(action: Action, state: BalanceState) {
+    let landing = stepIndex
+    for (let index = stepIndex; index < task.steps.length; index += 1) {
+      const condition = task.steps[index].advance
+      if (!condition) continue
+      if (!condition(action, state)) break
+      landing = index + 1
     }
+    if (landing !== stepIndex) setStepIndex(Math.min(landing, task.steps.length - 1))
+  }
+
+  /** Commits a new balance state and lets the walkthrough see what was done. */
+  function commit(state: BalanceState, action: Action) {
+    setBalance(state)
+    setRefusal(null)
+    advance(action, state)
+  }
+
+  /** Applies a move, or shows why the balance refused it, in the lab's words. */
+  function apply(result: MoveResult, action: Action) {
+    if (result.ok) commit(result.state, action)
+    else setRefusal(result.reason)
   }
 
   function toggleItem(id: ItemId) {
-    apply(balance.onBalance.includes(id) ? remove(balance, id) : place(balance, id))
+    if (balance.onBalance.includes(id)) {
+      apply(remove(balance, id), { type: 'remove', item: id })
+    } else {
+      apply(place(balance, id), { type: 'place', item: id })
+    }
   }
 
   function goTo(id: TaskId, step: number) {
@@ -112,6 +142,7 @@ export function MassBalance({ options }: ToolProps) {
   function record(blank: Blank) {
     if (blank.source === 'cylinder') {
       setRecords({ ...records, [blank.id]: cylinderVolume })
+      advance({ type: 'record', blank: blank.id }, balance)
       return
     }
     if (value === null) {
@@ -120,6 +151,7 @@ export function MassBalance({ options }: ToolProps) {
     }
     setRecords({ ...records, [blank.id]: value })
     setRefusal(null)
+    advance({ type: 'record', blank: blank.id }, balance)
   }
 
   function formatRecord(blank: Blank, recorded: number) {
@@ -195,17 +227,14 @@ export function MassBalance({ options }: ToolProps) {
             <button
               type="button"
               className="action-button"
-              onClick={() => apply(pour(balance, cylinderVolume))}
+              onClick={() => apply(pour(balance, cylinderVolume), { type: 'pour' })}
             >
               Pour into cup
             </button>
             <button
               type="button"
               className="action-button"
-              onClick={() => {
-                setBalance(emptyCup(balance))
-                setRefusal(null)
-              }}
+              onClick={() => commit(emptyCup(balance), { type: 'empty' })}
               disabled={balance.waterVolume === 0}
             >
               Empty the cup
@@ -247,17 +276,14 @@ export function MassBalance({ options }: ToolProps) {
                   type="button"
                   className="balance__button balance__button--power"
                   aria-pressed={balance.powered}
-                  onClick={() => {
-                    setBalance(togglePower(balance))
-                    setRefusal(null)
-                  }}
+                  onClick={() => commit(togglePower(balance), { type: 'power' })}
                 >
                   Power
                 </button>
                 <button
                   type="button"
                   className="balance__button"
-                  onClick={() => setBalance(tare(balance))}
+                  onClick={() => commit(tare(balance), { type: 'tare' })}
                   disabled={!balance.powered}
                 >
                   {settings.tareLabel}
