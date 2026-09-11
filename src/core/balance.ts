@@ -28,31 +28,50 @@ export type Holder = 'pan' | 'weigh-boat'
 export interface ItemDefinition {
   name: string
   holder: Holder
-  /** Realistic range for "New problem", in grams. */
-  range: [min: number, max: number]
+  /**
+   * The item's usual mass in grams, to three decimals. These are the values the
+   * lab's worked numbers come from (see balance.test.ts), and a fresh balance
+   * starts with them.
+   */
+  nominal: number
+  /**
+   * How far "New problem" may wander from the nominal, in grams, either way.
+   * Kept small — a quarter of the nominal at most — so a re-rolled sphere is
+   * still recognisably the same marble and the class's numbers stay close to
+   * the worked example, while no two problems share an answer.
+   */
+  spread: number
 }
+
+/**
+ * How much more an inflated balloon reads than the same balloon empty, in
+ * grams. This is what the balance *reads*, not what the air inside masses: a
+ * balloon displaces its own volume of room air, so buoyancy cancels all but
+ * the excess from its overpressure — a few tenths of a gram. The tool must
+ * agree with the real bench, not with the true mass (docs/tools.md, "The
+ * balloon"; the range wants checking against her balloons, questions.md #34).
+ */
+const BALLOON_EXCESS = { nominal: 0.38, spread: 0.12 }
+
+const EMPTY_BALLOON = { nominal: 2.612, spread: 0.3 }
 
 export const ITEMS: Record<ItemId, ItemDefinition> = {
   // "Find the weighboat. Is it LIGHT or Heavy?" — a plastic one is a gram or two.
-  'weigh-boat': { name: 'Weigh boat', holder: 'pan', range: [1, 3] },
-  // A glass marble is about 5 g; a steel ball bearing from the same basket, more.
-  sphere: { name: 'Sphere', holder: 'weigh-boat', range: [4, 20] },
-  cup: { name: 'Cup', holder: 'pan', range: [5, 15] },
-  'empty-balloon': { name: 'Empty balloon', holder: 'weigh-boat', range: [2, 3.2] },
-  // The range here is what the balance *reads*, not what the air inside masses.
-  // A balloon displaces its own volume of room air, so buoyancy cancels all
-  // but the excess from its overpressure — a few tenths of a gram. The tool
-  // must agree with the real bench, not with the true mass. `randomize` fills
-  // this in relative to the empty balloon; see BALLOON_EXCESS.
+  'weigh-boat': { name: 'Weigh boat', holder: 'pan', nominal: 2.347, spread: 0.4 },
+  // A glass marble.
+  sphere: { name: 'Sphere', holder: 'weigh-boat', nominal: 5.126, spread: 0.6 },
+  cup: { name: 'Cup', holder: 'pan', nominal: 8.214, spread: 1.2 },
+  'empty-balloon': { name: 'Empty balloon', holder: 'weigh-boat', ...EMPTY_BALLOON },
+  // Rolled as the empty balloon plus the excess, so the excess stays a few
+  // tenths of a gram whatever the balloon itself rolled. Its spread is
+  // therefore the sum of the two.
   'inflated-balloon': {
     name: 'Inflated balloon',
     holder: 'weigh-boat',
-    range: [2.2, 3.8],
+    nominal: roundTo(EMPTY_BALLOON.nominal + BALLOON_EXCESS.nominal, 3),
+    spread: EMPTY_BALLOON.spread + BALLOON_EXCESS.spread,
   },
 }
-
-/** How much more an inflated balloon reads than the same balloon empty, in grams. */
-const BALLOON_EXCESS: [min: number, max: number] = [0.2, 0.6]
 
 /** Held internally to this many decimals; readouts round from here. */
 const INTERNAL_DECIMALS = 3
@@ -78,14 +97,10 @@ export interface BalanceOptions {
   masses?: Partial<Record<ItemId, number>>
 }
 
-/** The lab's worked numbers fall out of these; see balance.test.ts. */
-export const DEFAULT_MASSES: Record<ItemId, number> = {
-  'weigh-boat': 2.347,
-  sphere: 5.126,
-  cup: 8.214,
-  'empty-balloon': 2.612,
-  'inflated-balloon': 2.992,
-}
+/** Every item at its nominal mass. */
+export const DEFAULT_MASSES: Record<ItemId, number> = Object.fromEntries(
+  Object.entries(ITEMS).map(([id, item]) => [id, item.nominal]),
+) as Record<ItemId, number>
 
 export type MoveResult =
   { ok: true; state: BalanceState } | { ok: false; reason: string }
@@ -213,7 +228,7 @@ export function reset(state: BalanceState): BalanceState {
 }
 
 /**
- * New problem: re-roll every mass within its realistic range.
+ * New problem: re-roll every mass within a small spread of its nominal value.
  *
  * Takes the random source as a parameter so tests can pin it. Clears the
  * pan, since readings taken with the old masses no longer mean anything.
@@ -222,18 +237,18 @@ export function randomize(
   state: BalanceState,
   random: () => number = Math.random,
 ): BalanceState {
-  const between = ([min, max]: [number, number]) =>
-    roundTo(min + random() * (max - min), INTERNAL_DECIMALS)
+  const around = ({ nominal, spread }: { nominal: number; spread: number }) =>
+    roundTo(nominal + (random() * 2 - 1) * spread, INTERNAL_DECIMALS)
 
-  const emptyBalloon = between(ITEMS['empty-balloon'].range)
+  const emptyBalloon = around(ITEMS['empty-balloon'])
 
   const masses: Record<ItemId, number> = {
-    'weigh-boat': between(ITEMS['weigh-boat'].range),
-    sphere: between(ITEMS.sphere.range),
-    cup: between(ITEMS.cup.range),
+    'weigh-boat': around(ITEMS['weigh-boat']),
+    sphere: around(ITEMS.sphere),
+    cup: around(ITEMS.cup),
     'empty-balloon': emptyBalloon,
     'inflated-balloon': roundTo(
-      emptyBalloon + between(BALLOON_EXCESS),
+      emptyBalloon + around(BALLOON_EXCESS),
       INTERNAL_DECIMALS,
     ),
   }

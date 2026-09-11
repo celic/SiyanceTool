@@ -283,13 +283,24 @@ describe('reset and new problem', () => {
     expect(balance.masses).toEqual(MASSES)
   })
 
-  it('new problem re-rolls every mass within a realistic range', () => {
+  it('new problem re-rolls every mass within a small spread of its usual value', () => {
     const lowest = randomize(createBalance(), () => 0)
     const highest = randomize(createBalance(), () => 0.999999)
+    const middle = randomize(createBalance(), () => 0.5)
 
     for (const id of Object.keys(ITEMS) as (keyof typeof ITEMS)[]) {
+      const { nominal, spread } = ITEMS[id]
       expect(lowest.masses[id]).toBeLessThan(highest.masses[id])
-      expect(lowest.masses[id]).toBeGreaterThan(0)
+      expect(lowest.masses[id]).toBeGreaterThanOrEqual(roundTo(nominal - spread, 3))
+      expect(highest.masses[id]).toBeLessThanOrEqual(roundTo(nominal + spread, 3))
+      expect(middle.masses[id]).toBeCloseTo(nominal, 2)
+      // Small: a re-rolled sphere is still recognisably the same sphere.
+      expect(spread).toBeLessThanOrEqual(nominal / 4)
+    }
+
+    // The usual values are the ones the lab's worked numbers come from.
+    for (const id of Object.keys(ITEMS) as (keyof typeof ITEMS)[]) {
+      expect(createBalance().masses[id]).toBe(ITEMS[id].nominal)
     }
 
     // The boat is light; the cup is heavier. "Is it LIGHT or Heavy?"

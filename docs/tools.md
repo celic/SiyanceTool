@@ -110,7 +110,9 @@ last place, with no artificial noise added.
   allowed while the cup is on the bench. Pouring while the cup is on the balance is refused,
   in the lab's own words: _never pour into a container on the balance_.
 - **Task 5 inputs:** four "day of the month" fields whose sum becomes the volume to measure.
-- **New problem** re-rolls every item's mass within a realistic range. **Reset** clears the
+- **New problem** re-rolls every item's mass within a small spread of its usual value —
+  a few tenths of a gram, at most a quarter of the mass — so the numbers stay close to the
+  worked example while no two problems share an answer. **Reset** clears the
   pan, powers the balance off, empties the records, and returns to the task's first step.
 
 **Display**
@@ -142,8 +144,9 @@ last place, with no artificial noise added.
   must show a balance reading (a small positive difference), not the true air mass, or the
   class will get a different number on the real balance and trust neither. The range needs
   checking against her balloons: questions.md #34.
-- Item masses in plausible ranges: a plastic weigh boat around 1–3 g ("Is it LIGHT or
-  Heavy?"), a glass marble around 5 g, a plastic cup 5–15 g, an empty balloon 2–3 g.
+- Item masses that are plausible: a plastic weigh boat around 2 g ("Is it LIGHT or
+  Heavy?"), a glass marble around 5 g, a plastic cup around 8 g, an empty balloon around
+  2.6 g, each with a small spread for New problem.
 
 **Options** (`tools.config.json`)
 
