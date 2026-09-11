@@ -118,6 +118,44 @@ describe('MassBalance', () => {
       expect(current()).toHaveTextContent(/place the sphere/i)
     })
 
+    it('makes Record wait until the balance holds what the step describes', async () => {
+      const user = setup()
+      await user.click(button(/power/i))
+
+      const recordBoat = () => button(/record weigh boat$/i)
+      expect(recordBoat()).toBeDisabled()
+      expect(
+        screen.getAllByText(/put the weigh boat on the balance first/i)[0],
+      ).toBeVisible()
+
+      await user.click(item(/^weigh boat/i))
+      expect(recordBoat()).toBeEnabled()
+
+      // Step 3 wants the sphere in the boat; step 2 wanted the boat alone.
+      await user.click(recordBoat())
+      const recordBoth = () => button(/record weigh boat \+ sphere/i)
+      expect(recordBoth()).toBeDisabled()
+      await user.click(item(/^sphere/i))
+      expect(recordBoth()).toBeEnabled()
+      expect(recordBoat()).toBeDisabled()
+    })
+
+    it('makes Record wait for power, and for Tare where the step asks for it', async () => {
+      const user = setup()
+      expect(button(/record weigh boat$/i)).toBeDisabled()
+      expect(screen.getAllByText(/press power first/i)[0]).toBeVisible()
+
+      await chooseTask(user, /2B/)
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+      await user.click(button(/record weigh boat alone/i))
+      expect(button(/record after tare/i)).toBeDisabled()
+      expect(screen.getByText(/press tare first/i)).toBeVisible()
+
+      await user.click(button(/^tare$/i))
+      expect(button(/record after tare/i)).toBeEnabled()
+    })
+
     it('shows the record button on the step that asks for it, and the value once taken', async () => {
       const user = setup()
       await user.click(button(/power/i))

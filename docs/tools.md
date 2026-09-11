@@ -131,7 +131,10 @@ last place, with no artificial noise added.
   shows exactly what a real balance shows — including `-12.34` after lifting a tared cup
   off, `0.00` after a tare, and nothing at all while powered off.
 - Every step that says "Record" carries its own **Record** button, so the number lands next
-  to the instruction that asked for it. A **Data** table under the steps collects the task's
+  to the instruction that asked for it. Record is a **forced wait**: it stays disabled until
+  the balance holds exactly what the step describes — powered on, the weigh boat on and the
+  sphere off, tared with the cup alone — and says what is still missing, so "weigh boat" can
+  never be recorded with the boat still on the bench. A **Data** table under the steps collects the task's
   readings, and the calculation the worksheet asks for — `(boat + sphere) − boat`,
   `(boat + balloon + air) − (boat + balloon)`, mass versus volume — is shown behind the
   **reveal gate** with the recorded numbers substituted in, so she can ask the class first.

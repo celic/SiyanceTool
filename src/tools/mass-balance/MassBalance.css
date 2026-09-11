@@ -307,6 +307,12 @@
   white-space: nowrap;
 }
 
+/* Why Record is waiting. Paired with the disabled button, never colour alone. */
+.procedure__wait {
+  font-size: var(--text-sm);
+  color: var(--color-muted);
+}
+
 .procedure__nav {
   display: flex;
   gap: var(--space-3);

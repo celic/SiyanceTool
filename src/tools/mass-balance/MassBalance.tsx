@@ -343,6 +343,14 @@ export function MassBalance({ options }: ToolProps) {
               const blank = step.record ? blankById.get(step.record) : undefined
               const recorded = blank ? records[blank.id] : undefined
               const isCurrent = index === stepIndex
+              // A forced wait: Record is disabled until the bench matches the
+              // step. Steps from the marker onward say what is still missing;
+              // steps already passed just go quiet.
+              const waiting = blank
+                ? blank.source === 'readout' && !balance.powered
+                  ? 'Press Power first.'
+                  : blank.ready(balance)
+                : null
               return (
                 <li
                   key={step.text}
@@ -357,6 +365,7 @@ export function MassBalance({ options }: ToolProps) {
                         type="button"
                         className="action-button"
                         aria-label={`Record ${blank.label}`}
+                        disabled={waiting !== null}
                         onClick={() => record(blank)}
                       >
                         Record
@@ -366,6 +375,9 @@ export function MassBalance({ options }: ToolProps) {
                           ? `— ${blank.source === 'cylinder' ? 'mL' : 'g'}`
                           : formatRecord(blank, recorded)}
                       </span>
+                      {index >= stepIndex && waiting && (
+                        <span className="procedure__wait">{waiting}</span>
+                      )}
                     </span>
                   )}
                 </li>

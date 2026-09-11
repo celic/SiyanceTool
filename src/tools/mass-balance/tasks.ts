@@ -1,4 +1,4 @@
-import { roundTo, type BalanceState, type ItemId } from '@/core/balance'
+import { ITEMS, roundTo, type BalanceState, type ItemId } from '@/core/balance'
 
 /**
  * The lab's tasks, as the page runs them. Steps are the lab's own words,
@@ -15,6 +15,13 @@ export interface Blank {
   label: string
   /** What "Record" captures — the balance display, or the cylinder's volume. */
   source: 'readout' | 'cylinder'
+  /**
+   * Why the reading cannot be taken yet, or null when the balance holds what
+   * the blank describes. Record is a forced wait: it stays disabled, with this
+   * reason beside it, until the bench matches the step — so "weigh boat" can
+   * never be recorded with the boat still on the bench.
+   */
+  ready: (state: BalanceState) => string | null
 }
 
 /** Numbers recorded so far, by blank id. Readings in grams; volumes in mL. */
@@ -48,6 +55,35 @@ export interface Step {
    */
   advance?: (action: Action, state: BalanceState) => boolean
 }
+
+/** The first reason from the list that applies, or null when all is well. */
+const firstOf =
+  (...checks: ((state: BalanceState) => string | null)[]) =>
+  (state: BalanceState) => {
+    for (const check of checks) {
+      const reason = check(state)
+      if (reason) return reason
+    }
+    return null
+  }
+const named = (item: ItemId) => ITEMS[item].name.toLowerCase()
+const on = (item: ItemId) => (state: BalanceState) =>
+  state.onBalance.includes(item) ? null : `Put the ${named(item)} on the balance first.`
+const notOn = (item: ItemId) => (state: BalanceState) =>
+  state.onBalance.includes(item)
+    ? `Take the ${named(item)} off the balance first.`
+    : null
+/** Tare must have been pressed with exactly these items on the pan. */
+const taredWith =
+  (...items: ItemId[]) =>
+  (state: BalanceState) => {
+    const expected = items.reduce((sum, item) => sum + state.masses[item], 0)
+    return Math.abs(state.tareOffset - expected) < 0.0005 ? null : 'Press Tare first.'
+  }
+const cupEmpty = (state: BalanceState) =>
+  state.waterVolume === 0 ? null : 'Empty the cup first.'
+const cupHasWater = (state: BalanceState) =>
+  state.waterVolume > 0 ? null : 'Pour the water into the cup first.'
 
 const recorded = (blank: string) => (action: Action) =>
   action.type === 'record' && action.blank === blank
@@ -105,8 +141,18 @@ export const TASKS: Task[] = [
       },
     ],
     blanks: [
-      { id: '2a-boat', label: 'Weigh boat', source: 'readout' },
-      { id: '2a-both', label: 'Weigh boat + sphere', source: 'readout' },
+      {
+        id: '2a-boat',
+        label: 'Weigh boat',
+        source: 'readout',
+        ready: firstOf(on('weigh-boat'), notOn('sphere')),
+      },
+      {
+        id: '2a-both',
+        label: 'Weigh boat + sphere',
+        source: 'readout',
+        ready: firstOf(on('weigh-boat'), on('sphere')),
+      },
     ],
     worked: (records, decimals) => {
       const boat = records['2a-boat']
@@ -146,9 +192,24 @@ export const TASKS: Task[] = [
       },
     ],
     blanks: [
-      { id: '2b-boat', label: 'Weigh boat alone', source: 'readout' },
-      { id: '2b-tared', label: 'After Tare', source: 'readout' },
-      { id: '2b-sphere', label: 'Sphere in the tared boat', source: 'readout' },
+      {
+        id: '2b-boat',
+        label: 'Weigh boat alone',
+        source: 'readout',
+        ready: firstOf(on('weigh-boat'), notOn('sphere')),
+      },
+      {
+        id: '2b-tared',
+        label: 'After Tare',
+        source: 'readout',
+        ready: firstOf(on('weigh-boat'), notOn('sphere'), taredWith('weigh-boat')),
+      },
+      {
+        id: '2b-sphere',
+        label: 'Sphere in the tared boat',
+        source: 'readout',
+        ready: firstOf(on('weigh-boat'), on('sphere'), taredWith('weigh-boat')),
+      },
     ],
     worked: (records, decimals) => {
       const byTare = records['2b-sphere']
@@ -221,8 +282,18 @@ export const TASKS: Task[] = [
       { text: 'Pour the water back out and rinse the cup.', advance: pressed('empty') },
     ],
     blanks: [
-      { id: '3-cup', label: 'Empty cup', source: 'readout' },
-      { id: '3-water', label: 'Water in the tared cup', source: 'readout' },
+      {
+        id: '3-cup',
+        label: 'Empty cup',
+        source: 'readout',
+        ready: firstOf(notOn('weigh-boat'), on('cup'), cupEmpty),
+      },
+      {
+        id: '3-water',
+        label: 'Water in the tared cup',
+        source: 'readout',
+        ready: firstOf(on('cup'), cupHasWater, taredWith('cup')),
+      },
     ],
     worked: (records, decimals) => {
       const cup = records['3-cup']
@@ -262,8 +333,26 @@ export const TASKS: Task[] = [
       },
     ],
     blanks: [
-      { id: '4-empty', label: 'Weigh boat + empty balloon', source: 'readout' },
-      { id: '4-inflated', label: 'Weigh boat + balloon + air', source: 'readout' },
+      {
+        id: '4-empty',
+        label: 'Weigh boat + empty balloon',
+        source: 'readout',
+        ready: firstOf(
+          on('weigh-boat'),
+          on('empty-balloon'),
+          notOn('inflated-balloon'),
+        ),
+      },
+      {
+        id: '4-inflated',
+        label: 'Weigh boat + balloon + air',
+        source: 'readout',
+        ready: firstOf(
+          on('weigh-boat'),
+          on('inflated-balloon'),
+          notOn('empty-balloon'),
+        ),
+      },
     ],
     worked: (records, decimals) => {
       const empty = records['4-empty']
@@ -307,8 +396,18 @@ export const TASKS: Task[] = [
       { text: 'How close were the two measurements?' },
     ],
     blanks: [
-      { id: '5-volume', label: 'Volume', source: 'cylinder' },
-      { id: '5-mass', label: 'Mass of water', source: 'readout' },
+      {
+        id: '5-volume',
+        label: 'Volume',
+        source: 'cylinder',
+        ready: firstOf(cupHasWater),
+      },
+      {
+        id: '5-mass',
+        label: 'Mass of water',
+        source: 'readout',
+        ready: firstOf(on('cup'), cupHasWater, taredWith('cup')),
+      },
     ],
     worked: (records, decimals) => {
       const volume = records['5-volume']
