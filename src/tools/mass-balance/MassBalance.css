@@ -73,35 +73,41 @@
   gap: var(--space-3);
 }
 
-/* --- The balance ------------------------------------------------------ */
+/* --- The balance ------------------------------------------------------ *
+ * Drawn as one object: the SVG pan and stem sit directly on the HTML housing,
+ * which holds the display and the buttons. The housing is HTML so the reading
+ * is a live region and the buttons are real buttons. */
 
 .balance {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  max-width: 32rem;
 }
 
 .balance-figure {
   display: block;
   width: 100%;
-  max-width: 32rem;
   height: auto;
   color: var(--color-fg);
 }
 
-.balance-figure__body {
-  fill: var(--color-surface);
-  stroke: currentColor;
-  stroke-width: var(--border-width-strong);
+.balance-figure__stem,
+.balance-figure__shroud {
+  fill: var(--color-border);
+  stroke: var(--color-fg);
+  stroke-width: var(--border-width);
 }
 
-.balance-figure__stem {
-  fill: currentColor;
+/* Two ellipses: the lower one, in the border colour, is the pan's edge. */
+.balance-figure__pan-edge {
+  fill: var(--color-border);
+  stroke: var(--color-fg);
+  stroke-width: var(--border-width);
 }
 
 .balance-figure__pan {
-  fill: var(--color-bg);
-  stroke: currentColor;
+  fill: var(--color-surface);
+  stroke: var(--color-fg);
   stroke-width: var(--border-width-strong);
 }
 
@@ -126,15 +132,15 @@
   font-weight: var(--weight-medium);
 }
 
-.balance__front {
+.balance__housing {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-4);
-  max-width: 32rem;
-  padding: var(--space-4);
-  border: var(--border-width-strong) solid var(--color-border);
-  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-6);
+  border: var(--border-width-strong) solid var(--color-fg);
+  /* Squarer on top where the stem lands, rounder at the feet. */
+  border-radius: var(--radius) var(--radius) var(--radius-lg) var(--radius-lg);
   background: var(--color-surface);
 }
 
@@ -143,11 +149,13 @@
    jump when the balance is switched on. */
 .balance__display {
   flex: 1 1 8ch;
-  min-height: calc(var(--text-3xl) * var(--leading-tight));
+  min-height: calc(var(--text-3xl) * var(--leading-tight) + 2 * var(--space-2));
   padding: var(--space-2) var(--space-4);
   border: var(--border-width-strong) solid var(--color-fg);
   border-radius: var(--radius);
   background: var(--color-bg);
+  /* An inset bezel, so the display reads as a window in the housing. */
+  box-shadow: inset 0 0 0 var(--border-width) var(--color-border);
   font-family: var(--font-mono);
   font-size: var(--text-3xl);
   font-weight: var(--weight-bold);
@@ -169,8 +177,9 @@
 .balance__button {
   font: inherit;
   font-weight: var(--weight-medium);
+  min-width: 5em;
   padding: var(--space-3) var(--space-4);
-  border: var(--border-width-strong) solid var(--color-border);
+  border: var(--border-width-strong) solid var(--color-fg);
   border-radius: var(--radius);
   background: var(--color-bg);
   color: inherit;
@@ -189,8 +198,7 @@
 }
 
 .balance__note {
-  margin: 0;
-  max-width: 32rem;
+  margin: var(--space-3) 0 0;
   color: var(--color-muted);
 }
 
@@ -247,58 +255,93 @@
   font-weight: var(--weight-medium);
 }
 
-/* --- The worksheet ---------------------------------------------------- */
+/* --- The procedure ---------------------------------------------------- *
+ * The lab's steps in order, with the current one marked. Past steps fade,
+ * the current one carries a bar and heavier weight, so where we are is
+ * visible from the back of the room and never depends on colour alone. */
 
-.worksheet__steps {
-  margin: 0 0 var(--space-6);
-  padding-left: var(--space-6);
+.procedure__heading {
+  margin: 0 0 var(--space-3);
 }
 
-.worksheet__steps li + li {
-  margin-top: var(--space-2);
+.procedure__steps {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-8);
 }
 
-.worksheet__step {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-3);
-}
-
-.worksheet__step input {
-  margin-top: 0.35em;
-  flex: none;
-}
-
-.worksheet__records {
-  width: 100%;
-  margin-bottom: var(--space-6);
-  border-collapse: collapse;
-}
-
-.worksheet__records th,
-.worksheet__records td {
+.procedure__step {
   padding: var(--space-2) var(--space-3);
-  border-bottom: var(--border-width) solid var(--color-border);
-  text-align: left;
+  border-left: var(--border-width-strong) solid transparent;
+}
+
+.procedure__step + .procedure__step {
+  margin-top: var(--space-1);
+}
+
+.procedure__step[data-done='true'] {
+  color: var(--color-muted);
+}
+
+.procedure__step[aria-current='step'] {
+  border-left-color: var(--color-accent);
+  background: var(--color-surface);
+  font-weight: var(--weight-medium);
+}
+
+.procedure__step::marker {
+  font-weight: var(--weight-medium);
+}
+
+.procedure__record {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-left: var(--space-3);
   vertical-align: middle;
 }
 
-.worksheet__value {
+.procedure__value {
   font-family: var(--font-mono);
   font-size: var(--text-lg);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.worksheet__hint {
+.procedure__nav {
+  display: flex;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.procedure__data-heading {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+  color: var(--color-muted);
+}
+
+.procedure__records {
+  width: 100%;
+  margin-bottom: var(--space-4);
+  border-collapse: collapse;
+}
+
+.procedure__records th,
+.procedure__records td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: var(--border-width) solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.procedure__hint {
   margin: 0;
   color: var(--color-muted);
 }
 
-.worksheet__worked p {
+.procedure__worked p {
   margin: 0;
 }
 
-.worksheet__worked p + p {
+.procedure__worked p + p {
   margin-top: var(--space-2);
 }

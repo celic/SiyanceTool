@@ -76,11 +76,14 @@ end to end through the shell, registry, config, and reveal gate with real conten
       continuously — 2B starts with the sphere still in the boat from 2A, and Task 3 begins
       "remove the weigh boat and sphere" — so the bench keeps continuity and only Reset
       clears it. Items from a previous task that are still on the balance stay visible.
-- [x] **Record table** with the calculation behind the reveal gate; 2B compares with 2A.
-      The visible button text is just "Record" (the row header says what), because the full
+- [x] **Data table** with the calculation behind the reveal gate; 2B compares with 2A.
+      The visible button text is just "Record" (the step says what), because the full
       wording wrapped to four lines at projector type on a 1024-wide screen.
-- [x] **Task picker** with the five tasks plus Sandbox, and the steps as a checklist she can
-      tick by hand. Auto-ticking steps remains the stretch goal.
+- [x] **Walkthrough** (restructured 2026-09-10 after the first look): the steps are shown
+      with the current one marked, Back and Next move through them and run on into the next
+      task, and each "Record" step carries its own Record button. No checkboxes. Sandbox is
+      listed last. The balance was redrawn as one object — pan, shroud and stem in SVG,
+      landing on an HTML housing with the display and buttons.
 - [x] **Options** `decimals`, `tareLabel`, `waterDensity`, read leniently so a bad value in
       config falls back to the default. This needed one registry change: `AppRoutes` now
       renders each tool with `{ options }`, which it had not been doing.

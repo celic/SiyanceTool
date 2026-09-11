@@ -93,13 +93,16 @@ last place, with no artificial noise added.
 
 **Controls**
 
-- **Task picker:** Sandbox · 2A Solid by subtraction · 2B Solid by Tare · 3 Liquid in a cup
-  · 4 Gas in a balloon · 5 Metric is amazing. Picking a task puts the right items on the
-  bench and shows that task's steps from the lab, in the lab's own words. It does not touch
-  the balance: the lab's tasks run on continuously (2B starts with the sphere still in the
-  boat from 2A), so only Reset clears the bench, and anything still on the balance from an
-  earlier task stays visible.
-- **The balance:** Power, Tare (label configurable to Zero).
+- **Walkthrough.** The page is built from the teacher's side of the projector: the current
+  task's steps are listed in the lab's own words with the current one marked, and **Back** and
+  **Next** move through them. The last step of one task runs on into the first step of the
+  next, the way the lab does, and Next says which task it is handing off to. A task picker
+  (2A, 2B, 3, 4, 5, then Sandbox last) jumps straight to a task's first step. Choosing a task
+  does not touch the balance: the lab's tasks run on continuously (2B starts with the sphere
+  still in the boat from 2A), so only Reset clears the bench, and anything still on the
+  balance from an earlier task stays visible.
+- **The balance:** Power, Tare (label configurable to Zero), in a housing directly under
+  the pan so it reads as one object.
 - **Bench items**, each a button that moves it between the bench and the pan: weigh boat,
   sphere, cup, empty balloon, inflated balloon. The sphere and the balloons sit in the weigh
   boat; the weigh boat and the cup sit on the pan.
@@ -108,21 +111,20 @@ last place, with no artificial noise added.
   in the lab's own words: _never pour into a container on the balance_.
 - **Task 5 inputs:** four "day of the month" fields whose sum becomes the volume to measure.
 - **New problem** re-rolls every item's mass within a realistic range. **Reset** clears the
-  pan, powers the balance off, and empties the record table.
+  pan, powers the balance off, empties the records, and returns to the task's first step.
 
 **Display**
 
-- The balance drawn in SVG, with what is on the pan drawn on it, and a readout sized for the
-  projector. The readout shows exactly what a real balance shows — including `-12.34` after
-  lifting a tared cup off, `0.00` after a tare, and nothing at all while powered off.
-- A **record table** mirroring the worksheet's blanks for the chosen task: each blank has a
-  "Record" button that captures the current readout. Readings persist across tasks, because
-  2B compares against 2A. The calculation each task asks for —
-  `(boat + sphere) − boat`, `(boat + balloon + air) − (boat + balloon)`, mass versus volume —
-  is shown behind the **reveal gate** with the recorded numbers substituted in, so she can
-  ask the class first.
-- The task's steps as a checklist. Stretch: steps tick themselves as the balance state
-  matches, so the class can see when a step was skipped.
+- The pan drawn in SVG with what is on it, over an HTML housing holding the display and the
+  buttons, so the reading is a live region rather than a picture of a number. The display
+  shows exactly what a real balance shows — including `-12.34` after lifting a tared cup
+  off, `0.00` after a tare, and nothing at all while powered off.
+- Every step that says "Record" carries its own **Record** button, so the number lands next
+  to the instruction that asked for it. A **Data** table under the steps collects the task's
+  readings, and the calculation the worksheet asks for — `(boat + sphere) − boat`,
+  `(boat + balloon + air) − (boat + balloon)`, mass versus volume — is shown behind the
+  **reveal gate** with the recorded numbers substituted in, so she can ask the class first.
+  Readings persist across tasks, because 2B compares against 2A.
 
 **What it has to get right**
 

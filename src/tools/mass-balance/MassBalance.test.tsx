@@ -25,6 +25,62 @@ describe('MassBalance', () => {
     expect(massBalanceTool.component).toBe(MassBalance)
   })
 
+  it('opens on the first task of the lab, with sandbox listed last', () => {
+    setup()
+
+    const tasks = screen.getAllByRole('radio')
+    expect(tasks[0]).toHaveAccessibleName(/2A/)
+    expect(tasks[0]).toBeChecked()
+    expect(tasks[tasks.length - 1]).toHaveAccessibleName(/sandbox/i)
+    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+  })
+
+  describe('walkthrough', () => {
+    it('starts on step 1 and walks forward and back through the steps', async () => {
+      const user = setup()
+
+      const current = () => screen.getByRole('listitem', { current: 'step' })
+      expect(current()).toHaveTextContent(/press power/i)
+      expect(button(/^back$/i)).toBeDisabled()
+
+      await user.click(button(/^next$/i))
+      expect(current()).toHaveTextContent(/place the weigh boat/i)
+
+      await user.click(button(/^back$/i))
+      expect(current()).toHaveTextContent(/press power/i)
+    })
+
+    it('runs on from the last step of one task into the first step of the next', async () => {
+      const user = setup()
+      const task2a = screen.getByRole('radio', { name: /2A/ })
+      const steps = within(screen.getByRole('list', { name: /steps/i })).getAllByRole(
+        'listitem',
+      ).length
+
+      for (let i = 0; i < steps - 1; i += 1) await user.click(button(/^next$/i))
+      expect(task2a).toBeChecked()
+      expect(button(/^next/i)).toHaveAccessibleName(/2B/)
+
+      await user.click(button(/^next/i))
+      expect(screen.getByRole('radio', { name: /2B/ })).toBeChecked()
+      expect(screen.getByRole('listitem', { current: 'step' })).toHaveTextContent(
+        /take the sphere out/i,
+      )
+    })
+
+    it('shows the record button on the step that asks for it, and the value once taken', async () => {
+      const user = setup()
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+
+      const step = screen.getByText(/place the weigh boat/i).closest('li')
+      if (!step) throw new Error('step not found')
+      await user.click(within(step).getByRole('button', { name: /record/i }))
+
+      expect(step).toHaveTextContent('2.35 g')
+    })
+  })
+
   it('shows nothing on the display until the balance is powered on', async () => {
     const user = setup()
 

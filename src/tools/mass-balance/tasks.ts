@@ -20,6 +20,13 @@ export interface Blank {
 /** Numbers recorded so far, by blank id. Readings in grams; volumes in mL. */
 export type Records = Partial<Record<string, number>>
 
+export interface Step {
+  /** The lab's wording. */
+  text: string
+  /** The blank this step fills in, if it says "Record". Its button sits on the step. */
+  record?: string
+}
+
 export interface Task {
   id: TaskId
   /** Short, for the picker. */
@@ -30,7 +37,7 @@ export interface Task {
   usesCylinder: boolean
   /** Whether the four birthday fields drive the cylinder volume (Task 5). */
   usesDates: boolean
-  steps: string[]
+  steps: Step[]
   blanks: Blank[]
   /**
    * The calculation the worksheet asks for, with recorded numbers substituted
@@ -45,28 +52,24 @@ const g = (value: number, decimals: number) => `${value.toFixed(decimals)} g`
 
 export const TASKS: Task[] = [
   {
-    id: 'sandbox',
-    title: 'Sandbox',
-    items: ['weigh-boat', 'sphere', 'cup', 'empty-balloon', 'inflated-balloon'],
-    usesCylinder: true,
-    usesDates: false,
-    steps: [
-      'Anything goes. Use it to act out Task 6: how would you mass a pencil, or the soda inside an unopened can?',
-    ],
-    blanks: [],
-    worked: () => null,
-  },
-  {
     id: '2a',
-    title: '2A · Solid by subtraction',
+    title: 'Task 2A · Solid by subtraction',
     items: ['weigh-boat', 'sphere'],
     usesCylinder: false,
     usesDates: false,
     steps: [
-      'Press Power. Wait until the numbers say zero.',
-      'Place the weigh boat on the balance GENTLY. Record the mass.',
-      'Place the sphere in the weigh boat. Record the mass — write exactly what the balance tells you.',
-      'This is the mass of both the sphere and the weigh boat. To get the mass of just the sphere, subtract.',
+      { text: 'Press Power. Wait until the numbers say zero.' },
+      {
+        text: 'Place the weigh boat on the balance GENTLY. Record the mass.',
+        record: '2a-boat',
+      },
+      {
+        text: 'Place the sphere in the weigh boat. Record the mass — write exactly what the balance tells you.',
+        record: '2a-both',
+      },
+      {
+        text: 'This is the mass of both the sphere and the weigh boat. To get the mass of just the sphere, subtract.',
+      },
     ],
     blanks: [
       { id: '2a-boat', label: 'Weigh boat', source: 'readout' },
@@ -85,15 +88,23 @@ export const TASKS: Task[] = [
   },
   {
     id: '2b',
-    title: '2B · Solid by Tare',
+    title: 'Task 2B · Solid by Tare',
     items: ['weigh-boat', 'sphere'],
     usesCylinder: false,
     usesDates: false,
     steps: [
-      'Take the sphere OUT of the weigh boat. Leave the weigh boat on the balance. Record the mass.',
-      'Press Tare. Record the number on the balance.',
-      'The balance has removed the mass of the weigh boat. Now add the sphere to the weigh boat. Record the number on the balance.',
-      'Compare this number to the number you got in Task 2A. Which method did you find easier? Why?',
+      {
+        text: 'Take the sphere OUT of the weigh boat. Leave the weigh boat on the balance. Record the mass.',
+        record: '2b-boat',
+      },
+      { text: 'Press Tare. Record the number on the balance.', record: '2b-tared' },
+      {
+        text: 'The balance has removed the mass of the weigh boat. Now add the sphere to the weigh boat. Record the number on the balance.',
+        record: '2b-sphere',
+      },
+      {
+        text: 'Compare this number to the number you got in Task 2A. Which method did you find easier? Why?',
+      },
     ],
     blanks: [
       { id: '2b-boat', label: 'Weigh boat alone', source: 'readout' },
@@ -140,15 +151,20 @@ export const TASKS: Task[] = [
     usesCylinder: true,
     usesDates: false,
     steps: [
-      'Remove the weigh boat and sphere from the balance.',
-      'Press Tare and wait until it reads zero.',
-      'Measure out 10 mL of water in the graduated cylinder.',
-      'Place the empty cup on the balance. Record the mass.',
-      'Press Tare and wait until it says zero.',
-      'Take the cup OFF the balance. Do not press any buttons!',
-      'Pour the water into the cup while the cup is on the bench. NEVER pour into a container on the balance.',
-      'Place the cup back on the balance. Record the mass.',
-      'Pour the water back out and rinse the cup.',
+      { text: 'Remove the weigh boat and sphere from the balance.' },
+      { text: 'Press Tare and wait until it reads zero.' },
+      { text: 'Measure out 10 mL of water in the graduated cylinder.' },
+      { text: 'Place the empty cup on the balance. Record the mass.', record: '3-cup' },
+      { text: 'Press Tare and wait until it says zero.' },
+      { text: 'Take the cup OFF the balance. Do not press any buttons!' },
+      {
+        text: 'Pour the water into the cup while the cup is on the bench. NEVER pour into a container on the balance.',
+      },
+      {
+        text: 'Place the cup back on the balance. Record the mass.',
+        record: '3-water',
+      },
+      { text: 'Pour the water back out and rinse the cup.' },
     ],
     blanks: [
       { id: '3-cup', label: 'Empty cup', source: 'readout' },
@@ -172,10 +188,18 @@ export const TASKS: Task[] = [
     usesCylinder: false,
     usesDates: false,
     steps: [
-      'Take everything off the balance. Then press Tare.',
-      'Place the weigh boat on the balance, then place the empty balloon in the weigh boat. Record the mass.',
-      'Remove the empty balloon and place the inflated balloon in the weigh boat. Record the mass.',
-      'Now calculate the mass of the air in the balloon by subtracting the two masses.',
+      { text: 'Take everything off the balance. Then press Tare.' },
+      {
+        text: 'Place the weigh boat on the balance, then place the empty balloon in the weigh boat. Record the mass.',
+        record: '4-empty',
+      },
+      {
+        text: 'Remove the empty balloon and place the inflated balloon in the weigh boat. Record the mass.',
+        record: '4-inflated',
+      },
+      {
+        text: 'Now calculate the mass of the air in the balloon by subtracting the two masses.',
+      },
     ],
     blanks: [
       { id: '4-empty', label: 'Weigh boat + empty balloon', source: 'readout' },
@@ -199,12 +223,19 @@ export const TASKS: Task[] = [
     usesCylinder: true,
     usesDates: true,
     steps: [
-      '1 mL of pure water = 1 g of pure water. Pure water is the only substance you can directly convert between mass and volume. Test it out.',
-      'Enter the day of the month each person in the group was born on. Add them up — that is the volume of water to measure.',
-      'Place the empty cup on the balance and press Tare.',
-      'Take the cup off. Pour the measured volume of water into the cup on the bench. Record the volume.',
-      'Place the cup back on the balance. Record the mass.',
-      'How close were the two measurements?',
+      {
+        text: '1 mL of pure water = 1 g of pure water. Pure water is the only substance you can directly convert between mass and volume. Test it out.',
+      },
+      {
+        text: 'Enter the day of the month each person in the group was born on. Add them up — that is the volume of water to measure.',
+      },
+      { text: 'Place the empty cup on the balance and press Tare.' },
+      {
+        text: 'Take the cup off. Pour the measured volume of water into the cup on the bench. Record the volume.',
+        record: '5-volume',
+      },
+      { text: 'Place the cup back on the balance. Record the mass.', record: '5-mass' },
+      { text: 'How close were the two measurements?' },
     ],
     blanks: [
       { id: '5-volume', label: 'Volume', source: 'cylinder' },
@@ -222,6 +253,20 @@ export const TASKS: Task[] = [
           : `The two measurements differ by ${g(gap, decimals)}.`,
       ]
     },
+  },
+  {
+    id: 'sandbox',
+    title: 'Sandbox',
+    items: ['weigh-boat', 'sphere', 'cup', 'empty-balloon', 'inflated-balloon'],
+    usesCylinder: true,
+    usesDates: false,
+    steps: [
+      {
+        text: 'Anything goes. Use it to act out Task 6: how would you mass a pencil, or the soda inside an unopened can?',
+      },
+    ],
+    blanks: [],
+    worked: () => null,
   },
 ]
 

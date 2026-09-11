@@ -35,28 +35,39 @@ import '@/tools/mass-balance/MassBalance.css'
 const ITEM_ORDER = Object.keys(ITEMS) as ItemId[]
 const DEFAULT_VOLUME = 10
 const DEFAULT_DATES = [1, 1, 1, 1]
+const FIRST_TASK = TASKS[0].id
 
 /**
  * A simulated digital balance for rehearsing the "Measuring Mass" lab.
  *
- * The bench keeps continuity between tasks, as a real bench does: switching
- * from Task 2A to 2B leaves the sphere in the boat, because 2B's first step
- * is to take it out. Only Reset clears the balance. Readings recorded in one
- * task stay available to the next, because 2B compares against 2A.
+ * Built as a walkthrough from the teacher's side of the projector: the lab's
+ * steps are shown in order with the current one marked, Next and Back move
+ * through them, and the last step of one task runs on into the first step of
+ * the next, the way the lab does. Steps that say "Record" carry their own
+ * Record button, so the number lands next to the instruction that asked for it.
+ *
+ * The bench keeps continuity between tasks, as a real bench does: Task 2B
+ * begins with the sphere still in the boat from 2A, because 2B's first step is
+ * to take it out. Only Reset clears the balance. Readings recorded in one task
+ * stay available to the next, because 2B compares against 2A.
  */
 export function MassBalance({ options }: ToolProps) {
   const [settings] = useState(() => readSettings(options))
   const [balance, setBalance] = useState<BalanceState>(() =>
     createBalance({ decimals: settings.decimals, waterDensity: settings.waterDensity }),
   )
-  const [taskId, setTaskId] = useState<TaskId>('sandbox')
+  const [taskId, setTaskId] = useState<TaskId>(FIRST_TASK)
+  const [stepIndex, setStepIndex] = useState(0)
   const [records, setRecords] = useState<Records>({})
   const [refusal, setRefusal] = useState<string | null>(null)
   const [volume, setVolume] = useState(DEFAULT_VOLUME)
   const [dates, setDates] = useState(DEFAULT_DATES)
-  const [checked, setChecked] = useState<Partial<Record<TaskId, boolean[]>>>({})
 
   const task = findTask(taskId)
+  const taskIndex = TASKS.findIndex((candidate) => candidate.id === taskId)
+  const nextTask = TASKS[taskIndex + 1]
+  const previousTask = TASKS[taskIndex - 1]
+  const onLastStep = stepIndex >= task.steps.length - 1
   const cylinderVolume = task.usesDates
     ? dates.reduce((sum, day) => sum + day, 0)
     : volume
@@ -66,7 +77,7 @@ export function MassBalance({ options }: ToolProps) {
     (id) => task.items.includes(id) || balance.onBalance.includes(id),
   )
   const worked = task.worked(records, settings.decimals)
-  const steps = checked[taskId] ?? task.steps.map(() => false)
+  const blankById = new Map(task.blanks.map((blank) => [blank.id, blank]))
 
   /** Applies a move, or shows why the balance refused it, in the lab's words. */
   function apply(result: MoveResult) {
@@ -82,6 +93,22 @@ export function MassBalance({ options }: ToolProps) {
     apply(balance.onBalance.includes(id) ? remove(balance, id) : place(balance, id))
   }
 
+  function goTo(id: TaskId, step: number) {
+    setTaskId(id)
+    setStepIndex(step)
+    setRefusal(null)
+  }
+
+  function next() {
+    if (!onLastStep) goTo(taskId, stepIndex + 1)
+    else if (nextTask) goTo(nextTask.id, 0)
+  }
+
+  function back() {
+    if (stepIndex > 0) goTo(taskId, stepIndex - 1)
+    else if (previousTask) goTo(previousTask.id, previousTask.steps.length - 1)
+  }
+
   function record(blank: Blank) {
     if (blank.source === 'cylinder') {
       setRecords({ ...records, [blank.id]: cylinderVolume })
@@ -95,26 +122,25 @@ export function MassBalance({ options }: ToolProps) {
     setRefusal(null)
   }
 
+  function formatRecord(blank: Blank, recorded: number) {
+    return blank.source === 'cylinder'
+      ? `${recorded} mL`
+      : `${recorded.toFixed(settings.decimals)} g`
+  }
+
   function handleReset() {
     setBalance(reset(balance))
     setRecords({})
     setRefusal(null)
     setVolume(DEFAULT_VOLUME)
     setDates(DEFAULT_DATES)
-    setChecked({})
+    setStepIndex(0)
   }
 
   function handleRandomize() {
     setBalance(randomize(balance))
     setRecords({})
     setRefusal(null)
-  }
-
-  function toggleStep(index: number) {
-    setChecked({
-      ...checked,
-      [taskId]: steps.map((done, i) => (i === index ? !done : done)),
-    })
   }
 
   const controls = (
@@ -128,7 +154,7 @@ export function MassBalance({ options }: ToolProps) {
               name="task"
               value={candidate.id}
               checked={candidate.id === taskId}
-              onChange={() => setTaskId(candidate.id)}
+              onChange={() => goTo(candidate.id, 0)}
             />
             {candidate.title}
           </label>
@@ -193,7 +219,7 @@ export function MassBalance({ options }: ToolProps) {
   return (
     <ToolShell
       title="Using a balance"
-      description="A digital balance to rehearse the Measuring Mass lab on the projector before anyone touches the real one."
+      description="Walk the class through the Measuring Mass lab on a simulated digital balance before anyone touches the real one."
       controls={controls}
       onReset={handleReset}
       onRandomize={handleRandomize}
@@ -202,7 +228,7 @@ export function MassBalance({ options }: ToolProps) {
         <div className="mass-balance__bench-side">
           <div className="balance">
             <BalanceFigure state={balance} />
-            <div className="balance__front">
+            <div className="balance__housing">
               <output
                 role="status"
                 aria-label="Balance display"
@@ -219,7 +245,7 @@ export function MassBalance({ options }: ToolProps) {
               <div className="balance__buttons">
                 <button
                   type="button"
-                  className="balance__button"
+                  className="balance__button balance__button--power"
                   aria-pressed={balance.powered}
                   onClick={() => {
                     setBalance(togglePower(balance))
@@ -283,50 +309,76 @@ export function MassBalance({ options }: ToolProps) {
           </div>
         </div>
 
-        <div className="mass-balance__worksheet">
-          <h3 className="worksheet__heading">{task.title}</h3>
-          <ol className="worksheet__steps">
-            {task.steps.map((step, index) => (
-              <li key={step}>
-                <label className="worksheet__step">
-                  <input
-                    type="checkbox"
-                    checked={steps[index]}
-                    onChange={() => toggleStep(index)}
-                  />
-                  <span>{step}</span>
-                </label>
-              </li>
-            ))}
+        <div className="mass-balance__procedure">
+          <h3 className="procedure__heading">{task.title}</h3>
+
+          <ol className="procedure__steps" aria-label="Steps">
+            {task.steps.map((step, index) => {
+              const blank = step.record ? blankById.get(step.record) : undefined
+              const recorded = blank ? records[blank.id] : undefined
+              const isCurrent = index === stepIndex
+              return (
+                <li
+                  key={step.text}
+                  className="procedure__step"
+                  aria-current={isCurrent ? 'step' : undefined}
+                  data-done={index < stepIndex}
+                >
+                  <span className="procedure__text">{step.text}</span>
+                  {blank && (
+                    <span className="procedure__record">
+                      <button
+                        type="button"
+                        className="action-button"
+                        aria-label={`Record ${blank.label}`}
+                        onClick={() => record(blank)}
+                      >
+                        Record
+                      </button>
+                      <span className="procedure__value">
+                        {recorded === undefined
+                          ? `— ${blank.source === 'cylinder' ? 'mL' : 'g'}`
+                          : formatRecord(blank, recorded)}
+                      </span>
+                    </span>
+                  )}
+                </li>
+              )
+            })}
           </ol>
 
+          <div className="procedure__nav">
+            <button
+              type="button"
+              className="action-button"
+              onClick={back}
+              disabled={stepIndex === 0 && !previousTask}
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              className="action-button action-button--primary"
+              onClick={next}
+              disabled={onLastStep && !nextTask}
+              aria-label={onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
+            >
+              {onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
+            </button>
+          </div>
+
           {task.blanks.length > 0 && (
-            <>
-              <table className="worksheet__records" aria-label="Recorded readings">
+            <div className="procedure__data">
+              <h4 className="procedure__data-heading">Data</h4>
+              <table className="procedure__records" aria-label="Recorded readings">
                 <tbody>
                   {task.blanks.map((blank) => {
                     const recorded = records[blank.id]
                     return (
                       <tr key={blank.id}>
                         <th scope="row">{blank.label}</th>
-                        <td className="worksheet__value">
-                          {recorded === undefined
-                            ? '—'
-                            : blank.source === 'cylinder'
-                              ? `${recorded} mL`
-                              : `${recorded.toFixed(settings.decimals)} g`}
-                        </td>
-                        <td>
-                          {/* The row header already says what; the visible text stays
-                              short so the table survives projector type at 1024px. */}
-                          <button
-                            type="button"
-                            className="action-button"
-                            aria-label={`Record ${blank.label}`}
-                            onClick={() => record(blank)}
-                          >
-                            Record
-                          </button>
+                        <td className="procedure__value">
+                          {recorded === undefined ? '—' : formatRecord(blank, recorded)}
                         </td>
                       </tr>
                     )
@@ -339,18 +391,18 @@ export function MassBalance({ options }: ToolProps) {
                   label="Reveal the calculation"
                   hideLabel="Hide the calculation"
                 >
-                  <div className="worksheet__worked">
+                  <div className="procedure__worked">
                     {worked.map((line) => (
                       <p key={line}>{line}</p>
                     ))}
                   </div>
                 </RevealAnswer>
               ) : (
-                <p className="worksheet__hint">
+                <p className="procedure__hint">
                   Record every reading to unlock the calculation.
                 </p>
               )}
-            </>
+            </div>
           )}
         </div>
       </div>
