@@ -288,16 +288,6 @@ describe('MassBalance', () => {
       expect(within(table).queryByText('2.35 g')).not.toBeInTheDocument()
     })
 
-    it('resets from the keyboard with R, since she drives it from across the room', async () => {
-      const user = setup()
-      await user.click(button(/power/i))
-      expect(display()).toHaveTextContent('0.00 g')
-
-      await user.keyboard('r')
-
-      expect(display()).toHaveTextContent('')
-    })
-
     it('new problem changes the masses, so a rehearsed answer cannot be reused', async () => {
       const user = setup()
       await user.click(button(/new problem/i))

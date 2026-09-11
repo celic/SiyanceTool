@@ -209,10 +209,7 @@ rebuilding them per tool; if one does not fit, change it for everyone.
 
 - **`ToolShell`** — title, description, controls area, output area, and the actions that are
   always in the same place. Controls and output are separate labelled landmarks, so a screen
-  reader user can jump between "the knobs" and "the answer" without walking the page. It also
-  owns the `R`-to-reset shortcut, guarded against firing while she is typing into a field —
-  `R` is a letter that appears in chemical formulae, and wiping her input would be worse than
-  having no shortcut.
+  reader user can jump between "the knobs" and "the answer" without walking the page.
 - **`Slider`** — a native range input, so keyboard stepping, touch, and announcements come for
   free. The value is always shown as text as well: a knob position is unreadable from the
   back of a room, and the number is the thing being taught.
@@ -227,8 +224,11 @@ rebuilding them per tool; if one does not fit, change it for everyone.
 - **`ResetButton`** and **`RandomizeButton`** — Randomize is labelled "New problem", which is
   what it means to the person pressing it.
 
-Site-wide keyboard conventions: arrows adjust the focused control and `Space` reveals, both
-native to the elements chosen; `R` resets.
+Site-wide keyboard conventions: every control is a real button or field, so Tab reaches it
+and Space or Enter works it, with nothing beyond what the elements do natively. **There are
+deliberately no keyboard shortcuts.** An `R`-to-reset binding existed briefly and was removed
+(2026-09-10): hidden logic is a liability in front of a class, where a stray keystroke that
+wipes the page is worse than any convenience. Do not add one.
 
 Components size themselves from tokens rather than pixels — the burger bars use `em`, the
 navigation panel's top offset is computed from the type scale — so switching to projector

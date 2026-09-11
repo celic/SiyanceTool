@@ -89,7 +89,7 @@ end to end through the shell, registry, config, and reveal gate with real conten
       renders each tool with `{ options }`, which it had not been doing.
 - [x] **Registered**; `src/core/scaffold.ts` deleted.
 - [x] **Component tests**, 18 of them, behavioural: hidden until revealed, refusals visible,
-      display blank while off, `R` resets, options honoured and bad options survived.
+      display blank while off, options honoured and bad options survived.
 - [~] **Verify by eye.** Done in the browser: dark/normal, dark/projector, and
   light/projector at 1024x768 (no horizontal overflow, 64px display, doubled strokes,
   single-line table rows). Still to do: light/normal by eye, 1920x1080, and a

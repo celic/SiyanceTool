@@ -67,7 +67,9 @@ describe('ToolShell', () => {
     expect(screen.getByRole('button', { name: /new problem/i })).toBeInTheDocument()
   })
 
-  it('resets when R is pressed, so she is not hunting for a button mid-lesson', async () => {
+  it('has no keyboard shortcuts — nothing resets without a visible button being pressed', async () => {
+    // Deliberate. Hidden logic is a liability in front of a class: a stray
+    // keystroke that wipes the page mid-lesson is worse than any shortcut.
     const user = userEvent.setup()
     const onReset = vi.fn()
     render(
@@ -76,37 +78,8 @@ describe('ToolShell', () => {
       </ToolShell>,
     )
 
-    await user.keyboard('r')
-
-    expect(onReset).toHaveBeenCalledOnce()
-  })
-
-  it('ignores R while she is typing into a field', async () => {
-    const user = userEvent.setup()
-    const onReset = vi.fn()
-    render(
-      <ToolShell
-        title="Molar mass"
-        onReset={onReset}
-        controls={<input aria-label="Formula" />}
-      >
-        output
-      </ToolShell>,
-    )
-
-    await user.click(screen.getByLabelText('Formula'))
-    await user.keyboard('Fr')
+    await user.keyboard('rR{Escape}{Enter} ')
 
     expect(onReset).not.toHaveBeenCalled()
-    expect(screen.getByLabelText('Formula')).toHaveValue('Fr')
-  })
-
-  it('does nothing on R when the tool has no reset', async () => {
-    const user = userEvent.setup()
-    render(<ToolShell title="Gas laws">output</ToolShell>)
-
-    await user.keyboard('r')
-
-    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument()
   })
 })

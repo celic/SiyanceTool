@@ -46,7 +46,10 @@ These are built once in the design system and are not repeated in each tool belo
 - **URL-encoded state.** The full configuration serializes to the query string, so a
   scenario can be bookmarked before class and shared as a link.
 - **Projector legibility.** Readable from the back of the room, not just on a laptop.
-- **Keyboard driveable.** Arrows adjust the focused control, `R` resets, `Space` reveals.
+- **Keyboard driveable, with no shortcuts.** Every control is a real button or field, so
+  Tab reaches it and Space or Enter works it. There are deliberately no hidden key
+  bindings: in front of a class, a stray keystroke that resets the page is worse than any
+  convenience.
 - **No meaning in color alone.** Every color is paired with a label or pattern.
 - **Registry entry.** Every tool registers itself with an id, title, unit, and one-line
   description, and can be switched off in config without touching its source.

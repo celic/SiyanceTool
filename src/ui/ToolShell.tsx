@@ -1,4 +1,4 @@
-import { useEffect, useId, type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 
 import { RandomizeButton, ResetButton } from '@/ui/ActionButtons'
 import '@/ui/ToolShell.css'
@@ -14,24 +14,16 @@ export interface ToolShellProps {
   onRandomize?: () => void
 }
 
-/** True when a keystroke belongs to something the user is typing into. */
-function isTypingTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false
-
-  return (
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.tagName === 'SELECT' ||
-    target.isContentEditable
-  )
-}
-
 /**
  * The frame every tool sits in: title, description, controls, output, and the
  * actions that are always in the same place.
  *
  * Controls and output are separate labelled regions so a screen reader user can
  * jump between "the knobs" and "the answer" without walking the whole page.
+ *
+ * There are deliberately no keyboard shortcuts. Everything happens through a
+ * visible control: hidden logic is a liability in front of a class, where a
+ * stray keystroke that wipes the page is worse than any convenience.
  */
 export function ToolShell({
   title,
@@ -43,23 +35,6 @@ export function ToolShell({
 }: ToolShellProps) {
   const controlsId = useId()
   const outputId = useId()
-
-  useEffect(() => {
-    if (!onReset) return
-
-    function onKeyDown(event: KeyboardEvent) {
-      // Guarded against fields: `R` is a letter she may well be typing into a
-      // formula box, and wiping her input would be worse than no shortcut.
-      if (event.key !== 'r' && event.key !== 'R') return
-      if (event.ctrlKey || event.metaKey || event.altKey) return
-      if (isTypingTarget(event.target)) return
-
-      onReset?.()
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [onReset])
 
   return (
     <article className="tool">
