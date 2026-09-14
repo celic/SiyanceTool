@@ -234,7 +234,7 @@ export function MassBalance({ options }: ToolProps) {
             <button
               type="button"
               className="action-button"
-              onClick={() => commit(emptyCup(balance), { type: 'empty' })}
+              onClick={() => apply(emptyCup(balance), { type: 'empty' })}
               disabled={balance.waterVolume === 0}
             >
               Empty the cup

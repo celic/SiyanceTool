@@ -145,13 +145,13 @@ export const TASKS: Task[] = [
         id: '2a-boat',
         label: 'Weigh boat',
         source: 'readout',
-        ready: firstOf(on('weigh-boat'), notOn('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere')),
       },
       {
         id: '2a-both',
         label: 'Weigh boat + sphere',
         source: 'readout',
-        ready: firstOf(on('weigh-boat'), on('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), on('sphere')),
       },
     ],
     worked: (records, decimals) => {
@@ -196,19 +196,29 @@ export const TASKS: Task[] = [
         id: '2b-boat',
         label: 'Weigh boat alone',
         source: 'readout',
-        ready: firstOf(on('weigh-boat'), notOn('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere')),
       },
       {
         id: '2b-tared',
         label: 'After Tare',
         source: 'readout',
-        ready: firstOf(on('weigh-boat'), notOn('sphere'), taredWith('weigh-boat')),
+        ready: firstOf(
+          notOn('cup'),
+          on('weigh-boat'),
+          notOn('sphere'),
+          taredWith('weigh-boat'),
+        ),
       },
       {
         id: '2b-sphere',
         label: 'Sphere in the tared boat',
         source: 'readout',
-        ready: firstOf(on('weigh-boat'), on('sphere'), taredWith('weigh-boat')),
+        ready: firstOf(
+          notOn('cup'),
+          on('weigh-boat'),
+          on('sphere'),
+          taredWith('weigh-boat'),
+        ),
       },
     ],
     worked: (records, decimals) => {
@@ -281,7 +291,10 @@ export const TASKS: Task[] = [
         record: '3-water',
         advance: recorded('3-water'),
       },
-      { text: 'Pour the water back out and rinse the cup.', advance: pressed('empty') },
+      {
+        text: 'Take the cup off the balance, pour the water back out and rinse the cup.',
+        advance: pressed('empty'),
+      },
     ],
     blanks: [
       {
@@ -294,7 +307,7 @@ export const TASKS: Task[] = [
         id: '3-water',
         label: 'Water in the tared cup',
         source: 'readout',
-        ready: firstOf(on('cup'), cupHasWater, taredWith('cup')),
+        ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
       },
     ],
     worked: (records, decimals) => {
@@ -340,6 +353,7 @@ export const TASKS: Task[] = [
         label: 'Weigh boat + empty balloon',
         source: 'readout',
         ready: firstOf(
+          notOn('cup'),
           on('weigh-boat'),
           on('empty-balloon'),
           notOn('inflated-balloon'),
@@ -350,6 +364,7 @@ export const TASKS: Task[] = [
         label: 'Weigh boat + balloon + air',
         source: 'readout',
         ready: firstOf(
+          notOn('cup'),
           on('weigh-boat'),
           on('inflated-balloon'),
           notOn('empty-balloon'),
@@ -380,13 +395,26 @@ export const TASKS: Task[] = [
       {
         text: 'Enter the day of the month each person in the group was born on. Add them up — that is the volume of water to measure.',
       },
+      // The lab gives Task 5 no bench steps of its own ("using the balance
+      // correctly, mass the water"), so these are Task 3's, in the same order.
+      // Clearing the pan comes first: arriving from Task 4, the boat and
+      // balloon are still on it, and a tare taken over them is not the cup's.
+      {
+        text: 'Take everything off the balance.',
+        advance: (_, state) => state.onBalance.length === 0,
+      },
       {
         text: 'Place the empty cup on the balance and press Tare.',
         advance: (action, state) =>
           action.type === 'tare' && state.onBalance.includes('cup'),
       },
       {
-        text: 'Take the cup off. Pour the measured volume of water into the cup on the bench. Record the volume.',
+        text: 'Take the cup off the balance. Do not press any buttons!',
+        advance: (action) => action.type === 'remove' && action.item === 'cup',
+      },
+      { text: 'Measure out that volume of water in the graduated cylinder.' },
+      {
+        text: 'Pour it into the cup on the bench. Record the volume.',
         record: '5-volume',
         advance: recorded('5-volume'),
       },
@@ -408,7 +436,7 @@ export const TASKS: Task[] = [
         id: '5-mass',
         label: 'Mass of water',
         source: 'readout',
-        ready: firstOf(on('cup'), cupHasWater, taredWith('cup')),
+        ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
       },
     ],
     worked: (records, decimals) => {

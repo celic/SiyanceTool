@@ -217,9 +217,20 @@ export function pour(state: BalanceState, volumeMl: number): MoveResult {
   return { ok: true, state: { ...state, waterVolume: state.waterVolume + volumeMl } }
 }
 
-/** Pour the water back out of the cup. */
-export function emptyCup(state: BalanceState): BalanceState {
-  return { ...state, waterVolume: 0 }
+/**
+ * Pour the water back out of the cup.
+ *
+ * Only while the cup is on the bench, for the same reason as pouring in:
+ * nothing is poured over the pan.
+ */
+export function emptyCup(state: BalanceState): MoveResult {
+  if (state.onBalance.includes('cup')) {
+    return {
+      ok: false,
+      reason: 'Take the cup off the balance before pouring anything out.',
+    }
+  }
+  return { ok: true, state: { ...state, waterVolume: 0 } }
 }
 
 /** Back to the start of the lab: pan empty, cup empty, balance off. Masses stay. */

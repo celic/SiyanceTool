@@ -168,9 +168,19 @@ describe('Task 3 — massing a liquid in a cup', () => {
 
   it('pours back out again so the cup can be reused', () => {
     let balance = must(pour(on(), 10))
-    balance = emptyCup(balance)
+    balance = must(emptyCup(balance))
 
     expect(balance.waterVolume).toBe(0)
+  })
+
+  it('refuses to pour out of the cup while it is on the balance, for the same reason', () => {
+    let balance = must(pour(on(), 10))
+    balance = must(place(balance, 'cup'))
+
+    const result = emptyCup(balance)
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toMatch(/take the cup off/i)
   })
 
   it('refuses to pour nothing', () => {

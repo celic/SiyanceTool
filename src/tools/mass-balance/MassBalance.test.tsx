@@ -127,6 +127,69 @@ describe('MassBalance', () => {
       expect(current()).toHaveTextContent(/place the cup back on the balance/i)
     })
 
+    it('runs Task 5 like Task 3: clear, cup, tare, off, measure, pour, back', async () => {
+      const user = setup()
+      await chooseTask(user, /task 5/i)
+      const steps = within(screen.getByRole('list', { name: /steps/i })).getAllByRole(
+        'listitem',
+      )
+      expect(steps.map((step) => step.textContent)).toEqual([
+        expect.stringMatching(/1 mL of pure water = 1 g/i),
+        expect.stringMatching(/enter the day of the month/i),
+        expect.stringMatching(/take everything off the balance/i),
+        expect.stringMatching(/place the empty cup on the balance and press tare/i),
+        expect.stringMatching(/take the cup off/i),
+        expect.stringMatching(/measure out that volume/i),
+        expect.stringMatching(/pour it into the cup on the bench/i),
+        expect.stringMatching(/place the cup back on the balance/i),
+        expect.stringMatching(/how close/i),
+      ])
+    })
+
+    it('makes Task 5 clear the pan first, so the tare is the cup alone', async () => {
+      // Arriving from Task 4, the boat and inflated balloon are still on.
+      const user = setup()
+      await chooseTask(user, /task 4/i)
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+      await user.click(item(/^inflated balloon/i))
+
+      await chooseTask(user, /task 5/i)
+      const current = () => screen.getByRole('listitem', { current: 'step' })
+      await user.click(button(/^next/i))
+      await user.click(button(/^next/i))
+      expect(current()).toHaveTextContent(/take everything off/i)
+      expect(item(/^inflated balloon/i)).toHaveAttribute('aria-pressed', 'true')
+
+      // Lifting the boat takes the balloon with it and clears the pan.
+      await user.click(item(/^weigh boat/i))
+      expect(current()).toHaveTextContent(/place the empty cup/i)
+
+      await user.click(item(/^cup/i))
+      await user.click(button(/^tare$/i))
+      await user.click(item(/^cup/i))
+      await user.click(button(/pour into cup/i))
+      await user.click(button(/record volume/i))
+      await user.click(item(/^cup/i))
+      expect(button(/record mass of water/i)).toBeEnabled()
+    })
+
+    it('makes Task 3 take the cup off before pouring it out, and refuses otherwise', async () => {
+      const user = setup()
+      await chooseTask(user, /task 3/i)
+      await user.click(button(/power/i))
+      await user.click(button(/pour into cup/i))
+      await user.click(item(/^cup/i))
+
+      await user.click(button(/empty the cup/i))
+
+      expect(screen.getByRole('alert')).toHaveTextContent(/take the cup off/i)
+      expect(display()).toHaveTextContent('18.21 g')
+      expect(
+        screen.getByText(/take the cup off the balance, pour the water back out/i),
+      ).toBeVisible()
+    })
+
     it('does not move the marker for an action that belongs to an earlier step', async () => {
       const user = setup()
       const current = () => screen.getByRole('listitem', { current: 'step' })

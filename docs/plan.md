@@ -71,6 +71,19 @@ review clears them into the README.
       and only then measure and pour. Reordered on the page; the worksheet's wording is
       otherwise unchanged. Covered by the test "runs Task 3 in the order a balance is
       actually used".
+- [x] **`mass-balance` — Task 5 never cleared the pan** (found and fixed 2026-09-13, in the
+      same review). Arriving from Task 4 with the boat and balloon still on, Task 5 went
+      straight to "place the cup and press Tare", so the tare included the boat and "Record
+      mass of water" waited forever. Task 5 now starts "take everything off the balance",
+      then runs Task 3's bench steps in Task 3's order: cup on and Tare, cup off, measure,
+      pour, cup back.
+- [x] **`mass-balance` — Task 3 poured the cup out on the balance** (same review). Step 9
+      emptied the cup while it sat on the pan. Pouring out over the pan is as bad as pouring
+      in, so the step now takes the cup off first and the model refuses otherwise, with a
+      reason, the way it refuses pouring in.
+- [x] **`mass-balance` — Record did not check the other container** (same review). The boat
+      tasks' Record buttons did not require the cup to be off, nor the cup tasks the boat.
+      Every readiness rule now does.
 - [ ] _Log new ones here as they are found._
 
 ## 2. ★ `mass-balance` — what remains `[~]`
