@@ -115,9 +115,10 @@ last place, with no artificial noise added.
 - **Bench items**, each a button that moves it between the bench and the pan: weigh boat,
   sphere, cup, empty balloon, inflated balloon. The sphere and the balloons sit in the weigh
   boat; the weigh boat and the cup sit on the pan.
-- **Graduated cylinder:** a volume field in mL, and a "pour into cup" action that is only
-  allowed while the cup is on the bench. Pouring while the cup is on the balance is refused,
-  in the lab's own words: _never pour into a container on the balance_.
+- **Graduated cylinder:** a volume field in mL, and "pour into cup" and "empty the cup"
+  actions that are only allowed while the cup is on the bench. Pouring in while the cup is
+  on the balance is refused in the lab's own words — _never pour into a container on the
+  balance_ — and pouring out is refused for the same reason.
 - **Task 5 inputs:** four "day of the month" fields whose sum becomes the volume to measure.
 - **New problem** re-rolls every item's mass within a small spread of its usual value —
   a few tenths of a gram, at most a quarter of the mass — so the numbers stay close to the
@@ -176,7 +177,7 @@ last place, with no artificial noise added.
 | 2B — solid by Tare                   | Sphere out, boat stays; Tare shows `0.00`; sphere in, record; compare with 2A — the tool says whether the two agree, and why they may not.                                                                                                                                              |
 | 3 — liquid in a cup                  | Clear pan, Tare; cup on, record; Tare; cup **off** — the readout goes negative and the page says why; measure, pour on the bench; cup back on, record the water alone. The page puts "measure out 10 mL" after "cup off", where the hands actually are; the worksheet lists it earlier. |
 | 4 — gas in a balloon                 | Boat + empty balloon, record; swap for inflated balloon, record; reveal the subtraction.                                                                                                                                                                                                |
-| 5 — metric is amazing                | Four dates sum to a volume; pour that volume; mass it; reveal mass beside volume and how close they are.                                                                                                                                                                                |
+| 5 — metric is amazing                | Four dates sum to a volume; then Task 3's bench steps in Task 3's order — clear the pan, cup on and Tare, cup off, measure, pour, cup back — since the lab gives Task 5 no bench steps of its own; reveal mass beside volume and how close they are.                                    |
 | 1 — parts of the balance             | Partly: power-on, decimals, units, and the weigh boat's mass are all there. The lid and "do not press the pan" are not — see below.                                                                                                                                                     |
 | 6 — think (pencil, soda can, gas)    | Not captured. Free writing; the sandbox mode is where she can act out an answer.                                                                                                                                                                                                        |
 | Roles, equipment match, units circle | Not captured. Paper.                                                                                                                                                                                                                                                                    |
