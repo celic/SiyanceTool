@@ -258,9 +258,6 @@ export const TASKS: Task[] = [
       },
       { text: 'Press Tare and wait until it reads zero.', advance: pressed('tare') },
       {
-        text: 'Measure out 10 mL of water in the graduated cylinder.',
-      },
-      {
         text: 'Place the empty cup on the balance. Record the mass.',
         record: '3-cup',
         advance: recorded('3-cup'),
@@ -270,6 +267,11 @@ export const TASKS: Task[] = [
         text: 'Take the cup OFF the balance. Do not press any buttons!',
         advance: (action) => action.type === 'remove' && action.item === 'cup',
       },
+      // The worksheet lists "measure out 10 mL" before "place the empty cup",
+      // but the balance is used the other way round: cup on, record, tare,
+      // cup off, and only then measure and pour. Reordered on the page
+      // (2026-09-13) so the marker follows what her hands actually do.
+      { text: 'Measure out 10 mL of water in the graduated cylinder.' },
       {
         text: 'Pour the water into the cup while the cup is on the bench. NEVER pour into a container on the balance.',
         advance: pressed('pour'),

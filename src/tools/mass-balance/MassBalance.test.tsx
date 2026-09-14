@@ -88,22 +88,43 @@ describe('MassBalance', () => {
       expect(button(/^next/i)).toHaveAccessibleName(/2B/)
     })
 
-    it('carries the marker past steps with nothing to detect when a later action is taken', async () => {
+    it('runs Task 3 in the order a balance is actually used: cup, tare, off, measure, pour, back', async () => {
       const user = setup()
       await chooseTask(user, /task 3/i)
       await user.click(button(/power/i))
       const current = () => screen.getByRole('listitem', { current: 'step' })
+      const steps = within(screen.getByRole('list', { name: /steps/i })).getAllByRole(
+        'listitem',
+      )
+      expect(steps.map((step) => step.textContent)).toEqual([
+        expect.stringMatching(/remove the weigh boat and sphere/i),
+        expect.stringMatching(/press tare and wait until it reads zero/i),
+        expect.stringMatching(/place the empty cup on the balance/i),
+        expect.stringMatching(/press tare and wait until it says zero/i),
+        expect.stringMatching(/take the cup off/i),
+        expect.stringMatching(/measure out 10 mL/i),
+        expect.stringMatching(/pour the water into the cup/i),
+        expect.stringMatching(/place the cup back on the balance/i),
+        expect.stringMatching(/pour the water back out/i),
+      ])
 
       // Step 1, "remove the weigh boat and sphere", is already true on an
-      // empty pan; step 2 is Tare.
+      // empty pan, so one Tare press completes steps 1 and 2 together.
       await user.click(button(/^tare$/i))
-      expect(current()).toHaveTextContent(/measure out 10 mL/i)
+      expect(current()).toHaveTextContent(/place the empty cup/i)
 
-      // Nothing on the page can tell the cylinder was read, so recording the
-      // cup — step 4 — moves straight on to step 5.
       await user.click(item(/^cup/i))
       await user.click(button(/record empty cup/i))
       expect(current()).toHaveTextContent(/press tare and wait until it says zero/i)
+      await user.click(button(/^tare$/i))
+      expect(current()).toHaveTextContent(/take the cup off/i)
+      await user.click(item(/^cup/i))
+      expect(current()).toHaveTextContent(/measure out 10 mL/i)
+
+      // Nothing on the page can tell the cylinder was read, so pouring —
+      // the next step — carries the marker past it.
+      await user.click(button(/pour into cup/i))
+      expect(current()).toHaveTextContent(/place the cup back on the balance/i)
     })
 
     it('does not move the marker for an action that belongs to an earlier step', async () => {

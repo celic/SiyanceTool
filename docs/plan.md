@@ -51,56 +51,42 @@ Tools are one of two kinds, and the kind decides where they sit in this plan:
 - **Proposed** — suggested by the planning docs. Ordered by tier, then by the unit she
   teaches next (questions.md #6).
 
+Above both: **bugfixes**. Item 1 is always the list of things found wrong in use, because
+a bug in front of a class outranks any new feature.
+
 Items are ordered by priority below. Requested tools are marked ★ in their headings.
 
 ---
 
-## 1. ★ `mass-balance` — the first tool `[~]` — built 2026-09-10, awaiting demo
+## 1. Bugfixes `[~]`
 
-**Requested.** Source:
-[`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
-Design: [tools.md](tools.md#mass-balance--using-a-balance). Lab Tasks 2A, 2B, 3, 4 and 5
-must be possible on the page.
+Problems found by using the tools — in rehearsal, in demos, in class. This item stays at
+the top of the plan: a bug in front of a class outranks any new feature. Each entry says
+where it was seen and what the fix was. Fixed entries stay listed until the next plan
+review clears them into the README.
 
-This went first for two reasons beyond being requested: it needs no element data and no
-formula parser, so it did not wait on `chem-core` (item 3), and it is the first tool to run
-end to end through the shell, registry, config, and reveal gate with real content.
+- [x] **`mass-balance` — Task 3 steps out of order** (found and fixed 2026-09-13). The page
+      followed the worksheet, which lists "measure out 10 mL" before "place the empty cup on
+      the balance". The balance is used the other way round: cup on, record, Tare, cup off,
+      and only then measure and pour. Reordered on the page; the worksheet's wording is
+      otherwise unchanged. Covered by the test "runs Task 3 in the order a balance is
+      actually used".
+- [ ] _Log new ones here as they are found._
 
-- [x] **Balance model in `chem-core`**, `src/core/balance.ts`, test-first in the `node`
-      project — 31 tests, fixtures taken from the lab's own numbers, including the one-unit
-      disagreement between the subtraction and tare methods that Task 2B asks about.
-- [x] **The balance in SVG**, `src/tools/mass-balance/`, with the display as HTML so the
-      reading is a live region rather than a picture of a number.
-- [x] **Bench and items**, with each item's location in its accessible name. **Deviation
-      from the design:** choosing a task does _not_ reset the balance. The lab's tasks run on
-      continuously — 2B starts with the sphere still in the boat from 2A, and Task 3 begins
-      "remove the weigh boat and sphere" — so the bench keeps continuity and only Reset
-      clears it. Items from a previous task that are still on the balance stay visible.
-- [x] **Data table** with the calculation behind the reveal gate; 2B compares with 2A.
-      The visible button text is just "Record" (the step says what), because the full
-      wording wrapped to four lines at projector type on a 1024-wide screen.
-- [x] **Walkthrough** (restructured 2026-09-10 after the first look): the steps are shown
-      with the current one marked, and the marker moves on by itself when a step's action is
-      taken — each step carries a condition on the action and the balance state; steps with
-      no condition are passed over, and consecutive satisfied steps complete together. Back
-      and Next remain for stepping by hand and run on into the next task. Each "Record" step
-      carries its own Record button. No checkboxes. Sandbox is listed last. The balance was redrawn as one object — pan, shroud and stem in SVG,
-      landing on an HTML housing with the display and buttons.
-- [x] **Options** `decimals`, `tareLabel`, `waterDensity`, read leniently so a bad value in
-      config falls back to the default. This needed one registry change: `AppRoutes` now
-      renders each tool with `{ options }`, which it had not been doing.
-- [x] **Registered**; `src/core/scaffold.ts` deleted.
-- [x] **Component tests**, 18 of them, behavioural: hidden until revealed, refusals visible,
-      display blank while off, options honoured and bad options survived.
-- [~] **Verify by eye.** Done in the browser: dark/normal, dark/projector, and
-  light/projector at 1024x768 (no horizontal overflow, 64px display, doubled strokes,
-  single-line table rows). Still to do: light/normal by eye, 1920x1080, and a
-  keyboard-only walk through all five tasks.
+## 2. ★ `mass-balance` — what remains `[~]`
+
+The tool is built (2026-09-10) and iterated on after first use; the build record is in the
+README's decision record. Design: [tools.md](tools.md#mass-balance--using-a-balance).
+Source: [`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
+
+- [~] **Verify by eye.** Done in the browser: dark/normal, dark/projector, light/projector,
+  all at 1024x768 with no horizontal overflow. Still to do: light/normal by eye,
+  1920x1080, and a keyboard-only walk through all five tasks.
 - [ ] **Demo it to the teacher before building anything else.** Bring questions.md #30–#36
       — they are all about matching her actual balances and balloons, and the answers may
-      change the defaults.
+      change the defaults. Anything she trips over goes into item 1.
 
-## 2. Foundation leftovers `[ ]`
+## 3. Foundation leftovers `[ ]`
 
 What remains of the design system and app shell. Everything else in those areas is done
 and recorded in the README.
@@ -108,18 +94,17 @@ and recorded in the README.
 - [ ] Verify the categorical palette on real classroom hardware. The colour choices are
       theoretically sound, but "readable from the back of the room" is a claim about a
       specific projector and has not been tested on one (questions.md #11).
-- [ ] Confirm the shell and the first tool work at both 1024x768 and 1920x1080.
 - [ ] **3D library:** `three.js` directly, or `3Dmol.js`. Deferred — evaluate when
       `vsepr-viewer` comes up (questions.md #24).
 - [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
-      static. Deferred to item 6.
+      static. Deferred to item 7.
 
-## 3. Build `chem-core`, the shared chemistry library `[ ]`
+## 4. Build `chem-core`, the shared chemistry library `[ ]`
 
 Pure functions, no UI, fully unit-tested. Most tools depend on this, and retrofitting it
 later is painful — which is why it comes before the proposed tools. Each tool's entry in
-[tools.md](tools.md) lists which of these it needs. The balance model from item 1
-(`src/core/balance.ts`) is the first module here.
+[tools.md](tools.md) lists which of these it needs. The balance model built for
+`mass-balance` (`src/core/balance.ts`) is the first module here.
 
 - [ ] Element dataset: symbol, name, Z, atomic mass, group, period, block, electron
       configuration, electronegativity, radii, melting and boiling points, common oxidation
@@ -142,7 +127,7 @@ later is painful — which is why it comes before the proposed tools. Each tool'
 - [ ] **Tests for every one of the above**, using known textbook problems with known answers
       as fixtures.
 
-## 4. Tier 1 tools — proposed `[ ]`
+## 5. Tier 1 tools — proposed `[ ]`
 
 The three Tier 1 tools in [tools.md](tools.md), chosen because each proves a distinct
 technical pattern. Build all three before Tier 2 — they de-risk everything that follows.
@@ -159,7 +144,7 @@ technical pattern. Build all three before Tier 2 — they de-risk everything tha
         why it is shaped that way.
   - [ ] Profile particle count against frame rate on the actual classroom hardware.
 
-## 5. URL-encoded state `[ ]`
+## 6. URL-encoded state `[ ]`
 
 - [ ] Serialize each tool's full configuration into the query string.
 - [ ] Restore state from the URL on load.
@@ -172,7 +157,7 @@ Why this matters: it gives shareable, bookmarkable scenarios with **no backend a
 she can prepare five titrations as bookmarks before class — and it is the migration path to
 a student-facing app later without rearchitecting.
 
-## 6. Deploy `[ ]`
+## 7. Deploy `[ ]`
 
 - [ ] Choose the host (GitHub Pages, Netlify, or Cloudflare Pages).
 - [ ] CI: on push to `main`, run tests, build, and deploy. Fail the deploy if tests fail —
@@ -181,7 +166,7 @@ a student-facing app later without rearchitecting.
       network, before relying on it in a lesson.
 - [ ] Confirm it works on whatever devices students would use (questions.md #12).
 
-## 7. Tier 2 tools — proposed `[ ]`
+## 8. Tier 2 tools — proposed `[ ]`
 
 Designs in [tools.md](tools.md#tier-2). **Build order should follow the unit she teaches
 next** (questions.md #6), not the order listed here — and any newly requested tool jumps
@@ -196,7 +181,7 @@ ahead of all of these.
 - [ ] `heating-curve`
 - [ ] `emission-spectra`
 
-## 8. Tier 3 tools — drills and bell-ringers, proposed `[ ]`
+## 9. Tier 3 tools — drills and bell-ringers, proposed `[ ]`
 
 Designs in [tools.md](tools.md#tier-3--drills-and-bell-ringers). Individually small, and
 collectively likely the most-used pages on the site.
@@ -210,7 +195,7 @@ collectively likely the most-used pages on the site.
 - [ ] `lab-measurement` — reading instruments; the balance _procedure_ is already covered
       by `mass-balance`, so this one is about reading the scale.
 
-## 9. Polish and accessibility `[ ]`
+## 10. Polish and accessibility `[ ]`
 
 - [ ] Keyboard navigation on every tool, verified.
 - [ ] Screen reader labels on all controls; numeric readouts announced on change.
@@ -220,7 +205,7 @@ collectively likely the most-used pages on the site.
 - [ ] Offline support via a service worker, if the school network is unreliable
       (questions.md #14).
 
-## 10. Possible future work — explicitly out of scope for now
+## 11. Possible future work — explicitly out of scope for now
 
 - [ ] Backend API: saved student progress, teacher-assigned problem sets, class scoreboards.
 - [ ] LMS embedding (Canvas, Google Classroom) if that is how it would be assigned.

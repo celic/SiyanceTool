@@ -307,6 +307,40 @@ so the test asserting "closes from the same control" passed the whole time. Fixe
 the header above the panel. Worth remembering the next time a component's tests are green
 but the thing has never been looked at.
 
+### The `mass-balance` tool — 2026-09-10, iterated through 2026-09-13
+
+The first tool, and the first **requested** one: built from the teacher's "Measuring Mass"
+lab in `reference/labs/`, ahead of every proposed tool. It went first for two reasons beyond
+being requested: it needs no element data and no formula parser, so it did not wait on
+`chem-core`, and it was the first tool to run end to end through the shell, registry, config
+and reveal gate with real content. Design entry: [docs/tools.md](docs/tools.md).
+
+- **The balance is a pure model in `chem-core`** (`src/core/balance.ts`), built test-first
+  with the lab's own numbers as fixtures. One rule drives everything: the reading is
+  `round(load − tareOffset, decimals)`. Masses are held to three decimals and rounded only on
+  the readout, so Task 2A's subtraction gives 5.12 g while 2B's tare method gives 5.13 g —
+  the "slightly different" the lab asks about, from rounding alone. Illegal moves are refused
+  with a reason in the lab's words.
+- **The page is a walkthrough from the teacher's side of the projector.** It was first
+  built with a task picker and a free bench, then restructured after the first look: the
+  lab's steps are listed with the current one marked, the marker moves on by itself when a
+  step's action is taken, and each "Record" step carries its own Record button, which is a
+  forced wait — disabled, with the reason beside it, until the balance holds what the step
+  describes. No checkboxes, no keyboard shortcuts.
+- **Bench continuity.** Choosing a task does not reset the balance, because the lab's
+  tasks run on continuously (2B starts with the sphere still in the boat). Only Reset clears
+  the bench; New problem re-rolls every mass within a small spread of its nominal value.
+- **What the balance reads, not what is true.** The inflated balloon reads a few tenths of
+  a gram more than the empty one, not the 3–4 g the air inside actually masses, because
+  buoyancy cancels the rest; water defaults to exactly 1 g/mL because that is what the lab
+  teaches. Both are open questions for the teacher (questions.md #33, #34).
+- **One registry change:** `AppRoutes` now renders each tool with `{ options }`, which it
+  had not been doing, so `tools.config.json` options actually reach a tool.
+
+Verified in the browser in dark/normal, dark/projector and light/projector at 1024x768.
+Component tests are behavioural: hidden until revealed, refusals visible, display blank
+while off, the marker following the action, Record waiting for the bench.
+
 ### Tool registry and `tools.config.json` — 2026-09-08
 
 Every tool is switchable on or off from one config file without touching its source or the
