@@ -42,10 +42,12 @@ producing a number, it should be folded into a tool that also _shows_ something.
 ## Who the tools are for
 
 Since 2026-09-13 the primary user is **a student, alone, on their own device** — reviewing
-a lab they did in class, or making one up without using class time. The teacher driving a
-tool on the projector is the secondary use. The tools are the same; the difference is that
-nobody is beside the student to explain the page, keep their work safe, or collect it. Every
-convention below is read with that person in mind.
+a lab they did in class, or making one up without using class time. **The site stands in
+for the equipment; the paper worksheet stays the record.** The student reads numbers off
+the page and writes them on the sheet, as they would from the real balance. The teacher
+driving a tool on the projector is the secondary use. The tools are the same; the difference
+is that nobody is beside the student to explain the page. Every convention below is read
+with that person in mind.
 
 ## Conventions every tool follows
 
@@ -56,10 +58,11 @@ These are built once in the design system and are not repeated in each tool belo
 - **Self-check, then reveal.** Any final answer is hidden until asked for — so a teacher can
   ask the class first, and so a student alone commits to their own answer first. The reveal
   invites the student's answer, then shows the worked one beside it.
-- **Keeps its work.** State survives a reload or a closed tab, on the device. Reset asks
-  before destroying real work.
-- **Produces something to hand in.** A completed tool prints as a clean sheet, or copies as
-  text, so the work can leave the page without a backend.
+- **Keeps its place.** State survives a reload or a closed tab, on the device, so a student
+  mid-task is not sent back to step 1.
+- **Every equipment blank is answerable.** For a tool built from a lab, anything the
+  worksheet asks that a student would answer by looking at or using the equipment can be
+  answered from the page. The worksheet itself stays on paper; the page is never a form.
 - **Their own numbers, reproducibly.** Randomized tools roll on first open and carry the
   seed in the URL, so two students do not share an answer and the teacher can reopen
   exactly what a student saw.
@@ -205,15 +208,15 @@ last place, with no artificial noise added.
 | 6 — think (pencil, soda can, gas)    | The Sandbox: every item, a log of readings, and the difference of the last two behind the reveal gate — the shape of every Task 6 answer. The writing itself stays on paper.                                                                                                            |
 | Roles, equipment match, units circle | Not captured. Paper.                                                                                                                                                                                                                                                                    |
 
-**For a student making the lab up** (plan.md item 4). Rehearsal is not enough when the
-student has to come out the other end with the worksheet done, so the parts first left on
-paper come onto the page: the pre-lab (objective blanks, "define mass", the equipment
-match, the units question) as self-check questions before the tasks; Task 1's questions
-answered from the simulated balance; the self-check-before-reveal on every calculation; and
-Task 6's three procedures as written answers kept with the rest of the work. A hand-in
-sheet prints the whole thing in the worksheet's order, with the student's name and the seed
-that produced their numbers. A `mode` option keeps the projector rehearsal (`teacher`) as a
-stripped-down view; `student` is the default because that is who opens it unattended.
+**For a student making the lab up** (plan.md item 4). The student has the paper
+worksheet and this page instead of the bench, so the page must make every
+equipment-dependent blank answerable. Most already are — every "record the mass" comes
+off the display. Three do not yet: Task 1's questions about the balance (lid, decimals,
+units, light or heavy), which need a "your balance" note stating what this balance is; 2A's
+"describe 3 properties of your sphere", which needs the sphere to be a describable object;
+and Task 6's "Do it! Record the mass" of a pencil, which needs a pencil on the sandbox
+bench. The worksheet is never reproduced on the page, and nothing is handed in through it
+(questions.md #37).
 
 **Still not captured.** A page cannot teach what "light" feels like or stop a hand pressing
 on a pan, so those warnings stay on the worksheet — though "is it light or heavy" becomes a

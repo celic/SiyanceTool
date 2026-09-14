@@ -3,13 +3,15 @@
 A static website hosting a collection of interactive chemistry tools for a high school
 class. **Primary use case (since 2026-09-13): a student, alone, on their own device** —
 reviewing a lab they did in class, or making up a lab they missed without using class
-time. Secondary use case: the teacher drives a tool on the projector during a lesson. The
-tools are the same; what changes is that nobody is standing next to the student to explain
-the page, to keep their work safe, or to collect it.
+time. **The site stands in for the lab equipment; the student's paper worksheet stays the
+record.** They read numbers off the page and write them on the sheet, the way they would
+read them off the real balance. Secondary use case: the teacher drives a tool on the
+projector during a lesson. The tools are the same; what changes is that nobody is standing
+next to the student to explain the page.
 
-**Constraint:** no backend API for now. Everything runs in the browser. The architecture
-should not make adding a backend later painful — and the pivot to students makes "later"
-closer, because saving and handing in work are the first things a backend would do.
+**Constraint:** no backend API for now. Everything runs in the browser. Nothing is handed
+in through the site and nobody logs in (questions.md #37, #41), so the constraint costs
+little; the architecture should still not make adding a backend later painful.
 
 This document is the **actionable build sequence**. It does not describe what the tools do —
 [tools.md](tools.md) is the design document for that, and every tool item below consults it.
@@ -48,9 +50,9 @@ typecheck, test) must pass before committing.
 ## Priority
 
 The audience decides the order. A student alone needs, in this order: a working URL on
-their own device; a page that keeps their work and explains itself; and the lab they are
-reviewing or making up, complete enough to finish without a teacher. Everything else comes
-after.
+their own device; a page that explains itself; and the lab they are reviewing or making
+up, with every measurement the worksheet asks for producible on the page. Everything else
+comes after.
 
 - **Bugfixes** are always item 1. A student stuck on a broken page at home has nobody to
   ask, so a bug outranks any new feature.
@@ -127,72 +129,67 @@ Nothing below matters until a student can open the site on their own device. Thi
 ## 3. Built for a student alone `[ ]`
 
 Site-wide work that every tool inherits. Each of these was optional when a teacher was
-driving; none is optional for a student at home.
+driving; none is optional for a student at home. The worksheet stays on paper
+(questions.md #37), which keeps this list short: the page has to be usable and honest, not
+a form.
 
 - [ ] **Works on the student's screen.** The shell and `mass-balance` on a phone-width
       viewport and on a Chromebook: single column, touch targets no smaller than the
       existing buttons, nothing that needs hover, and the balance display still the biggest
       thing on the page. `resize_window` to the mobile preset is the test bench until real
       devices are in hand.
-- [ ] **Keeps their work.** A reload, a closed tab, or a dead battery must not lose twenty
-      minutes of a lab. Persist each tool's state in `localStorage` under the tool's id,
-      restore it on load, and give Reset a confirmation now that it destroys real work.
-      Nothing leaves the device; this is not a backend.
+- [ ] **Keeps its place.** The worksheet is the record, so a lost reading is a nuisance,
+      not a disaster — but a reload mid-task should not empty the bench and send the student
+      back to step 1. Persist each tool's state in `localStorage` under the tool's id and
+      restore it on load. Nothing leaves the device; this is not a backend.
 - [ ] **Explains itself.** Every tool opens with what it is for and what to do first, in the
       student's voice — "you", not "the class" — because nobody is narrating. The
       walkthrough already does most of this for `mass-balance`; the shell should carry the
       pattern so every tool gets it.
 - [ ] **Their own numbers, reproducibly.** Randomize on first open so two students at home
       do not share an answer, and put the seed in the URL so the same numbers come back on
-      reload and so the teacher can open exactly what a student saw (questions.md #26, #38).
-      This absorbs the old "URL-encoded state" item: the URL carries the seed and the
-      configuration; `localStorage` carries the progress.
-- [ ] **Produces something to hand in.** A completed lab has to leave the page somehow.
-      Until there is a backend, that means a print stylesheet that renders a tool's data and
-      answers as a clean lab sheet the student can print or save as PDF, plus a "copy as
-      text" fallback for pasting into an LMS. What she will accept is questions.md #37.
+      reload and so the teacher can open exactly what a student saw when marking a sheet
+      (questions.md #26, #38). This absorbs the old "URL-encoded state" item: the URL carries
+      the seed and the configuration; `localStorage` carries the progress.
 - [ ] **Self-check before reveal.** The reveal gate was built so a teacher could ask the
       class before telling them. A student alone will just click it. Every reveal should
-      first invite the student's own answer — a number field for a calculation, a choice for
-      a comparison — and then show the worked answer beside it, marked right or not. The
-      component is shared (`RevealAnswer` grows a `check` variant); each tool decides what
-      to ask.
+      first invite the student's own answer — the number they wrote on the worksheet — and
+      then show the worked answer beside it, marked right or not. The component is shared
+      (`RevealAnswer` grows a `check` variant); each tool decides what to ask.
 
-## 4. ★ `mass-balance` — the make-up lab `[~]`
+## 4. ★ `mass-balance` — the equipment for the make-up lab `[~]`
 
 The tool is built (2026-09-10) as a rehearsal of the "Measuring Mass" lab; the build record
 is in the README's decision record. Design:
 [tools.md](tools.md#mass-balance--using-a-balance). Source:
 [`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
 
-For a student making the lab up, rehearsal is not enough: they need to come out the other
-end with the worksheet done. Everything the design entry lists as "not captured" comes back
-into scope, except what genuinely needs the real bench.
+A student making the lab up has the paper worksheet in front of them and this page instead
+of the bench. So the test of "done" is: **every blank on the worksheet that needs the
+equipment can be filled in from the page.** Most can already. These cannot:
 
-- [ ] **The whole worksheet, on the page.** In the lab's order:
-  - [ ] Pre-lab: the objective's blanks, "define mass", the equipment match, and the units
-        question — as short self-check questions, answered before the tasks unlock.
-  - [ ] Task 1 from the simulated balance: decimals, units, and the weigh boat's mass are
-        already there; the lid (questions.md #35) and "is it light or heavy" become questions
-        the student answers from the page.
-  - [ ] Tasks 2A–5 as now, with the self-check-before-reveal from item 3 on each
-        calculation.
-  - [ ] Task 6's three procedures as text answers the student writes on the page, kept with
-        the rest of their work and included in the hand-in sheet. The sandbox stays as the
-        place to try them out.
-- [ ] **Hand-in sheet**: the print view from item 3, laid out like the worksheet — every
-      blank filled with what the student recorded and wrote, in the worksheet's order, with
-      their name and the seed so the teacher can reproduce their numbers.
-- [ ] **Two voices, one page.** Keep the projector rehearsal working: a `mode` option
-      (`student` by default, `teacher` for the projector) that hides the pre-lab and Task 6
-      writing and shows the walkthrough alone. The student mode is the default because that
-      is who opens it unattended.
+- [ ] **Task 1 — parts of the balance.** "Does your balance have a lid?", "one decimal
+      place or two?", "grams or milligrams?", "is the weigh boat light or heavy?". A student
+      at a real balance answers by looking; a student here needs the page to be lookable-at.
+      A short "your balance" note beside the housing stating what this balance is — no lid
+      (questions.md #35), reads in grams to two decimal places — and the weigh boat's mass
+      already answers "light". Not a quiz: the worksheet is the quiz.
+- [ ] **2A — "describe 3 properties of your sphere".** The sphere needs to be something: a
+      glass marble, with a colour and a size the student can see and describe. One sentence
+      on the bench item, and the drawing to match.
+- [ ] **Task 6 — "Do it! Record the mass" of a pencil.** There is no pencil on the bench.
+      Add one to the sandbox (a wooden pencil, ~6 g), so the "do it" can be done. A soda can,
+      full and empty, would let 6.2 be acted out too; optional, since 6.2 asks only for a
+      procedure.
+- [ ] **Self-check on each calculation** from item 3: the student types what they worked
+      out on the sheet; the page shows the worked answer beside it.
 - [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768.
   Still to do: a phone-width viewport end to end, light/normal, 1920x1080, and a
   keyboard-only walk through all five tasks.
-- [ ] **Demo it** — to the teacher with questions.md #30–#36 and #37–#41, and to one
-      student, alone, unprompted, watching where they get stuck. The second demo is the one
-      that matters now. Anything either trips over goes into item 1.
+- [ ] **Demo it** — to the teacher with questions.md #30–#36 and #38, and to one student
+      with the paper worksheet and this page, alone, unprompted, watching where they get
+      stuck. The second demo is the one that matters now. Anything either trips over goes
+      into item 1.
 
 ## 5. Foundation leftovers `[ ]`
 
@@ -283,14 +280,12 @@ than from a drill, so they follow item 7 unless a unit's lab needs one.
       (questions.md #14). Higher priority than before now that the device is the student's.
 - [ ] Projector mode stays and stays checked — it is the secondary use, not a dead one.
 
-## 10. Possible future work — the backend question, now closer
+## 10. Possible future work — explicitly out of scope for now
 
-- [ ] **Backend API.** Out of scope by constraint, but the pivot makes it the obvious next
-      step: saved progress that follows a student between devices, and a hand-in that goes
-      to the teacher instead of a printer. Revisit after the first make-up lab has been
-      handed in the manual way (item 3) and it is clear what hurt.
-- [ ] LMS embedding (Canvas, Google Classroom) — likely how make-up labs get assigned;
-      questions.md #37 decides.
+- [ ] **Backend API.** Out of scope by constraint, and with the worksheet on paper and no
+      login (questions.md #37, #41) there is no current need for one. It would become
+      relevant only if she wanted the site to collect work instead of the sheet.
+- [ ] LMS embedding (Canvas, Google Classroom), if that is how the link gets to students.
 - [ ] Content authoring, so the teacher can add her own problem sets without writing code.
 - [ ] The tools deferred at the end of [tools.md](tools.md#deferred-with-reasons), each with
       the reason it was deferred.

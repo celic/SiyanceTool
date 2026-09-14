@@ -4,14 +4,15 @@ A collection of interactive chemistry tools for a high school classroom, hosted 
 website. One page per tool.
 
 The primary use is **a student, alone, on their own device**: reviewing a lab they did in
-class, or making up a lab they missed without using class time. So every tool explains
-itself, keeps the student's work across reloads, asks for their answer before revealing the
-worked one, and can produce a sheet to hand in. The secondary use is the teacher driving a
-tool on the projector during a lesson, so every tool is also **legible from the back of a
-room**.
+class, or making up a lab they missed without using class time. The site stands in for the
+lab equipment they do not have at home; the paper worksheet stays the record. So every tool
+explains itself, keeps its place across reloads, asks for the student's answer before
+revealing the worked one, and makes every measurement the worksheet asks for producible on
+the page. The secondary use is the teacher driving a tool on the projector during a lesson,
+so every tool is also **legible from the back of a room**.
 
-There is no backend. Everything runs in the browser — which is why "keeps their work" means
-the device, and "hand in" means print, save, or copy.
+There is no backend. Everything runs in the browser. Nothing is handed in through the site
+and nobody logs in.
 
 ## Documentation
 
@@ -321,13 +322,18 @@ Nothing built so far is wasted — a walkthrough that follows the hands and refu
 record the wrong thing is exactly what an unattended student needs — but the priorities
 changed shape. Deploying moved from near the end of the plan to item 2, because nothing
 matters until a student can open a URL. A new item 3 holds what every tool needs before it
-can be left alone with a student: a phone-width layout, work that survives a reload, an
-opening that explains itself, a self-check before every reveal, the student's own numbers
-with a reproducible seed, and a way to hand the work in. `mass-balance` (item 4) grows from
-a rehearsal into the whole worksheet. Proposed tools were re-ranked by review value —
-drills and reference pages ahead of simulations — and every lab in `reference/` is now a
-make-up lab to build. Five new questions (#37–#41) go to the teacher, of which "how does a
-make-up lab get handed in" is blocking.
+can be left alone with a student: a phone-width layout, a place that survives a reload, an
+opening that explains itself, a self-check before every reveal, and the student's own
+numbers with a reproducible seed. Proposed tools were re-ranked by review value — drills
+and reference pages ahead of simulations — and every lab in `reference/` is now a make-up
+lab to build.
+
+**The site is the equipment, not the worksheet** (same day, questions #37 and #41): the
+student keeps the paper worksheet and fills it in by hand; the site stands in for the
+balance they do not have at home. So nothing is handed in through the site, nobody logs
+in, and the test of a make-up lab is that every blank on the worksheet that needs equipment
+can be filled in from the page — for `mass-balance`, that means Task 1's questions about the
+balance, the sphere's describable properties, and a pencil on the sandbox bench (item 4).
 
 ### The `mass-balance` tool — 2026-09-10, iterated through 2026-09-13
 

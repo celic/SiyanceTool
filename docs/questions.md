@@ -154,23 +154,21 @@ and the real one agree. Bring them to the first demo (plan.md item 4).
 The site's primary use is now a student reviewing a lab they did in class, or making one up
 without class time. These decide plan.md items 2–4.
 
-37. **How does a make-up lab get handed in?** — **blocking on the hand-in output.** A
-    printout, a PDF, a screenshot, answers typed into Google Classroom or Canvas, or
-    nothing at all (she trusts the student did it)? There is no backend, so the page can
-    only print, save, or copy. If it is an LMS, the "copy as text" fallback matters more
-    than the print view; if it is paper, the reverse.
+37. **How does a make-up lab get handed in?** — `ANSWERED (2026-09-13)`: **it isn't,
+    through the site.** The student has the paper worksheet and fills it in by hand; the
+    site stands in for the equipment they do not have at home. So there is no hand-in
+    output to build, and the test of a make-up lab is that every blank on the worksheet
+    that needs equipment can be filled in from the page.
 38. **Should every student get their own numbers?** The tool can randomize on first open
     so two students at home cannot share an answer, and put the seed in the URL so she can
     open exactly what a student saw. Or every student can see the same worked example as
     the class did, which is easier to mark against a key. Which does she want?
-39. **Which parts of the worksheet must a make-up student complete on the page?** The
-    pre-lab (equipment match, units), Task 1's questions about the balance, and Task 6's
-    written procedures are on paper today. All of them can go on the page; plan.md item 4
-    assumes they should. Does she want the whole sheet, or just the measurements?
+39. **Which parts of the worksheet must a make-up student complete on the page?** —
+    `ANSWERED (2026-09-13)` by #37: **none.** The worksheet stays on paper. What the page
+    must do is make every equipment-dependent blank answerable — Task 1's questions about
+    the balance, the sphere's properties, the mass of a pencil — which is plan.md item 4.
 40. **What other labs should be make-up labs?** Every lab that lands in `reference/`
     becomes a tool to build, ahead of anything proposed. Which labs does she assign, in
     what order, and which ones do students most often miss?
-41. **Does she need to know who did what?** A name typed into the hand-in sheet is all a
-    site with no backend can offer. If she needs accounts, a roster, or work that follows a
-    student between devices, that is the backend (plan.md item 10), and it is worth knowing
-    now whether it is a requirement or a nice-to-have.
+41. **Does she need to know who did what?** — `ANSWERED (2026-09-13)`: **no.** The name
+    is on the worksheet. Nobody logs in, and nothing about the student is stored or sent.
