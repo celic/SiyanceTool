@@ -73,12 +73,25 @@ const notOn = (item: ItemId) => (state: BalanceState) =>
   state.onBalance.includes(item)
     ? `Take the ${named(item)} off the balance first.`
     : null
-/** Tare must have been pressed with exactly these items on the pan. */
+/**
+ * Tare must have been pressed with exactly these items on the pan.
+ *
+ * The message says how to get there, not just "press Tare": a tare taken
+ * with water already in the cup can never be fixed by pressing Tare again,
+ * and a stale tare from an earlier task makes the weigh boat read 0.00.
+ */
 const taredWith =
   (...items: ItemId[]) =>
   (state: BalanceState) => {
     const expected = items.reduce((sum, item) => sum + state.masses[item], 0)
-    return Math.abs(state.tareOffset - expected) < 0.0005 ? null : 'Press Tare first.'
+    if (Math.abs(state.tareOffset - expected) < 0.0005) return null
+    if (items.length === 0) {
+      return 'Tare the empty pan first: take everything off, press Tare, then put it back.'
+    }
+    if (items.includes('cup')) {
+      return 'Tare with the empty cup alone on the balance first: pour the water out, cup on, press Tare, cup off, pour again.'
+    }
+    return `Tare with only the ${items.map(named).join(' and ')} on the balance first.`
   }
 const cupEmpty = (state: BalanceState) =>
   state.waterVolume === 0 ? null : 'Empty the cup first.'
@@ -101,6 +114,11 @@ export interface Task {
   usesCylinder: boolean
   /** Whether the four birthday fields drive the cylinder volume (Task 5). */
   usesDates: boolean
+  /**
+   * Free play: no steps and no walkthrough, just a log of readings and the
+   * difference of the last two, which is the shape of every Task 6 answer.
+   */
+  freePlay?: string
   steps: Step[]
   blanks: Blank[]
   /**
@@ -145,13 +163,13 @@ export const TASKS: Task[] = [
         id: '2a-boat',
         label: 'Weigh boat',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere'), taredWith()),
       },
       {
         id: '2a-both',
         label: 'Weigh boat + sphere',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), on('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), on('sphere'), taredWith()),
       },
     ],
     worked: (records, decimals) => {
@@ -196,7 +214,7 @@ export const TASKS: Task[] = [
         id: '2b-boat',
         label: 'Weigh boat alone',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere')),
+        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere'), taredWith()),
       },
       {
         id: '2b-tared',
@@ -301,7 +319,7 @@ export const TASKS: Task[] = [
         id: '3-cup',
         label: 'Empty cup',
         source: 'readout',
-        ready: firstOf(notOn('weigh-boat'), on('cup'), cupEmpty),
+        ready: firstOf(notOn('weigh-boat'), on('cup'), cupEmpty, taredWith()),
       },
       {
         id: '3-water',
@@ -357,6 +375,7 @@ export const TASKS: Task[] = [
           on('weigh-boat'),
           on('empty-balloon'),
           notOn('inflated-balloon'),
+          taredWith(),
         ),
       },
       {
@@ -368,6 +387,7 @@ export const TASKS: Task[] = [
           on('weigh-boat'),
           on('inflated-balloon'),
           notOn('empty-balloon'),
+          taredWith(),
         ),
       },
     ],
@@ -458,11 +478,9 @@ export const TASKS: Task[] = [
     items: ['weigh-boat', 'sphere', 'cup', 'empty-balloon', 'inflated-balloon'],
     usesCylinder: true,
     usesDates: false,
-    steps: [
-      {
-        text: 'Anything goes. Use it to act out Task 6: how would you mass a pencil, or the soda inside an unopened can?',
-      },
-    ],
+    freePlay:
+      'Anything goes. Use it to act out Task 6: how would you mass a pencil, or the soda inside an unopened can, or the gas a reaction gives off? Record a reading whenever the class should write one down.',
+    steps: [],
     blanks: [],
     worked: () => null,
   },

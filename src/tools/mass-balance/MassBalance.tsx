@@ -11,6 +11,7 @@ import {
   readout,
   remove,
   reset,
+  roundTo,
   tare,
   togglePower,
   type BalanceState,
@@ -34,6 +35,17 @@ import { ToolShell } from '@/ui/ToolShell'
 import '@/tools/mass-balance/MassBalance.css'
 
 const ITEM_ORDER = Object.keys(ITEMS) as ItemId[]
+
+/**
+ * The Task 6 calculation: the difference between the last two readings,
+ * written larger − smaller so a mass is never shown as negative.
+ */
+function lastDifference(log: number[], decimals: number): string {
+  const [previous, last] = log.slice(-2)
+  const [big, small] = last >= previous ? [last, previous] : [previous, last]
+  const g = (v: number) => `${v.toFixed(decimals)} g`
+  return `${g(big)} − ${g(small)} = ${g(roundTo(big - small, decimals))}`
+}
 const DEFAULT_VOLUME = 10
 const DEFAULT_DATES = [1, 1, 1, 1]
 const FIRST_TASK = TASKS[0].id
@@ -63,6 +75,8 @@ export function MassBalance({ options }: ToolProps) {
   const [refusal, setRefusal] = useState<string | null>(null)
   const [volume, setVolume] = useState(DEFAULT_VOLUME)
   const [dates, setDates] = useState(DEFAULT_DATES)
+  /** Sandbox readings, in the order taken. */
+  const [log, setLog] = useState<number[]>([])
 
   const task = findTask(taskId)
   const taskIndex = TASKS.findIndex((candidate) => candidate.id === taskId)
@@ -141,7 +155,9 @@ export function MassBalance({ options }: ToolProps) {
 
   function record(blank: Blank) {
     if (blank.source === 'cylinder') {
-      setRecords({ ...records, [blank.id]: cylinderVolume })
+      // What was poured, not what the fields say now — a date changed after
+      // pouring must not make the reveal compare the wrong volume.
+      setRecords({ ...records, [blank.id]: balance.waterVolume })
       advance({ type: 'record', blank: blank.id }, balance)
       return
     }
@@ -160,9 +176,16 @@ export function MassBalance({ options }: ToolProps) {
       : `${recorded.toFixed(settings.decimals)} g`
   }
 
+  function logReading() {
+    if (value === null) return
+    setLog([...log, value])
+    setRefusal(null)
+  }
+
   function handleReset() {
     setBalance(reset(balance))
     setRecords({})
+    setLog([])
     setRefusal(null)
     setVolume(DEFAULT_VOLUME)
     setDates(DEFAULT_DATES)
@@ -172,6 +195,7 @@ export function MassBalance({ options }: ToolProps) {
   function handleRandomize() {
     setBalance(randomize(balance))
     setRecords({})
+    setLog([])
     setRefusal(null)
   }
 
@@ -338,72 +362,127 @@ export function MassBalance({ options }: ToolProps) {
         <div className="mass-balance__procedure">
           <h3 className="procedure__heading">{task.title}</h3>
 
-          <ol className="procedure__steps" aria-label="Steps">
-            {task.steps.map((step, index) => {
-              const blank = step.record ? blankById.get(step.record) : undefined
-              const recorded = blank ? records[blank.id] : undefined
-              const isCurrent = index === stepIndex
-              // A forced wait: Record is disabled until the bench matches the
-              // step. Steps from the marker onward say what is still missing;
-              // steps already passed just go quiet.
-              const waiting = blank
-                ? blank.source === 'readout' && !balance.powered
-                  ? 'Press Power first.'
-                  : blank.ready(balance)
-                : null
-              return (
-                <li
-                  key={step.text}
-                  className="procedure__step"
-                  aria-current={isCurrent ? 'step' : undefined}
-                  data-done={index < stepIndex}
+          {task.freePlay && (
+            <div className="procedure__free">
+              <p className="procedure__free-text">{task.freePlay}</p>
+              <div className="procedure__log-actions">
+                <button
+                  type="button"
+                  className="action-button action-button--primary"
+                  onClick={logReading}
+                  disabled={value === null}
                 >
-                  <span className="procedure__text">{step.text}</span>
-                  {blank && (
-                    <span className="procedure__record">
-                      <button
-                        type="button"
-                        className="action-button"
-                        aria-label={`Record ${blank.label}`}
-                        disabled={waiting !== null}
-                        onClick={() => record(blank)}
-                      >
-                        Record
-                      </button>
-                      <span className="procedure__value">
-                        {recorded === undefined
-                          ? `— ${blank.source === 'cylinder' ? 'mL' : 'g'}`
-                          : formatRecord(blank, recorded)}
-                      </span>
-                      {index >= stepIndex && waiting && (
-                        <span className="procedure__wait">{waiting}</span>
-                      )}
+                  Record reading
+                </button>
+                <button
+                  type="button"
+                  className="action-button"
+                  onClick={() => setLog([])}
+                  disabled={log.length === 0}
+                >
+                  Clear readings
+                </button>
+                {value === null && (
+                  <span className="procedure__wait">Press Power first.</span>
+                )}
+              </div>
+              <ol className="procedure__log" aria-label="Readings">
+                {log.map((reading, index) => (
+                  <li key={index} className="procedure__log-entry">
+                    <span>Reading {index + 1}</span>
+                    <span className="procedure__value">
+                      {reading.toFixed(settings.decimals)} g
                     </span>
-                  )}
-                </li>
-              )
-            })}
-          </ol>
+                  </li>
+                ))}
+              </ol>
+              {log.length >= 2 ? (
+                <RevealAnswer
+                  label="Reveal the difference of the last two"
+                  hideLabel="Hide the difference"
+                >
+                  <div className="procedure__worked">
+                    <p>{lastDifference(log, settings.decimals)}</p>
+                  </div>
+                </RevealAnswer>
+              ) : (
+                <p className="procedure__hint">
+                  Take two readings to reveal the difference between them.
+                </p>
+              )}
+            </div>
+          )}
 
-          <div className="procedure__nav">
-            <button
-              type="button"
-              className="action-button"
-              onClick={back}
-              disabled={stepIndex === 0 && !previousTask}
-            >
-              Back
-            </button>
-            <button
-              type="button"
-              className="action-button action-button--primary"
-              onClick={next}
-              disabled={onLastStep && !nextTask}
-              aria-label={onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
-            >
-              {onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
-            </button>
-          </div>
+          {!task.freePlay && (
+            <ol className="procedure__steps" aria-label="Steps">
+              {task.steps.map((step, index) => {
+                const blank = step.record ? blankById.get(step.record) : undefined
+                const recorded = blank ? records[blank.id] : undefined
+                const isCurrent = index === stepIndex
+                // A forced wait: Record is disabled until the bench matches the
+                // step. Steps from the marker onward say what is still missing;
+                // steps already passed just go quiet.
+                const waiting = blank
+                  ? blank.source === 'readout' && !balance.powered
+                    ? 'Press Power first.'
+                    : blank.ready(balance)
+                  : null
+                return (
+                  <li
+                    key={step.text}
+                    className="procedure__step"
+                    aria-current={isCurrent ? 'step' : undefined}
+                    data-done={index < stepIndex}
+                  >
+                    <span className="procedure__text">{step.text}</span>
+                    {blank && (
+                      <span className="procedure__record">
+                        <button
+                          type="button"
+                          className="action-button"
+                          aria-label={`Record ${blank.label}`}
+                          disabled={waiting !== null}
+                          onClick={() => record(blank)}
+                        >
+                          Record
+                        </button>
+                        <span className="procedure__value">
+                          {recorded === undefined
+                            ? `— ${blank.source === 'cylinder' ? 'mL' : 'g'}`
+                            : formatRecord(blank, recorded)}
+                        </span>
+                        {index >= stepIndex && waiting && (
+                          <span className="procedure__wait">{waiting}</span>
+                        )}
+                      </span>
+                    )}
+                  </li>
+                )
+              })}
+            </ol>
+          )}
+
+          {!task.freePlay && (
+            <div className="procedure__nav">
+              <button
+                type="button"
+                className="action-button"
+                onClick={back}
+                disabled={stepIndex === 0 && !previousTask}
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                className="action-button action-button--primary"
+                onClick={next}
+                disabled={onLastStep && !nextTask}
+                aria-label={onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
+              >
+                {onLastStep && nextTask ? `Next: ${nextTask.title}` : 'Next'}
+              </button>
+            </div>
+          )}
 
           {task.blanks.length > 0 && (
             <div className="procedure__data">

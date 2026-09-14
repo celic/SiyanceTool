@@ -84,6 +84,21 @@ review clears them into the README.
 - [x] **`mass-balance` — Record did not check the other container** (same review). The boat
       tasks' Record buttons did not require the cup to be off, nor the cup tasks the boat.
       Every readiness rule now does.
+- [x] **`mass-balance` — Task 5 recorded the wrong volume** (found and fixed 2026-09-13).
+      "Record volume" captured the cylinder field, not what was poured, so a birthday changed
+      after pouring made the reveal compare the wrong volume. It now records the water in the
+      cup.
+- [x] **`mass-balance` — "Press Tare first" could loop** (same day). A tare taken with water
+      already in the cup can never be fixed by pressing Tare again, yet that was the advice.
+      The message now says how to get to the right tare — "tare with the empty cup alone on
+      the balance first: pour the water out, cup on, press Tare, cup off, pour again" — and
+      the steps that assume a zeroed empty pan (2A, the cup in Task 3, Task 4) now require
+      it, so a stale tare from an earlier task can no longer record "weigh boat 0.00 g".
+- [x] **`mass-balance` — the sandbox had nowhere to record** (same day). It was a one-line
+      "step" with a walkthrough marker and a dead Next button, and no way to note a reading,
+      so Task 6 — a pencil, the soda in a can, the gas from a reaction, all subtractions of
+      two readings — could not be acted out. It is now free play: a log of readings and the
+      difference of the last two behind the reveal gate.
 - [ ] _Log new ones here as they are found._
 
 ## 2. ★ `mass-balance` — what remains `[~]`

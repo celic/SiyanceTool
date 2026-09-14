@@ -190,6 +190,44 @@ describe('MassBalance', () => {
       ).toBeVisible()
     })
 
+    it('records the volume that was actually poured, not what the fields say now', async () => {
+      const user = setup()
+      await chooseTask(user, /task 5/i)
+      const dates = screen.getAllByRole('textbox', { name: /day of the month/i })
+      await user.clear(dates[0])
+      await user.type(dates[0], '20')
+      await user.click(button(/power/i))
+      await user.click(button(/pour into cup/i))
+
+      // 20 + 1 + 1 + 1 went into the cup. Now a date changes.
+      await user.clear(dates[1])
+      await user.type(dates[1], '9')
+      await user.click(button(/record volume/i))
+
+      expect(screen.getByRole('table', { name: /record/i })).toHaveTextContent('23 mL')
+    })
+
+    it('says how to fix a stale tare instead of looping on "press Tare"', async () => {
+      const user = setup()
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+      await user.click(button(/^tare$/i))
+
+      // The boat now reads 0.00; recording that as "weigh boat" would be wrong.
+      expect(button(/record weigh boat$/i)).toBeDisabled()
+      expect(screen.getAllByText(/tare the empty pan first/i)[0]).toBeVisible()
+
+      await chooseTask(user, /task 3/i)
+      await user.click(item(/^weigh boat/i))
+      await user.click(button(/^tare$/i))
+      await user.click(button(/pour into cup/i))
+      await user.click(item(/^cup/i))
+      await user.click(button(/^tare$/i))
+      // Tared with water in the cup: pressing Tare again can never fix it.
+      expect(button(/record water in the tared cup/i)).toBeDisabled()
+      expect(screen.getByText(/tare with the empty cup/i)).toBeVisible()
+    })
+
     it('does not move the marker for an action that belongs to an earlier step', async () => {
       const user = setup()
       const current = () => screen.getByRole('listitem', { current: 'step' })
@@ -234,7 +272,7 @@ describe('MassBalance', () => {
       await user.click(item(/^weigh boat/i))
       await user.click(button(/record weigh boat alone/i))
       expect(button(/record after tare/i)).toBeDisabled()
-      expect(screen.getByText(/press tare first/i)).toBeVisible()
+      expect(screen.getByText(/tare with only the weigh boat/i)).toBeVisible()
 
       await user.click(button(/^tare$/i))
       expect(button(/record after tare/i)).toBeEnabled()
@@ -423,6 +461,44 @@ describe('MassBalance', () => {
 
       await user.click(button(/reveal/i))
       expect(screen.getByText(/73 mL of water massed 73\.00 g/i)).toBeVisible()
+    })
+  })
+
+  describe('sandbox', () => {
+    it('is free play: no step marker, no Next, and a log of readings', async () => {
+      const user = setup()
+      await chooseTask(user, /sandbox/i)
+
+      expect(
+        screen.queryByRole('listitem', { current: 'step' }),
+      ).not.toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /^next/i })).not.toBeInTheDocument()
+      expect(screen.getByText(/act out task 6/i)).toBeVisible()
+
+      expect(button(/record reading/i)).toBeDisabled()
+      await user.click(button(/power/i))
+      await user.click(item(/^weigh boat/i))
+      await user.click(button(/record reading/i))
+      await user.click(item(/^sphere/i))
+      await user.click(button(/record reading/i))
+
+      const log = screen.getByRole('list', { name: /readings/i })
+      expect(
+        within(log)
+          .getAllByRole('listitem')
+          .map((li) => li.textContent),
+      ).toEqual([
+        expect.stringMatching(/1.*2\.35 g/),
+        expect.stringMatching(/2.*7\.47 g/),
+      ])
+
+      // The difference of the last two readings is the Task 6 calculation.
+      expect(screen.queryByText(/5\.12 g/)).not.toBeInTheDocument()
+      await user.click(button(/reveal the difference/i))
+      expect(screen.getByText(/7\.47 g − 2\.35 g = 5\.12 g/)).toBeVisible()
+
+      await user.click(button(/clear readings/i))
+      expect(within(log).queryAllByRole('listitem')).toHaveLength(0)
     })
   })
 
