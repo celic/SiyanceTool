@@ -302,7 +302,7 @@ describe('MassBalance', () => {
   })
 
   describe('Task 2A — solid by subtraction', () => {
-    it('reads the weigh boat, then the boat and sphere, and hides the answer until revealed', async () => {
+    it('reads the weigh boat, then the boat and sphere, and shows the formula but never the answer', async () => {
       const user = setup()
       await chooseTask(user, /2A/)
       await user.click(button(/power/i))
@@ -315,18 +315,20 @@ describe('MassBalance', () => {
       expect(display()).toHaveTextContent('7.47 g')
       await user.click(button(/record weigh boat \+ sphere/i))
 
-      expect(screen.queryByText(/5\.12 g/)).not.toBeInTheDocument()
-      await user.click(button(/reveal/i))
-      expect(screen.getByText(/7\.47 g − 2\.35 g/)).toBeVisible()
-      expect(screen.getByText(/= 5\.12 g/)).toBeVisible()
+      await user.click(button(/show the formula/i))
+      expect(screen.getByText(/7\.47 g − 2\.35 g = ___ g/)).toBeVisible()
+      // The site is the balance, not the calculator: the student works this out.
+      expect(screen.queryByText(/5\.12/)).not.toBeInTheDocument()
     })
 
-    it('does not offer the reveal until every blank is recorded', async () => {
+    it('does not offer the formula until every blank is recorded', async () => {
       const user = setup()
       await chooseTask(user, /2A/)
       await user.click(button(/power/i))
 
-      expect(screen.queryByRole('button', { name: /reveal/i })).not.toBeInTheDocument()
+      expect(
+        screen.queryByRole('button', { name: /show the formula/i }),
+      ).not.toBeInTheDocument()
     })
 
     it('refuses to put the sphere on without the weigh boat, in words', async () => {
@@ -362,9 +364,12 @@ describe('MassBalance', () => {
       expect(display()).toHaveTextContent('5.13 g')
       await user.click(button(/record sphere in the tared boat/i))
 
-      await user.click(button(/reveal/i))
-      expect(screen.getByText(/slightly different/i)).toBeVisible()
-      expect(screen.getByText(/different — by 0\.01 g/)).toBeVisible()
+      await user.click(button(/show the formula/i))
+      // Both numbers, side by side, and the question — not the verdict.
+      expect(screen.getByText(/sphere by tare: 5\.13 g/i)).toBeVisible()
+      expect(screen.getByText(/7\.47 g − 2\.35 g = ___ g/)).toBeVisible()
+      expect(screen.queryByText(/my numbers were/i)).not.toBeInTheDocument()
+      expect(screen.queryByText(/5\.12/)).not.toBeInTheDocument()
     })
 
     it('lets the button say Zero when her balances do', () => {
@@ -430,9 +435,9 @@ describe('MassBalance', () => {
       expect(display()).toHaveTextContent('5.34 g')
       await user.click(button(/record weigh boat \+ balloon \+ air/i))
 
-      await user.click(button(/reveal/i))
-      expect(screen.getByText(/5\.34 g − 4\.96 g/)).toBeVisible()
-      expect(screen.getByText(/= 0\.38 g/)).toBeVisible()
+      await user.click(button(/show the formula/i))
+      expect(screen.getByText(/5\.34 g − 4\.96 g = ___ g/)).toBeVisible()
+      expect(screen.queryByText(/0\.38/)).not.toBeInTheDocument()
     })
   })
 
@@ -459,8 +464,10 @@ describe('MassBalance', () => {
       await user.click(button(/record volume/i))
       await user.click(button(/record mass of water/i))
 
-      await user.click(button(/reveal/i))
-      expect(screen.getByText(/73 mL of water massed 73\.00 g/i)).toBeVisible()
+      await user.click(button(/show the formula/i))
+      expect(screen.getByText(/volume of water: 73 mL/i)).toBeVisible()
+      expect(screen.getByText(/mass of water: 73\.00 g/i)).toBeVisible()
+      expect(screen.queryByText(/agree|differ by/i)).not.toBeInTheDocument()
     })
   })
 
@@ -492,10 +499,11 @@ describe('MassBalance', () => {
         expect.stringMatching(/2.*7\.47 g/),
       ])
 
-      // The difference of the last two readings is the Task 6 calculation.
-      expect(screen.queryByText(/5\.12 g/)).not.toBeInTheDocument()
-      await user.click(button(/reveal the difference/i))
-      expect(screen.getByText(/7\.47 g − 2\.35 g = 5\.12 g/)).toBeVisible()
+      // The difference of the last two readings is the Task 6 calculation —
+      // set up for the student, not done for them.
+      await user.click(button(/show the formula/i))
+      expect(screen.getByText(/7\.47 g − 2\.35 g = ___ g/)).toBeVisible()
+      expect(screen.queryByText(/5\.12/)).not.toBeInTheDocument()
 
       await user.click(button(/clear readings/i))
       expect(within(log).queryAllByRole('listitem')).toHaveLength(0)

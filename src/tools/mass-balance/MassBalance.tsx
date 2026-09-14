@@ -11,7 +11,6 @@ import {
   readout,
   remove,
   reset,
-  roundTo,
   tare,
   togglePower,
   type BalanceState,
@@ -37,14 +36,15 @@ import '@/tools/mass-balance/MassBalance.css'
 const ITEM_ORDER = Object.keys(ITEMS) as ItemId[]
 
 /**
- * The Task 6 calculation: the difference between the last two readings,
- * written larger − smaller so a mass is never shown as negative.
+ * The Task 6 calculation, set up but not done: the difference between the
+ * last two readings, written larger − smaller with a blank for the result.
+ * The site is the balance, not the calculator.
  */
 function lastDifference(log: number[], decimals: number): string {
   const [previous, last] = log.slice(-2)
   const [big, small] = last >= previous ? [last, previous] : [previous, last]
   const g = (v: number) => `${v.toFixed(decimals)} g`
-  return `${g(big)} − ${g(small)} = ${g(roundTo(big - small, decimals))}`
+  return `${g(big)} − ${g(small)} = ___ g`
 }
 const DEFAULT_VOLUME = 10
 const DEFAULT_DATES = [1, 1, 1, 1]
@@ -91,7 +91,7 @@ export function MassBalance({ options }: ToolProps) {
   const benchItems = ITEM_ORDER.filter(
     (id) => task.items.includes(id) || balance.onBalance.includes(id),
   )
-  const worked = task.worked(records, settings.decimals)
+  const formula = task.formula(records, settings.decimals)
   const blankById = new Map(task.blanks.map((blank) => [blank.id, blank]))
 
   /**
@@ -397,17 +397,17 @@ export function MassBalance({ options }: ToolProps) {
                 ))}
               </ol>
               {log.length >= 2 ? (
-                <RevealAnswer
-                  label="Reveal the difference of the last two"
-                  hideLabel="Hide the difference"
-                >
+                <RevealAnswer label="Show the formula" hideLabel="Hide the formula">
                   <div className="procedure__worked">
                     <p>{lastDifference(log, settings.decimals)}</p>
+                    <p className="procedure__hint">
+                      Work it out on your calculator and write it on your worksheet.
+                    </p>
                   </div>
                 </RevealAnswer>
               ) : (
                 <p className="procedure__hint">
-                  Take two readings to reveal the difference between them.
+                  Take two readings to set up the difference between them.
                 </p>
               )}
             </div>
@@ -503,20 +503,20 @@ export function MassBalance({ options }: ToolProps) {
                 </tbody>
               </table>
 
-              {worked ? (
-                <RevealAnswer
-                  label="Reveal the calculation"
-                  hideLabel="Hide the calculation"
-                >
+              {formula ? (
+                <RevealAnswer label="Show the formula" hideLabel="Hide the formula">
                   <div className="procedure__worked">
-                    {worked.map((line) => (
+                    {formula.map((line) => (
                       <p key={line}>{line}</p>
                     ))}
+                    <p className="procedure__hint">
+                      Work it out on your calculator and write it on your worksheet.
+                    </p>
                   </div>
                 </RevealAnswer>
               ) : (
                 <p className="procedure__hint">
-                  Record every reading to unlock the calculation.
+                  Record every reading to set up the formula.
                 </p>
               )}
             </div>

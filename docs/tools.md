@@ -55,9 +55,11 @@ These are built once in the design system and are not repeated in each tool belo
 
 - **Explains itself.** A tool opens with what it is for and what to do first, addressed to
   "you". Nobody is narrating.
-- **Self-check, then reveal.** Any final answer is hidden until asked for — so a teacher can
-  ask the class first, and so a student alone commits to their own answer first. The reveal
-  invites the student's answer, then shows the worked one beside it.
+- **Formula, never the answer.** The site is the equipment, not the calculator. Where a
+  worksheet asks for a calculation, the page shows the formula with the recorded values
+  substituted in and a blank for the result — never the result, and never a verdict on it.
+  The student works it out on their own calculator and writes it on the sheet. The formula
+  sits behind a reveal gate so a teacher can ask the class what to do before showing it.
 - **Keeps its place.** State survives a reload or a closed tab, on the device, so a student
   mid-task is not sent back to step 1.
 - **Every equipment blank is answerable.** For a tool built from a lab, anything the
@@ -161,11 +163,13 @@ last place, with no artificial noise added.
   to the instruction that asked for it. Record is a **forced wait**: it stays disabled until
   the balance holds exactly what the step describes — powered on, the weigh boat on and the
   sphere off, tared with the cup alone — and says what is still missing, so "weigh boat" can
-  never be recorded with the boat still on the bench. A **Data** table under the steps collects the task's
-  readings, and the calculation the worksheet asks for — `(boat + sphere) − boat`,
-  `(boat + balloon + air) − (boat + balloon)`, mass versus volume — is shown behind the
-  **reveal gate** with the recorded numbers substituted in, so she can ask the class first.
-  Readings persist across tasks, because 2B compares against 2A.
+  never be recorded with the boat still on the bench. A **Data** table under the steps
+  collects the task's readings, and **Show the formula** sets up the calculation the
+  worksheet asks for with the recorded numbers substituted in — `7.47 g − 2.35 g = ___ g` —
+  and stops there. The site never computes the result, never says whether 2A and 2B agree,
+  never says how close Task 5's two measurements were: those are the student's, on their
+  own calculator, on the sheet. Readings persist across tasks, because 2B sets up its
+  comparison from 2A's readings.
 
 **What it has to get right**
 
@@ -199,13 +203,13 @@ last place, with no artificial noise added.
 
 | Lab task                             | On the page                                                                                                                                                                                                                                                                             |
 | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2A — solid by subtraction            | Boat on pan, record; sphere into boat, record; reveal `(boat + sphere) − boat`.                                                                                                                                                                                                         |
-| 2B — solid by Tare                   | Sphere out, boat stays; Tare shows `0.00`; sphere in, record; compare with 2A — the tool says whether the two agree, and why they may not.                                                                                                                                              |
+| 2A — solid by subtraction            | Boat on pan, record; sphere into boat, record; show `7.47 g − 2.35 g = ___ g` for the student to work out.                                                                                                                                                                              |
+| 2B — solid by Tare                   | Sphere out, boat stays; Tare shows `0.00`; sphere in, record; the two readings side by side with 2A's subtraction set up — the student says whether they agree.                                                                                                                         |
 | 3 — liquid in a cup                  | Clear pan, Tare; cup on, record; Tare; cup **off** — the readout goes negative and the page says why; measure, pour on the bench; cup back on, record the water alone. The page puts "measure out 10 mL" after "cup off", where the hands actually are; the worksheet lists it earlier. |
-| 4 — gas in a balloon                 | Boat + empty balloon, record; swap for inflated balloon, record; reveal the subtraction.                                                                                                                                                                                                |
-| 5 — metric is amazing                | Four dates sum to a volume; then Task 3's bench steps in Task 3's order — clear the pan, cup on and Tare, cup off, measure, pour, cup back — since the lab gives Task 5 no bench steps of its own; reveal mass beside volume and how close they are.                                    |
+| 4 — gas in a balloon                 | Boat + empty balloon, record; swap for inflated balloon, record; the subtraction set up with a blank for the result.                                                                                                                                                                    |
+| 5 — metric is amazing                | Four dates sum to a volume; then Task 3's bench steps in Task 3's order — clear the pan, cup on and Tare, cup off, measure, pour, cup back — since the lab gives Task 5 no bench steps of its own; mass beside volume; how close they are is the student's to say.                      |
 | 1 — parts of the balance             | Partly: power-on, decimals, units, and the weigh boat's mass are all there. The lid and "do not press the pan" are not — see below.                                                                                                                                                     |
-| 6 — think (pencil, soda can, gas)    | The Sandbox: every item, a log of readings, and the difference of the last two behind the reveal gate — the shape of every Task 6 answer. The writing itself stays on paper.                                                                                                            |
+| 6 — think (pencil, soda can, gas)    | The Sandbox: every item, a log of readings, and the difference of the last two set up with a blank — the shape of every Task 6 answer, for the student to finish. The writing itself stays on paper.                                                                                    |
 | Roles, equipment match, units circle | Not captured. Paper.                                                                                                                                                                                                                                                                    |
 
 **For a student making the lab up** (plan.md item 4). The student has the paper

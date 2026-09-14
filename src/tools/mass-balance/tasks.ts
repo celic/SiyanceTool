@@ -1,4 +1,4 @@
-import { ITEMS, roundTo, type BalanceState, type ItemId } from '@/core/balance'
+import { ITEMS, type BalanceState, type ItemId } from '@/core/balance'
 
 /**
  * The lab's tasks, as the page runs them. Steps are the lab's own words,
@@ -122,12 +122,14 @@ export interface Task {
   steps: Step[]
   blanks: Blank[]
   /**
-   * The calculation the worksheet asks for, with recorded numbers substituted
-   * in — or null while a blank is still empty. Lines are shown one per row
-   * behind the reveal gate. Everything is at the balance's precision: never
-   * more digits than the balance gave.
+   * The calculation the worksheet asks for, set up but not done: the formula
+   * with the recorded numbers substituted in and a blank where the result
+   * goes — or null while a blank is still empty. The site is the balance, not
+   * the calculator; the student works the answer out on their own calculator
+   * and writes it on the worksheet. Lines are shown one per row. Everything
+   * is at the balance's precision: never more digits than the balance gave.
    */
-  worked: (records: Records, decimals: number) => string[] | null
+  formula: (records: Records, decimals: number) => string[] | null
 }
 
 const g = (value: number, decimals: number) => `${value.toFixed(decimals)} g`
@@ -172,14 +174,13 @@ export const TASKS: Task[] = [
         ready: firstOf(notOn('cup'), on('weigh-boat'), on('sphere'), taredWith()),
       },
     ],
-    worked: (records, decimals) => {
+    formula: (records, decimals) => {
       const boat = records['2a-boat']
       const both = records['2a-both']
       if (boat === undefined || both === undefined) return null
       return [
-        'Mass = (weigh boat + sphere) − (weigh boat)',
-        `= ${g(both, decimals)} − ${g(boat, decimals)}`,
-        `= ${g(roundTo(both - boat, decimals), decimals)}`,
+        'Mass of sphere = (weigh boat + sphere) − (weigh boat)',
+        `= ${g(both, decimals)} − ${g(boat, decimals)} = ___ g`,
       ]
     },
   },
@@ -239,7 +240,7 @@ export const TASKS: Task[] = [
         ),
       },
     ],
-    worked: (records, decimals) => {
+    formula: (records, decimals) => {
       const byTare = records['2b-sphere']
       if (records['2b-boat'] === undefined || records['2b-tared'] === undefined)
         return null
@@ -247,26 +248,15 @@ export const TASKS: Task[] = [
 
       const boat = records['2a-boat']
       const both = records['2a-both']
+      const lines = [`Sphere by Tare: ${g(byTare, decimals)}`]
       if (boat === undefined || both === undefined) {
-        return [
-          `Sphere by Tare: ${g(byTare, decimals)}`,
-          'Task 2A has not been recorded yet, so there is nothing to compare with.',
-        ]
-      }
-
-      const bySubtraction = roundTo(both - boat, decimals)
-      const gap = roundTo(Math.abs(byTare - bySubtraction), decimals)
-      const lines = [
-        `Sphere by Tare: ${g(byTare, decimals)}`,
-        `Sphere by subtraction (Task 2A): ${g(bySubtraction, decimals)}`,
-      ]
-      if (gap === 0) {
-        lines.push('My numbers were the same for both.')
-      } else {
-        const step = (10 ** -decimals).toFixed(decimals)
         lines.push(
-          `My numbers were slightly different — by ${g(gap, decimals)}.`,
-          `The balance rounds every reading to the nearest ${step} g, so subtracting two rounded readings can land one step away from a single tared reading. Both are right to the balance's precision.`,
+          'Task 2A has not been recorded yet, so there is nothing to compare with.',
+        )
+      } else {
+        lines.push(
+          `Sphere by subtraction (Task 2A): ${g(both, decimals)} − ${g(boat, decimals)} = ___ g`,
+          'Were your two numbers the same, or slightly different?',
         )
       }
       return lines
@@ -328,14 +318,14 @@ export const TASKS: Task[] = [
         ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
       },
     ],
-    worked: (records, decimals) => {
+    formula: (records, decimals) => {
       const cup = records['3-cup']
       const water = records['3-water']
       if (cup === undefined || water === undefined) return null
       return [
         `Mass of the cup: ${g(cup, decimals)}`,
         `Mass of the water: ${g(water, decimals)}`,
-        'The balance did the subtraction: Tare removed the cup, so the reading with the cup back on is the water alone.',
+        'No subtraction to do: Tare removed the cup, so the reading with the cup back on is the water alone.',
       ]
     },
   },
@@ -391,14 +381,13 @@ export const TASKS: Task[] = [
         ),
       },
     ],
-    worked: (records, decimals) => {
+    formula: (records, decimals) => {
       const empty = records['4-empty']
       const inflated = records['4-inflated']
       if (empty === undefined || inflated === undefined) return null
       return [
         'Mass of gas = (weigh boat + balloon + air) − (weigh boat + empty balloon)',
-        `= ${g(inflated, decimals)} − ${g(empty, decimals)}`,
-        `= ${g(roundTo(inflated - empty, decimals), decimals)}`,
+        `= ${g(inflated, decimals)} − ${g(empty, decimals)} = ___ g`,
       ]
     },
   },
@@ -459,16 +448,14 @@ export const TASKS: Task[] = [
         ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
       },
     ],
-    worked: (records, decimals) => {
+    formula: (records, decimals) => {
       const volume = records['5-volume']
       const mass = records['5-mass']
       if (volume === undefined || mass === undefined) return null
-      const gap = roundTo(Math.abs(mass - volume), decimals)
       return [
-        `${volume} mL of water massed ${g(mass, decimals)}.`,
-        gap === 0
-          ? 'The two measurements agree exactly: 1 mL of water is 1 g.'
-          : `The two measurements differ by ${g(gap, decimals)}.`,
+        `Volume of water: ${volume} mL`,
+        `Mass of water: ${g(mass, decimals)}`,
+        'How close were the two measurements?',
       ]
     },
   },
@@ -482,7 +469,7 @@ export const TASKS: Task[] = [
       'Anything goes. Use it to act out Task 6: how would you mass a pencil, or the soda inside an unopened can, or the gas a reaction gives off? Record a reading whenever the class should write one down.',
     steps: [],
     blanks: [],
-    worked: () => null,
+    formula: () => null,
   },
 ]
 

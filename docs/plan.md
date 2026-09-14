@@ -151,11 +151,14 @@ a form.
       reload and so the teacher can open exactly what a student saw when marking a sheet
       (questions.md #26, #38). This absorbs the old "URL-encoded state" item: the URL carries
       the seed and the configuration; `localStorage` carries the progress.
-- [ ] **Self-check before reveal.** The reveal gate was built so a teacher could ask the
-      class before telling them. A student alone will just click it. Every reveal should
-      first invite the student's own answer — the number they wrote on the worksheet — and
-      then show the worked answer beside it, marked right or not. The component is shared
-      (`RevealAnswer` grows a `check` variant); each tool decides what to ask.
+- [ ] **Formula, never the answer** — audit every tool against it as it is built. The site
+      is the equipment, not the calculator: wherever a worksheet asks the student to
+      calculate something, the page may show the formula with the recorded values
+      substituted in and a blank for the result, and nothing more. The student works it out
+      on their own calculator and writes it on the sheet. `mass-balance` was converted on
+      2026-09-13 (no result, no verdict, no "how close"); the shared `RevealAnswer` stays as
+      the gate in front of the formula, so a teacher can still ask the class what to
+      subtract before showing it.
 
 ## 4. ★ `mass-balance` — the equipment for the make-up lab `[~]`
 
@@ -181,8 +184,6 @@ equipment can be filled in from the page.** Most can already. These cannot:
       Add one to the sandbox (a wooden pencil, ~6 g), so the "do it" can be done. A soda can,
       full and empty, would let 6.2 be acted out too; optional, since 6.2 asks only for a
       procedure.
-- [ ] **Self-check on each calculation** from item 3: the student types what they worked
-      out on the sheet; the page shows the worked answer beside it.
 - [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768.
   Still to do: a phone-width viewport end to end, light/normal, 1920x1080, and a
   keyboard-only walk through all five tasks.

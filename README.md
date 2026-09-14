@@ -6,9 +6,10 @@ website. One page per tool.
 The primary use is **a student, alone, on their own device**: reviewing a lab they did in
 class, or making up a lab they missed without using class time. The site stands in for the
 lab equipment they do not have at home; the paper worksheet stays the record. So every tool
-explains itself, keeps its place across reloads, asks for the student's answer before
-revealing the worked one, and makes every measurement the worksheet asks for producible on
-the page. The secondary use is the teacher driving a tool on the projector during a lesson,
+explains itself, keeps its place across reloads, makes every measurement the worksheet asks
+for producible on the page, and never does the arithmetic — where the worksheet asks for a
+calculation, the page shows the formula with the recorded values and a blank, and the
+student works it out on their own calculator. The secondary use is the teacher driving a tool on the projector during a lesson,
 so every tool is also **legible from the back of a room**.
 
 There is no backend. Everything runs in the browser. Nothing is handed in through the site
@@ -323,8 +324,7 @@ record the wrong thing is exactly what an unattended student needs — but the p
 changed shape. Deploying moved from near the end of the plan to item 2, because nothing
 matters until a student can open a URL. A new item 3 holds what every tool needs before it
 can be left alone with a student: a phone-width layout, a place that survives a reload, an
-opening that explains itself, a self-check before every reveal, and the student's own
-numbers with a reproducible seed. Proposed tools were re-ranked by review value — drills
+opening that explains itself, and the student's own numbers with a reproducible seed. Proposed tools were re-ranked by review value — drills
 and reference pages ahead of simulations — and every lab in `reference/` is now a make-up
 lab to build.
 
@@ -334,6 +334,10 @@ balance they do not have at home. So nothing is handed in through the site, nobo
 in, and the test of a make-up lab is that every blank on the worksheet that needs equipment
 can be filled in from the page — for `mass-balance`, that means Task 1's questions about the
 balance, the sphere's describable properties, and a pencil on the sandbox bench (item 4).
+And **the site never does the arithmetic**: where the worksheet asks for a calculation, the
+page shows the formula with the recorded values substituted in and a blank for the result.
+The student works it out on their own calculator. `mass-balance` was converted the same day
+— no results, no verdict on whether 2A and 2B agree, no "how close" for Task 5.
 
 ### The `mass-balance` tool — 2026-09-10, iterated through 2026-09-13
 
