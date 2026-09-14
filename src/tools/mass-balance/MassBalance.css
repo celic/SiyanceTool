@@ -8,9 +8,39 @@
   gap: var(--space-8);
 }
 
+/* One column on a phone — and the balance stays pinned at the top while the
+   bench and the steps scroll under it, because a student who presses Power
+   or Record needs to see the display change without scrolling back up. The
+   column is a flex column rather than a grid so the sticky balance's
+   containing block is the whole column, not one grid row. */
 @media (max-width: 60rem) {
   .mass-balance {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mass-balance__bench-side {
+    display: contents;
+  }
+
+  .balance {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding-bottom: var(--space-2);
+    border-bottom: var(--border-width) solid var(--color-border);
+    background: var(--color-bg);
+  }
+
+  /* Smaller drawing and tighter housing, so the pinned block leaves most of
+     the screen for the page under it. */
+  .balance-figure {
+    max-width: 8rem;
+    margin: 0 auto;
+  }
+
+  .balance__housing {
+    padding: var(--space-3) var(--space-4);
   }
 }
 
@@ -198,7 +228,7 @@
 }
 
 .balance__facts {
-  margin: var(--space-3) 0 0;
+  margin: var(--space-4) 0 0;
   font-size: var(--text-sm);
 }
 

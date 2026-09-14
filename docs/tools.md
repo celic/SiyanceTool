@@ -70,8 +70,9 @@ These are built once in the design system and are not repeated in each tool belo
   exactly what a student saw.
 - **Reset and randomize.** Always present, always in the same place.
 - **Works on the student's screen.** Single column on a phone, touch targets, nothing that
-  needs hover. Projector legibility — readable from the back of the room — stays as the
-  secondary requirement.
+  needs hover — and anything with a live readout stays pinned at the top while the rest
+  scrolls under it, so the number is on screen when it changes. Projector legibility —
+  readable from the back of the room — stays as the secondary requirement.
 - **Keyboard driveable, with no shortcuts.** Every control is a real button or field, so
   Tab reaches it and Space or Enter works it. There are deliberately no hidden key
   bindings: in front of a class, a stray keystroke that resets the page is worse than any

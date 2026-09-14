@@ -133,11 +133,12 @@ driving; none is optional for a student at home. The worksheet stays on paper
 (questions.md #37), which keeps this list short: the page has to be usable and honest, not
 a form.
 
-- [ ] **Works on the student's screen.** The shell and `mass-balance` on a phone-width
-      viewport and on a Chromebook: single column, touch targets no smaller than the
-      existing buttons, nothing that needs hover, and the balance display still the biggest
-      thing on the page. `resize_window` to the mobile preset is the test bench until real
-      devices are in hand.
+- [~] **Works on the student's screen.** The shell and `mass-balance` on a phone-width
+  viewport and on a Chromebook: single column, touch targets no smaller than the existing
+  buttons, nothing that needs hover, and the balance display still the biggest thing on
+  the page. `mass-balance` passes at 375px (2026-09-13), with the balance pinned while the
+  page scrolls under it — a pattern any tool with a live readout should copy. The shell's
+  own pages and a real device are still to check.
 - [ ] **Keeps its place.** The worksheet is the record, so a lost reading is a nuisance,
       not a disaster — but a reload mid-task should not empty the bench and send the student
       back to step 1. Persist each tool's state in `localStorage` under the tool's id and
@@ -182,9 +183,12 @@ equipment can be filled in from the page.** Most can already. These cannot:
 - [x] **A pencil for Task 6** (2026-09-13), on the sandbox bench only: an ordinary wooden
       pencil, ~6 g, lying straight on the pan since it is too long for the weigh boat. A soda
       can, full and empty, is still optional; 6.2 asks only for a procedure.
-- [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768.
-  Still to do: a phone-width viewport end to end, light/normal, 1920x1080, and a
-  keyboard-only walk through all five tasks.
+- [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768;
+  and (2026-09-13) a phone-width viewport (375x812) through Task 2A — one column, no
+  horizontal overflow, and the balance pinned to the top of the screen while the bench and
+  steps scroll under it, so the reading is visible at the moment Record is pressed. That
+  pinning was the one change the phone needed. Still to do: light/normal, 1920x1080, a
+  keyboard-only walk through all five tasks, and a real phone rather than an emulated one.
 - [ ] **Demo it** — to the teacher with questions.md #30–#36 and #38, and to one student
       with the paper worksheet and this page, alone, unprompted, watching where they get
       stuck. The second demo is the one that matters now. Anything either trips over goes
