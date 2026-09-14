@@ -1,11 +1,15 @@
 # SiyanceTool — Build Plan
 
 A static website hosting a collection of interactive chemistry tools for a high school
-classroom. Primary use case: the teacher shares her screen and drives a tool live during a
-lesson. Secondary (future) use case: students open the same tools themselves.
+class. **Primary use case (since 2026-09-13): a student, alone, on their own device** —
+reviewing a lab they did in class, or making up a lab they missed without using class
+time. Secondary use case: the teacher drives a tool on the projector during a lesson. The
+tools are the same; what changes is that nobody is standing next to the student to explain
+the page, to keep their work safe, or to collect it.
 
 **Constraint:** no backend API for now. Everything runs in the browser. The architecture
-should not make adding a backend later painful.
+should not make adding a backend later painful — and the pivot to students makes "later"
+closer, because saving and handing in work are the first things a backend would do.
 
 This document is the **actionable build sequence**. It does not describe what the tools do —
 [tools.md](tools.md) is the design document for that, and every tool item below consults it.
@@ -27,15 +31,15 @@ has never been seen to fail is not evidence of anything.
 
 This applies to both halves of the codebase, for different reasons:
 
-- **`chem-core`** — because wrong chemistry shown to a class is the worst failure this
+- **`chem-core`** — because wrong chemistry shown to a student is the worst failure this
   project can produce, and because chemistry has known-correct answers. Textbook problems
   make excellent fixtures: the expected value exists before the code does.
 - **Components and tools** — because their requirements are behavioral and phrased the way a
-  test already is. "The answer stays hidden until she clicks" is a test. Writing it first
-  keeps the component honest about what it actually promises.
+  test already is. "The answer stays hidden until clicked" is a test. Writing it first keeps
+  the component honest about what it actually promises.
 
-Where TDD does not fit — visual polish, canvas rendering, animation feel, layout on a
-projector — say so and verify it by looking at it instead. Do not write a hollow test to
+Where TDD does not fit — visual polish, canvas rendering, animation feel, layout on a phone
+or a projector — say so and verify it by looking at it instead. Do not write a hollow test to
 claim coverage of something a test cannot judge.
 
 **Every feature ships with its tests**, in the same commit. `npm run check` (lint, format,
@@ -43,16 +47,20 @@ typecheck, test) must pass before committing.
 
 ## Priority
 
-Tools are one of two kinds, and the kind decides where they sit in this plan:
+The audience decides the order. A student alone needs, in this order: a working URL on
+their own device; a page that keeps their work and explains itself; and the lab they are
+reviewing or making up, complete enough to finish without a teacher. Everything else comes
+after.
 
-- **★ Requested** — traced to material the teacher supplied in [`reference/`](../reference/).
-  These build first, ahead of anything proposed, whatever tier the proposal was given. The
-  tool's entry in [tools.md](tools.md) names its source file.
-- **Proposed** — suggested by the planning docs. Ordered by tier, then by the unit she
-  teaches next (questions.md #6).
-
-Above both: **bugfixes**. Item 1 is always the list of things found wrong in use, because
-a bug in front of a class outranks any new feature.
+- **Bugfixes** are always item 1. A student stuck on a broken page at home has nobody to
+  ask, so a bug outranks any new feature.
+- **★ Requested** tools — traced to material the teacher supplied in
+  [`reference/`](../reference/) — build first, ahead of anything proposed. With the pivot,
+  `reference/` is not just a source of ideas: **every lab she does in class is a make-up lab
+  this site should offer**, so each lab that lands there is a tool to build.
+- **Proposed** tools are now ranked by review value — what a student would open the night
+  before a test — rather than by what proves a technical pattern. Drills and reference
+  tools rise; simulations that are mainly a spectacle for a projector fall.
 
 Items are ordered by priority below. Requested tools are marked ★ in their headings.
 
@@ -60,10 +68,9 @@ Items are ordered by priority below. Requested tools are marked ★ in their hea
 
 ## 1. Bugfixes `[~]`
 
-Problems found by using the tools — in rehearsal, in demos, in class. This item stays at
-the top of the plan: a bug in front of a class outranks any new feature. Each entry says
-where it was seen and what the fix was. Fixed entries stay listed until the next plan
-review clears them into the README.
+Problems found by using the tools — by a student at home, in rehearsal, in demos, in class.
+This item stays at the top of the plan. Each entry says where it was seen and what the fix
+was. Fixed entries stay listed until the next plan review clears them into the README.
 
 - [x] **`mass-balance` — Task 3 steps out of order** (found and fixed 2026-09-13). The page
       followed the worksheet, which lists "measure out 10 mL" before "place the empty cup on
@@ -101,33 +108,104 @@ review clears them into the README.
       difference of the last two behind the reveal gate.
 - [ ] _Log new ones here as they are found._
 
-## 2. ★ `mass-balance` — what remains `[~]`
+## 2. Ship it — a URL students can open `[ ]`
 
-The tool is built (2026-09-10) and iterated on after first use; the build record is in the
-README's decision record. Design: [tools.md](tools.md#mass-balance--using-a-balance).
-Source: [`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
+Nothing below matters until a student can open the site on their own device. This was item
+7; the pivot moves it up.
 
-- [~] **Verify by eye.** Done in the browser: dark/normal, dark/projector, light/projector,
-  all at 1024x768 with no horizontal overflow. Still to do: light/normal by eye,
-  1920x1080, and a keyboard-only walk through all five tasks.
-- [ ] **Demo it to the teacher before building anything else.** Bring questions.md #30–#36
-      — they are all about matching her actual balances and balloons, and the answers may
-      change the defaults. Anything she trips over goes into item 1.
+- [?] **Which devices?** (questions.md #12) — **blocking.** School Chromebooks are a laptop
+  layout; personal phones are not. The answer decides how much of item 3 is layout work.
+- [ ] Choose the host (GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
+      static) and check the school network does not block it (questions.md #13).
+- [ ] CI: on push to `main`, run `npm run check`, build, and deploy. Fail the deploy if
+      anything fails — wrong chemistry must not reach a student.
+- [ ] Open the deployed site on the actual student device, on the actual school network, and
+      on a phone on mobile data, before telling anyone the URL.
+- [ ] Give the teacher the URL and a one-line description she can paste into whatever she
+      uses to assign work (questions.md #37).
 
-## 3. Foundation leftovers `[ ]`
+## 3. Built for a student alone `[ ]`
+
+Site-wide work that every tool inherits. Each of these was optional when a teacher was
+driving; none is optional for a student at home.
+
+- [ ] **Works on the student's screen.** The shell and `mass-balance` on a phone-width
+      viewport and on a Chromebook: single column, touch targets no smaller than the
+      existing buttons, nothing that needs hover, and the balance display still the biggest
+      thing on the page. `resize_window` to the mobile preset is the test bench until real
+      devices are in hand.
+- [ ] **Keeps their work.** A reload, a closed tab, or a dead battery must not lose twenty
+      minutes of a lab. Persist each tool's state in `localStorage` under the tool's id,
+      restore it on load, and give Reset a confirmation now that it destroys real work.
+      Nothing leaves the device; this is not a backend.
+- [ ] **Explains itself.** Every tool opens with what it is for and what to do first, in the
+      student's voice — "you", not "the class" — because nobody is narrating. The
+      walkthrough already does most of this for `mass-balance`; the shell should carry the
+      pattern so every tool gets it.
+- [ ] **Their own numbers, reproducibly.** Randomize on first open so two students at home
+      do not share an answer, and put the seed in the URL so the same numbers come back on
+      reload and so the teacher can open exactly what a student saw (questions.md #26, #38).
+      This absorbs the old "URL-encoded state" item: the URL carries the seed and the
+      configuration; `localStorage` carries the progress.
+- [ ] **Produces something to hand in.** A completed lab has to leave the page somehow.
+      Until there is a backend, that means a print stylesheet that renders a tool's data and
+      answers as a clean lab sheet the student can print or save as PDF, plus a "copy as
+      text" fallback for pasting into an LMS. What she will accept is questions.md #37.
+- [ ] **Self-check before reveal.** The reveal gate was built so a teacher could ask the
+      class before telling them. A student alone will just click it. Every reveal should
+      first invite the student's own answer — a number field for a calculation, a choice for
+      a comparison — and then show the worked answer beside it, marked right or not. The
+      component is shared (`RevealAnswer` grows a `check` variant); each tool decides what
+      to ask.
+
+## 4. ★ `mass-balance` — the make-up lab `[~]`
+
+The tool is built (2026-09-10) as a rehearsal of the "Measuring Mass" lab; the build record
+is in the README's decision record. Design:
+[tools.md](tools.md#mass-balance--using-a-balance). Source:
+[`reference/labs/LAB Measuring Mass Inquiry.md`](../reference/labs/LAB%20Measuring%20Mass%20Inquiry.md).
+
+For a student making the lab up, rehearsal is not enough: they need to come out the other
+end with the worksheet done. Everything the design entry lists as "not captured" comes back
+into scope, except what genuinely needs the real bench.
+
+- [ ] **The whole worksheet, on the page.** In the lab's order:
+  - [ ] Pre-lab: the objective's blanks, "define mass", the equipment match, and the units
+        question — as short self-check questions, answered before the tasks unlock.
+  - [ ] Task 1 from the simulated balance: decimals, units, and the weigh boat's mass are
+        already there; the lid (questions.md #35) and "is it light or heavy" become questions
+        the student answers from the page.
+  - [ ] Tasks 2A–5 as now, with the self-check-before-reveal from item 3 on each
+        calculation.
+  - [ ] Task 6's three procedures as text answers the student writes on the page, kept with
+        the rest of their work and included in the hand-in sheet. The sandbox stays as the
+        place to try them out.
+- [ ] **Hand-in sheet**: the print view from item 3, laid out like the worksheet — every
+      blank filled with what the student recorded and wrote, in the worksheet's order, with
+      their name and the seed so the teacher can reproduce their numbers.
+- [ ] **Two voices, one page.** Keep the projector rehearsal working: a `mode` option
+      (`student` by default, `teacher` for the projector) that hides the pre-lab and Task 6
+      writing and shows the walkthrough alone. The student mode is the default because that
+      is who opens it unattended.
+- [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768.
+  Still to do: a phone-width viewport end to end, light/normal, 1920x1080, and a
+  keyboard-only walk through all five tasks.
+- [ ] **Demo it** — to the teacher with questions.md #30–#36 and #37–#41, and to one
+      student, alone, unprompted, watching where they get stuck. The second demo is the one
+      that matters now. Anything either trips over goes into item 1.
+
+## 5. Foundation leftovers `[ ]`
 
 What remains of the design system and app shell. Everything else in those areas is done
 and recorded in the README.
 
-- [ ] Verify the categorical palette on real classroom hardware. The colour choices are
-      theoretically sound, but "readable from the back of the room" is a claim about a
-      specific projector and has not been tested on one (questions.md #11).
+- [ ] Verify the categorical palette on real classroom hardware (questions.md #11). Lower
+      priority now that the projector is the secondary use; still needed before the
+      teacher relies on it in a lesson.
 - [ ] **3D library:** `three.js` directly, or `3Dmol.js`. Deferred — evaluate when
       `vsepr-viewer` comes up (questions.md #24).
-- [ ] **Hosting:** GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
-      static. Deferred to item 7.
 
-## 4. Build `chem-core`, the shared chemistry library `[ ]`
+## 6. Build `chem-core`, the shared chemistry library `[ ]`
 
 Pure functions, no UI, fully unit-tested. Most tools depend on this, and retrofitting it
 later is painful — which is why it comes before the proposed tools. Each tool's entry in
@@ -155,88 +233,64 @@ later is painful — which is why it comes before the proposed tools. Each tool'
 - [ ] **Tests for every one of the above**, using known textbook problems with known answers
       as fixtures.
 
-## 5. Tier 1 tools — proposed `[ ]`
+## 7. Proposed tools for review — what a student opens before a test `[ ]`
 
-The three Tier 1 tools in [tools.md](tools.md), chosen because each proves a distinct
-technical pattern. Build all three before Tier 2 — they de-risk everything that follows.
+Designs in [tools.md](tools.md). Reordered for the new audience: the tools a student uses
+alone to check their own understanding come first. **Any lab that lands in `reference/`
+jumps ahead of all of these.** Build order within the list should follow the unit she is
+teaching (questions.md #6).
 
-- [ ] **`periodic-table`** — build to the design in [tools.md](tools.md#periodic-table).
-      Proves the data-driven pattern. Ship the state-at-temperature mode; it is the feature
-      that justifies the tool.
-- [ ] **`molar-mass`** — build to the design in [tools.md](tools.md#molar-mass). Proves the
-      formula parser against real input, including hydrates and nested parentheses.
-- [ ] **`gas-laws`** — build to the design in [tools.md](tools.md#gas-laws). Proves the
-      simulation pattern.
+- [ ] **`periodic-table`** — the reference page every other tool links into; the
+      state-at-temperature slider is the review hook.
+- [ ] **`molar-mass`** — with the formula parser; shows its working, which is what a student
+      checking homework wants.
+- [ ] **`nomenclature-drill`** — endless generated practice with instant feedback. Confirm
+      her naming convention first (questions.md #22).
+- [ ] **`sig-figs`** — promote further if she grades sig figs (questions.md #19).
+- [ ] **`dimensional-analysis`**
+- [ ] **`equation-balancer`** — its _practice_ mode is the review tool; highest correctness
+      stakes on the site, must fail loudly rather than answer wrongly.
+- [ ] **`stoichiometry`** — after the balancer and molar mass, since it composes both.
+- [ ] **`solutions-dilution`**
+- [ ] **`lab-measurement`** — reading instruments; pairs with `mass-balance` for lab
+      make-up.
+- [ ] **`half-life`**
+
+## 8. Proposed simulations — the projector spectacles `[ ]`
+
+Designs in [tools.md](tools.md). These earn their page by showing what cannot be seen in a
+classroom, which is still true — but a student reviewing alone gets less from a spectacle
+than from a drill, so they follow item 7 unless a unit's lab needs one.
+
+- [ ] **`gas-laws`** — the first canvas simulation.
   - [ ] **Establish and document the canvas/framework boundary convention here.** Every
-        later simulation copies this file's structure, so get it right once and write down
-        why it is shaped that way.
-  - [ ] Profile particle count against frame rate on the actual classroom hardware.
-
-## 6. URL-encoded state `[ ]`
-
-- [ ] Serialize each tool's full configuration into the query string.
-- [ ] Restore state from the URL on load.
-- [ ] A "copy link to this setup" button on every tool, provided by `ToolShell`.
-- [ ] Decide the encoding format (see questions.md #25) and whether randomized tools need a
-      shareable seed (questions.md #26). `mass-balance` is the first tool with randomized
-      values, so it is the first to need an answer.
-
-Why this matters: it gives shareable, bookmarkable scenarios with **no backend at all** —
-she can prepare five titrations as bookmarks before class — and it is the migration path to
-a student-facing app later without rearchitecting.
-
-## 7. Deploy `[ ]`
-
-- [ ] Choose the host (GitHub Pages, Netlify, or Cloudflare Pages).
-- [ ] CI: on push to `main`, run tests, build, and deploy. Fail the deploy if tests fail —
-      wrong chemistry must not reach the classroom.
-- [ ] Verify the deployed site on the actual classroom projector, on the actual school
-      network, before relying on it in a lesson.
-- [ ] Confirm it works on whatever devices students would use (questions.md #12).
-
-## 8. Tier 2 tools — proposed `[ ]`
-
-Designs in [tools.md](tools.md#tier-2). **Build order should follow the unit she teaches
-next** (questions.md #6), not the order listed here — and any newly requested tool jumps
-ahead of all of these.
-
-- [ ] `equation-balancer` — highest correctness stakes on the site; must fail loudly rather
-      than answer wrongly.
-- [ ] `stoichiometry` — build after the balancer and molar mass, since it composes both.
+        later simulation copies this file's structure.
+  - [ ] Profile particle count against frame rate on a Chromebook, not a dev laptop.
 - [ ] `titration` — check PhET coverage first (questions.md #7) before committing to it.
+- [ ] `heating-curve`
 - [ ] `vsepr-viewer` — evaluate `3Dmol.js` before building on raw Three.js.
 - [ ] `electron-configuration`
-- [ ] `heating-curve`
 - [ ] `emission-spectra`
-
-## 9. Tier 3 tools — drills and bell-ringers, proposed `[ ]`
-
-Designs in [tools.md](tools.md#tier-3--drills-and-bell-ringers). Individually small, and
-collectively likely the most-used pages on the site.
-
-- [ ] `nomenclature-drill` — confirm her naming convention first (questions.md #22).
-- [ ] `sig-figs` — promote to Tier 2 if she grades sig figs (questions.md #19).
-- [ ] `dimensional-analysis`
-- [ ] `solutions-dilution`
-- [ ] `half-life`
 - [ ] `le-chatelier` — confirm it is in her curriculum at all (questions.md #5).
-- [ ] `lab-measurement` — reading instruments; the balance _procedure_ is already covered
-      by `mass-balance`, so this one is about reading the scale.
 
-## 10. Polish and accessibility `[ ]`
+## 9. Polish and accessibility `[ ]`
 
 - [ ] Keyboard navigation on every tool, verified.
 - [ ] Screen reader labels on all controls; numeric readouts announced on change.
 - [ ] Audit every tool against the "no meaning in color alone" convention.
 - [ ] Reduced-motion support for the animated simulations.
-- [ ] Print stylesheet, if printable worksheets turn out to be wanted (questions.md #9).
-- [ ] Offline support via a service worker, if the school network is unreliable
-      (questions.md #14).
+- [ ] Offline support via a service worker, so a lab started on the bus finishes on the bus
+      (questions.md #14). Higher priority than before now that the device is the student's.
+- [ ] Projector mode stays and stays checked — it is the secondary use, not a dead one.
 
-## 11. Possible future work — explicitly out of scope for now
+## 10. Possible future work — the backend question, now closer
 
-- [ ] Backend API: saved student progress, teacher-assigned problem sets, class scoreboards.
-- [ ] LMS embedding (Canvas, Google Classroom) if that is how it would be assigned.
+- [ ] **Backend API.** Out of scope by constraint, but the pivot makes it the obvious next
+      step: saved progress that follows a student between devices, and a hand-in that goes
+      to the teacher instead of a printer. Revisit after the first make-up lab has been
+      handed in the manual way (item 3) and it is clear what hurt.
+- [ ] LMS embedding (Canvas, Google Classroom) — likely how make-up labs get assigned;
+      questions.md #37 decides.
 - [ ] Content authoring, so the teacher can add her own problem sets without writing code.
 - [ ] The tools deferred at the end of [tools.md](tools.md#deferred-with-reasons), each with
       the reason it was deferred.

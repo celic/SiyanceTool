@@ -14,17 +14,18 @@ Answer format: add the answer inline under the question and mark it `ANSWERED`.
 1. **Which framework?** — `ANSWERED (2026-09-07)`: **Vite + React + TypeScript**, along with
    the recommended sub-decisions — SVG for charts, Canvas 2D for particle simulations, plain
    CSS with custom properties, Vitest for tests. The 3D library and the host remain deferred
-   (#24 and plan.md item 3). Test scope was later widened beyond `chem-core` to components
+   (#24 and plan.md item 5). Test scope was later widened beyond `chem-core` to components
    and tools, written test-first — see plan.md "How we work".
 2. **Who maintains this in a year?** If the answer is "a student" or "the teacher," that
    argues for the simplest possible stack, even at the cost of duplication.
 3. **Is "SiyanceTool" the real name?** It affects the repo, the page titles, and any domain.
    Is there a domain already, or will this live on a `github.io` subdomain?
-4. **How much do you want to build before showing her?** Recommendation: build the
-   requested `mass-balance` tool alone (plan.md item 2) and demo it before anything else.
-   It came from her own lab, so the feedback will be specific, and it is the first tool to
-   exercise the whole shell with real content. (The original recommendation was
-   `periodic-table`; it was displaced when the lab arrived in `reference/`.)
+4. **How much do you want to build before showing her?** Recommendation: finish
+   `mass-balance` as a make-up lab (plan.md item 4), deploy it (item 2), and demo it twice —
+   to her, and to one student alone. It came from her own lab, so her feedback will be
+   specific; the student's will show where a page with nobody beside it fails. (The
+   original recommendation was `periodic-table`; it was displaced when the lab arrived in
+   `reference/`, and again when the audience became students.)
 
 ## For the teacher (classroom reality)
 
@@ -35,14 +36,17 @@ These are the highest-value questions in this file. Several of them can invalida
    teaching to NGSS, a state standard, or her own sequence?
 6. **What is her unit order, and what is she teaching next?** — **blocking on build order.**
    Building the tool for the unit she teaches next month is worth far more than building the
-   "best" tool for a unit that already passed. This should drive plan.md items 8 and 9 entirely.
+   "best" tool for a unit that already passed. This should drive plan.md items 7 and 8 entirely.
 7. **What does she already use, and what is missing from it?** PhET simulations cover gas
    laws and pH well and are free. If PhET already solves a tool on this list, that tool
    should be dropped and the effort moved to something PhET does not do — the mole map, the
    nomenclature drill, and the projector-first reveal-answer flow are all candidates.
-8. **Is this teacher-driven only, or will students open it themselves?** — affects plan.md
-   item 10 heavily. If students use it, mobile layout and offline support become real
-   requirements rather than nice-to-haves.
+8. **Is this teacher-driven only, or will students open it themselves?** —
+   `ANSWERED (2026-09-13)`: **students open it themselves**, to review a lab they did in
+   class or to make one up without using class time. That is now the primary use; the
+   teacher on the projector is secondary. It reshaped the plan: deploy, device support,
+   keeping work across reloads, self-explanation, self-check, and a hand-in output are now
+   plan.md items 2–4, ahead of every proposed tool.
 9. **Does she want printable worksheets** generated from the drill tools, or is everything
    on screen?
 10. **Does she want any kind of "show your work" output** she can put on an assessment, or
@@ -51,14 +55,16 @@ These are the highest-value questions in this file. Several of them can invalida
 ## Classroom and IT constraints
 
 11. **What is the projector's resolution and aspect ratio?** Older classroom projectors are
-    often 1024x768 and wash out low-contrast colors badly. This sets the floor for plan.md item 3.
-12. **What devices would students use?** School Chromebooks, personal phones, or nothing?
-    Chromebooks are fine; phones would force a serious mobile rethink of the periodic table
-    and any canvas simulation.
+    often 1024x768 and wash out low-contrast colors badly. This sets the floor for plan.md item 5, which is lower priority now that the
+    projector is the secondary use.
+12. **What devices would students use?** — **blocking on plan.md items 2 and 3.** School
+    Chromebooks, personal phones, or both? Chromebooks are a laptop layout; phones force a
+    single-column rethink of every tool, and rule out anything that needs hover. A lab
+    made up at home is likeliest to happen on a phone.
 13. **How locked down is the school network?** Are arbitrary domains blocked? Some districts
-    block anything not on an allowlist, which would make hosting choice (plan.md item 7) a real
+    block anything not on an allowlist, which would make hosting choice (plan.md item 2) a real
     constraint rather than a free pick.
-14. **Is the classroom internet reliable?** If not, offline support moves from plan.md item 10's
+14. **Is the classroom internet reliable?** If not, offline support moves from plan.md item 9's
     optional list into the core requirements, which affects the framework choice slightly.
 15. **Any accessibility requirements in the room** — colorblind students, IEP or 504
     accommodations, screen reader users? Colorblindness in particular is directly relevant,
@@ -87,14 +93,14 @@ having them.
 ## Technical questions to resolve during the build
 
 23. **Where does the element dataset come from,** and is its license compatible with a public
-    site? Needs a citable source before plan.md item 4 starts.
+    site? Needs a citable source before plan.md item 6 starts.
 24. **Does `3Dmol.js` cover the VSEPR tool well enough** to skip building on raw Three.js?
-    Worth an hour of evaluation before the Tier 2 work in plan.md item 8 starts.
+    Worth an hour of evaluation before the simulations in plan.md item 8 start.
 25. **How complex should the URL state encoding be?** Plain query parameters stay readable
     and hand-editable; compressed encoding stays short. Readable is probably better here,
     since a teacher may want to hand-tweak a bookmarked scenario.
 26. **Do any tools need a random seed** so a "randomized" problem set can be reproduced from
-    a shared link? Relevant to plan.md items 6 and 9 together — and to `mass-balance` (item 2), the first tool with randomized values.
+    a shared link? Now plan.md item 3 ("their own numbers, reproducibly"): yes for every randomized tool, so a student's numbers survive a reload and the teacher can open exactly what the student saw. See also #38.
 27. **Should the tool on/off config be build-time or runtime?** — `ANSWERED (2026-09-08)`:
     **runtime** — disabled tools ship but are unreachable. One caveat that turns into
     question #28: `tools.config.json` is imported, so it is compiled into the bundle and
@@ -113,7 +119,7 @@ having them.
 
 Raised while designing the tool from `reference/labs/LAB Measuring Mass Inquiry.md`. All of
 these are about matching what her class will see on the real bench, so the simulated balance
-and the real one agree. Bring them to the first demo (plan.md item 2).
+and the real one agree. Bring them to the first demo (plan.md item 4).
 
 30. **Do her balances read to one decimal place or two?** Task 1 asks students to find out,
     which suggests she knows. This sets the default for the tool's `decimals` option; the
@@ -142,3 +148,29 @@ and the real one agree. Bring them to the first demo (plan.md item 2).
     worksheet's blanks so she can fill them in live on the projector and reveal the
     subtraction. If the class always has the paper in front of them, a simpler readout may
     serve better.
+
+## For the teacher — students working alone (the 2026-09-13 pivot)
+
+The site's primary use is now a student reviewing a lab they did in class, or making one up
+without class time. These decide plan.md items 2–4.
+
+37. **How does a make-up lab get handed in?** — **blocking on the hand-in output.** A
+    printout, a PDF, a screenshot, answers typed into Google Classroom or Canvas, or
+    nothing at all (she trusts the student did it)? There is no backend, so the page can
+    only print, save, or copy. If it is an LMS, the "copy as text" fallback matters more
+    than the print view; if it is paper, the reverse.
+38. **Should every student get their own numbers?** The tool can randomize on first open
+    so two students at home cannot share an answer, and put the seed in the URL so she can
+    open exactly what a student saw. Or every student can see the same worked example as
+    the class did, which is easier to mark against a key. Which does she want?
+39. **Which parts of the worksheet must a make-up student complete on the page?** The
+    pre-lab (equipment match, units), Task 1's questions about the balance, and Task 6's
+    written procedures are on paper today. All of them can go on the page; plan.md item 4
+    assumes they should. Does she want the whole sheet, or just the measurements?
+40. **What other labs should be make-up labs?** Every lab that lands in `reference/`
+    becomes a tool to build, ahead of anything proposed. Which labs does she assign, in
+    what order, and which ones do students most often miss?
+41. **Does she need to know who did what?** A name typed into the hand-in sheet is all a
+    site with no backend can offer. If she needs accounts, a roster, or work that follows a
+    student between devices, that is the backend (plan.md item 10), and it is worth knowing
+    now whether it is a requirement or a nice-to-have.

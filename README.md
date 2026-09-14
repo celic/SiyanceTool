@@ -3,11 +3,15 @@
 A collection of interactive chemistry tools for a high school classroom, hosted as a static
 website. One page per tool.
 
-The primary use case is the teacher sharing her screen and driving a tool live during a
-lesson, so every tool is built to be **legible on a projector** and **driveable from the
-keyboard**, and to hide its answers until she chooses to reveal them.
+The primary use is **a student, alone, on their own device**: reviewing a lab they did in
+class, or making up a lab they missed without using class time. So every tool explains
+itself, keeps the student's work across reloads, asks for their answer before revealing the
+worked one, and can produce a sheet to hand in. The secondary use is the teacher driving a
+tool on the projector during a lesson, so every tool is also **legible from the back of a
+room**.
 
-There is no backend. Everything runs in the browser.
+There is no backend. Everything runs in the browser — which is why "keeps their work" means
+the device, and "hand in" means print, save, or copy.
 
 ## Documentation
 
@@ -306,6 +310,24 @@ burger, so the close control was unclickable while the panel was open. jsdom has
 so the test asserting "closes from the same control" passed the whole time. Fixed by lifting
 the header above the panel. Worth remembering the next time a component's tests are green
 but the thing has never been looked at.
+
+### Pivot to students — 2026-09-13
+
+The site was planned for a teacher driving tools on a projector. The plan changed: the
+primary user is now **a student, alone, on their own device**, reviewing a lab done in class
+or making up a lab without class time. The teacher on the projector is the secondary use.
+
+Nothing built so far is wasted — a walkthrough that follows the hands and refuses to
+record the wrong thing is exactly what an unattended student needs — but the priorities
+changed shape. Deploying moved from near the end of the plan to item 2, because nothing
+matters until a student can open a URL. A new item 3 holds what every tool needs before it
+can be left alone with a student: a phone-width layout, work that survives a reload, an
+opening that explains itself, a self-check before every reveal, the student's own numbers
+with a reproducible seed, and a way to hand the work in. `mass-balance` (item 4) grows from
+a rehearsal into the whole worksheet. Proposed tools were re-ranked by review value —
+drills and reference pages ahead of simulations — and every lab in `reference/` is now a
+make-up lab to build. Five new questions (#37–#41) go to the teacher, of which "how does a
+make-up lab get handed in" is blocking.
 
 ### The `mass-balance` tool — 2026-09-10, iterated through 2026-09-13
 

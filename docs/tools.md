@@ -21,8 +21,8 @@ Every tool is one of two kinds, and the kind decides its priority:
 - **Proposed** — suggested here, on the reasoning in "what makes a tool worth a page". Every
   entry below is proposed unless it says otherwise.
 
-When new material lands in `reference/`, it is read for tools the same way: what in it is
-better on a projector than on paper, and which parts a page can actually capture. Not every
+When new material lands in `reference/`, it is read for tools the same way: what in it a
+student could do again on a screen, and which parts a page can actually capture. Not every
 part of a lab can — a page cannot teach what a weigh boat feels like — and the entry says
 what it leaves out.
 
@@ -30,22 +30,43 @@ what it leaves out.
 
 ## What makes a tool worth a page
 
-A tool earns a page if it is **better on a projector than on a whiteboard** — too slow, too
-expensive, too dangerous, or too invisible to do live, or something where instant
+A tool earns a page if it is **better on a screen than on paper** for a student working
+alone — a lab they can redo without the equipment, a drill that checks their answer
+instantly, something too slow, too expensive, too dangerous, or too invisible to do at home
+— or, for the teacher, better on a projector than on a whiteboard: something where instant
 recalculation lets her run ten "what ifs" in the time one would take by hand.
 
 A calculator with a text box does not earn a page on its own. If a tool's whole value is
 producing a number, it should be folded into a tool that also _shows_ something.
 
+## Who the tools are for
+
+Since 2026-09-13 the primary user is **a student, alone, on their own device** — reviewing
+a lab they did in class, or making one up without using class time. The teacher driving a
+tool on the projector is the secondary use. The tools are the same; the difference is that
+nobody is beside the student to explain the page, keep their work safe, or collect it. Every
+convention below is read with that person in mind.
+
 ## Conventions every tool follows
 
 These are built once in the design system and are not repeated in each tool below.
 
-- **Reveal gate.** Any final answer is hidden until clicked, so she can ask the class first.
+- **Explains itself.** A tool opens with what it is for and what to do first, addressed to
+  "you". Nobody is narrating.
+- **Self-check, then reveal.** Any final answer is hidden until asked for — so a teacher can
+  ask the class first, and so a student alone commits to their own answer first. The reveal
+  invites the student's answer, then shows the worked one beside it.
+- **Keeps its work.** State survives a reload or a closed tab, on the device. Reset asks
+  before destroying real work.
+- **Produces something to hand in.** A completed tool prints as a clean sheet, or copies as
+  text, so the work can leave the page without a backend.
+- **Their own numbers, reproducibly.** Randomized tools roll on first open and carry the
+  seed in the URL, so two students do not share an answer and the teacher can reopen
+  exactly what a student saw.
 - **Reset and randomize.** Always present, always in the same place.
-- **URL-encoded state.** The full configuration serializes to the query string, so a
-  scenario can be bookmarked before class and shared as a link.
-- **Projector legibility.** Readable from the back of the room, not just on a laptop.
+- **Works on the student's screen.** Single column on a phone, touch targets, nothing that
+  needs hover. Projector legibility — readable from the back of the room — stays as the
+  secondary requirement.
 - **Keyboard driveable, with no shortcuts.** Every control is a real button or field, so
   Tab reaches it and Space or Enter works it. There are deliberately no hidden key
   bindings: in front of a class, a stray keystroke that resets the page is worse than any
@@ -61,8 +82,10 @@ These are built once in the design system and are not repeated in each tool belo
 **Tier 3** is drills and bell-ringers — individually small, collectively the things she'd
 use most often.
 
-Tier is _not_ build order. Requested tools come first; after that, build order should follow
-the unit she teaches next (questions.md #6).
+Tier is _not_ build order, and since the pivot to students it is not priority either: the
+plan ranks proposed tools by **review value** — what a student opens alone before a test —
+which puts the Tier 3 drills and the reference tools ahead of the simulations. Requested
+tools come first regardless: every lab in `reference/` is a make-up lab to build.
 
 ---
 
@@ -182,11 +205,21 @@ last place, with no artificial noise added.
 | 6 — think (pencil, soda can, gas)    | The Sandbox: every item, a log of readings, and the difference of the last two behind the reveal gate — the shape of every Task 6 answer. The writing itself stays on paper.                                                                                                            |
 | Roles, equipment match, units circle | Not captured. Paper.                                                                                                                                                                                                                                                                    |
 
-**Not captured, deliberately.** A page cannot teach what "light" feels like or stop a hand
-pressing on a pan, so those warnings stay on the worksheet. Reading a graduated cylinder's
-meniscus is `lab-measurement`'s job, so here the cylinder is just a number field. The balance
-lid is left out of the first version; add it if she wants the "open the lid" step rehearsed
-(questions.md #35).
+**For a student making the lab up** (plan.md item 4). Rehearsal is not enough when the
+student has to come out the other end with the worksheet done, so the parts first left on
+paper come onto the page: the pre-lab (objective blanks, "define mass", the equipment
+match, the units question) as self-check questions before the tasks; Task 1's questions
+answered from the simulated balance; the self-check-before-reveal on every calculation; and
+Task 6's three procedures as written answers kept with the rest of the work. A hand-in
+sheet prints the whole thing in the worksheet's order, with the student's name and the seed
+that produced their numbers. A `mode` option keeps the projector rehearsal (`teacher`) as a
+stripped-down view; `student` is the default because that is who opens it unattended.
+
+**Still not captured.** A page cannot teach what "light" feels like or stop a hand pressing
+on a pan, so those warnings stay on the worksheet — though "is it light or heavy" becomes a
+question the student answers from the page. Reading a graduated cylinder's meniscus is
+`lab-measurement`'s job, so here the cylinder is just a number field. The balance lid is
+left out; it becomes a question if she wants it (questions.md #35).
 
 **Depends on:** a `chem-core` balance model (`src/core/balance.ts`) — the tare arithmetic,
 rounding, item dataset, and water conversion. No element data, no formula parser, which is
