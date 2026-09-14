@@ -124,7 +124,7 @@ Nothing below matters until a student can open the site on their own device. Thi
 - [ ] Open the deployed site on the actual student device, on the actual school network, and
       on a phone on mobile data, before telling anyone the URL.
 - [ ] Give the teacher the URL and a one-line description she can paste into whatever she
-      uses to assign work (questions.md #37).
+      uses to assign work.
 
 ## 3. Built for a student alone `[ ]`
 
