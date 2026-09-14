@@ -5,6 +5,10 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+  // GitHub Pages serves a project site from /<repo>/, so the deploy workflow
+  // sets BASE_PATH to that. Locally, and on a custom domain, it is "/".
+  // React Router reads the same value back as import.meta.env.BASE_URL.
+  base: process.env.BASE_PATH ?? '/',
   plugins: [react()],
   resolve: {
     alias: {

@@ -45,16 +45,16 @@ npm run dev
 
 ## Scripts
 
-| Script               | What it does                                                          |
-| -------------------- | --------------------------------------------------------------------- |
-| `npm run dev`        | Dev server with hot reload.                                           |
-| `npm run build`      | Typecheck, then build static files into `dist/`.                      |
-| `npm run preview`    | Serve the production build locally.                                   |
-| `npm test`           | Run the test suite once.                                              |
-| `npm run test:watch` | Run tests in watch mode.                                              |
-| `npm run lint`       | Lint with oxlint.                                                     |
-| `npm run format`     | Format with Prettier.                                                 |
-| `npm run check`      | Lint, format check, typecheck, and test — run this before committing. |
+| Script               | What it does                                                             |
+| -------------------- | ------------------------------------------------------------------------ |
+| `npm run dev`        | Dev server with hot reload.                                              |
+| `npm run build`      | Typecheck, build static files into `dist/`, add the `404.html` fallback. |
+| `npm run preview`    | Serve the production build locally.                                      |
+| `npm test`           | Run the test suite once.                                                 |
+| `npm run test:watch` | Run tests in watch mode.                                                 |
+| `npm run lint`       | Lint with oxlint.                                                        |
+| `npm run format`     | Format with Prettier.                                                    |
+| `npm run check`      | Lint, format check, typecheck, and test — run this before committing.    |
 
 ## Stack
 
@@ -156,6 +156,31 @@ which matters for a site driven from across a classroom.
 Where TDD genuinely does not fit — visual polish, canvas rendering, animation feel, layout on
 a projector — say so and verify by looking at it. Do not write a hollow test to claim
 coverage of something a test cannot judge.
+
+## Deploying
+
+The site deploys itself to **GitHub Pages** on every push to `main`, from
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). The workflow runs
+`npm run check` first and only builds and deploys if it passes, so a failing test never
+reaches a student. Pull requests run the check alone.
+
+One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: GitHub
+Actions.** The repository has to be public for Pages' free tier. The site then lives at
+`https://<owner>.github.io/<repo>/`; the Actions run prints the exact URL.
+
+Two things make a project-site URL work, and both are wired up:
+
+- **Base path.** `vite.config.ts` reads `BASE_PATH` (the workflow sets it to `/<repo>/`),
+  and the router uses the same value as its `basename`, so a tool's path stays
+  `/mass-balance` in code. If the site ever moves to a custom domain, set a repository
+  variable `BASE_PATH` to `/` — nothing else changes.
+- **Direct links.** Pages has no rewrite rules, so a bookmark to `/mass-balance` would 404.
+  `npm run build` copies `dist/index.html` to `dist/404.html`; Pages serves that for unknown
+  paths, the app loads, and the router shows the right tool.
+
+To see the Pages build locally, run the `preview-pages` configuration in
+`.claude/launch.json` (it serves `dist/` under `/SiyanceTool/`), after building with
+`BASE_PATH=/SiyanceTool/ npm run build`.
 
 ## Turning tools on and off
 

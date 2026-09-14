@@ -110,19 +110,45 @@ was. Fixed entries stay listed until the next plan review clears them into the R
       difference of the last two behind the reveal gate.
 - [ ] _Log new ones here as they are found._
 
-## 2. Ship it — a URL students can open `[ ]`
+## 2. Ship it — a URL students can open `[~]`
 
 Nothing below matters until a student can open the site on their own device. This was item
 7; the pivot moves it up.
 
-- [?] **Which devices?** (questions.md #12) — **blocking.** School Chromebooks are a laptop
-  layout; personal phones are not. The answer decides how much of item 3 is layout work.
-- [ ] Choose the host (GitHub Pages via Actions, Netlify, or Cloudflare Pages — all free, all
-      static) and check the school network does not block it (questions.md #13).
-- [ ] CI: on push to `main`, run `npm run check`, build, and deploy. Fail the deploy if
-      anything fails — wrong chemistry must not reach a student.
-- [ ] Open the deployed site on the actual student device, on the actual school network, and
-      on a phone on mobile data, before telling anyone the URL.
+**Decided 2026-09-13: GitHub Pages, deployed by GitHub Actions.** The all-GitHub route: no
+third-party account, no secrets, and the deploy workflow runs `npm run check` first so a
+failing test blocks the deploy by construction. The trade-offs accepted: the repo must be
+public for the free tier; the site lives at `https://<owner>.github.io/<repo>/` (so the
+build takes a base path) unless a custom domain is added later; and Pages has no rewrite
+rules, so a copy of `index.html` is shipped as `404.html` to make direct links to a tool
+work. Cloudflare Pages was the alternative — unlimited bandwidth, rewrites built in — and
+the workflow's deploy step can be swapped for it later without touching anything else.
+
+Done locally, ready to push:
+
+- [x] `.github/workflows/deploy.yml`: on push to `main`, check → build → deploy; on pull
+      requests, check only. Node 24, `npm ci`.
+- [x] Base path: `vite.config.ts` reads `BASE_PATH`, the workflow sets it from the repo
+      name (a repository variable `BASE_PATH` overrides it, for a custom domain), and the
+      router uses `import.meta.env.BASE_URL` as its `basename` so tool paths stay
+      `/mass-balance` in code.
+- [x] SPA fallback: `npm run build` copies `dist/index.html` to `dist/404.html`.
+- [x] Verified locally with `BASE_PATH=/SiyanceTool/`: assets resolve under the base, a
+      direct visit to `/SiyanceTool/mass-balance` renders the tool with no console errors,
+      and in-app links carry the base. `.claude/launch.json` has a `preview-pages`
+      configuration that serves that build.
+
+Still to do — the parts that need GitHub:
+
+- [ ] Create the repository on GitHub (public) and push `main`. _(Owner's action.)_
+- [ ] Settings → Pages → Build and deployment → Source: **GitHub Actions**. Until this is
+      set, the deploy job fails with a permissions error; the check job still runs.
+- [ ] Watch the first run under Actions; open the URL it prints.
+- [?] **Which devices?** (questions.md #12) — **blocking on item 3's layout work**, not on
+  deploying.
+- [ ] Open the deployed site on the actual student device, on the actual school network
+      (questions.md #13 — some districts allowlist domains, and `github.io` may need
+      adding), and on a phone on mobile data, before telling anyone the URL.
 - [ ] Give the teacher the URL and a one-line description she can paste into whatever she
       uses to assign work.
 
