@@ -165,13 +165,25 @@ export const TASKS: Task[] = [
         id: '2a-boat',
         label: 'Weigh boat',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere'), taredWith()),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('cup'),
+          on('weigh-boat'),
+          notOn('sphere'),
+          taredWith(),
+        ),
       },
       {
         id: '2a-both',
         label: 'Weigh boat + sphere',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), on('sphere'), taredWith()),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('cup'),
+          on('weigh-boat'),
+          on('sphere'),
+          taredWith(),
+        ),
       },
     ],
     formula: (records, decimals) => {
@@ -215,13 +227,20 @@ export const TASKS: Task[] = [
         id: '2b-boat',
         label: 'Weigh boat alone',
         source: 'readout',
-        ready: firstOf(notOn('cup'), on('weigh-boat'), notOn('sphere'), taredWith()),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('cup'),
+          on('weigh-boat'),
+          notOn('sphere'),
+          taredWith(),
+        ),
       },
       {
         id: '2b-tared',
         label: 'After Tare',
         source: 'readout',
         ready: firstOf(
+          notOn('pencil'),
           notOn('cup'),
           on('weigh-boat'),
           notOn('sphere'),
@@ -233,6 +252,7 @@ export const TASKS: Task[] = [
         label: 'Sphere in the tared boat',
         source: 'readout',
         ready: firstOf(
+          notOn('pencil'),
           notOn('cup'),
           on('weigh-boat'),
           on('sphere'),
@@ -309,13 +329,25 @@ export const TASKS: Task[] = [
         id: '3-cup',
         label: 'Empty cup',
         source: 'readout',
-        ready: firstOf(notOn('weigh-boat'), on('cup'), cupEmpty, taredWith()),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('weigh-boat'),
+          on('cup'),
+          cupEmpty,
+          taredWith(),
+        ),
       },
       {
         id: '3-water',
         label: 'Water in the tared cup',
         source: 'readout',
-        ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('weigh-boat'),
+          on('cup'),
+          cupHasWater,
+          taredWith('cup'),
+        ),
       },
     ],
     formula: (records, decimals) => {
@@ -361,6 +393,7 @@ export const TASKS: Task[] = [
         label: 'Weigh boat + empty balloon',
         source: 'readout',
         ready: firstOf(
+          notOn('pencil'),
           notOn('cup'),
           on('weigh-boat'),
           on('empty-balloon'),
@@ -373,6 +406,7 @@ export const TASKS: Task[] = [
         label: 'Weigh boat + balloon + air',
         source: 'readout',
         ready: firstOf(
+          notOn('pencil'),
           notOn('cup'),
           on('weigh-boat'),
           on('inflated-balloon'),
@@ -439,13 +473,19 @@ export const TASKS: Task[] = [
         id: '5-volume',
         label: 'Volume',
         source: 'cylinder',
-        ready: firstOf(cupHasWater),
+        ready: firstOf(notOn('pencil'), cupHasWater),
       },
       {
         id: '5-mass',
         label: 'Mass of water',
         source: 'readout',
-        ready: firstOf(notOn('weigh-boat'), on('cup'), cupHasWater, taredWith('cup')),
+        ready: firstOf(
+          notOn('pencil'),
+          notOn('weigh-boat'),
+          on('cup'),
+          cupHasWater,
+          taredWith('cup'),
+        ),
       },
     ],
     formula: (records, decimals) => {
@@ -462,7 +502,14 @@ export const TASKS: Task[] = [
   {
     id: 'sandbox',
     title: 'Sandbox',
-    items: ['weigh-boat', 'sphere', 'cup', 'empty-balloon', 'inflated-balloon'],
+    items: [
+      'weigh-boat',
+      'sphere',
+      'cup',
+      'empty-balloon',
+      'inflated-balloon',
+      'pencil',
+    ],
     usesCylinder: true,
     usesDates: false,
     freePlay:

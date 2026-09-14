@@ -197,6 +197,11 @@
   cursor: not-allowed;
 }
 
+.balance__facts {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+}
+
 .balance__note {
   margin: var(--space-3) 0 0;
   color: var(--color-muted);
@@ -239,6 +244,28 @@
 }
 
 .bench__where {
+  color: var(--color-muted);
+}
+
+.bench__descriptions {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-sm);
+}
+
+.bench__description {
+  display: grid;
+  grid-template-columns: 9em minmax(0, 1fr);
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-2) 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+.bench__description dt {
+  font-weight: var(--weight-medium);
+}
+
+.bench__description dd {
+  margin: 0;
   color: var(--color-muted);
 }
 

@@ -141,8 +141,9 @@ last place, with no artificial noise added.
 - **The balance:** Power, Tare (label configurable to Zero), in a housing directly under
   the pan so it reads as one object.
 - **Bench items**, each a button that moves it between the bench and the pan: weigh boat,
-  sphere, cup, empty balloon, inflated balloon. The sphere and the balloons sit in the weigh
-  boat; the weigh boat and the cup sit on the pan.
+  sphere, cup, empty balloon, inflated balloon, and (sandbox only) a pencil. The sphere and
+  the balloons sit in the weigh boat; the weigh boat, the cup and the pencil sit on the pan.
+  Each item is described under the bench as a student would see it.
 - **Graduated cylinder:** a volume field in mL, and "pour into cup" and "empty the cup"
   actions that are only allowed while the cup is on the bench. Pouring in while the cup is
   on the balance is refused in the lab's own words — _never pour into a container on the
@@ -214,12 +215,12 @@ last place, with no artificial noise added.
 
 **For a student making the lab up** (plan.md item 4). The student has the paper
 worksheet and this page instead of the bench, so the page must make every
-equipment-dependent blank answerable. Most already are — every "record the mass" comes
-off the display. Three do not yet: Task 1's questions about the balance (lid, decimals,
-units, light or heavy), which need a "your balance" note stating what this balance is; 2A's
-"describe 3 properties of your sphere", which needs the sphere to be a describable object;
-and Task 6's "Do it! Record the mass" of a pencil, which needs a pencil on the sandbox
-bench. The worksheet is never reproduced on the page, and nothing is handed in through it
+equipment-dependent blank answerable. Every "record the mass" comes off the display. Task
+1's questions about the balance (lid, decimals, units) are answered by a "your balance" note
+under the housing; "light or heavy" and 2A's "describe 3 properties of your sphere" by a
+description of every bench item, written as a student would see it from picking it up;
+Task 6's "Do it! Record the mass" of a pencil by a pencil on the sandbox bench. The
+worksheet is never reproduced on the page, and nothing is handed in through it
 (questions.md #37).
 
 **Still not captured.** A page cannot teach what "light" feels like or stop a hand pressing

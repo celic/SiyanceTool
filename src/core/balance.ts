@@ -20,13 +20,20 @@
 export type Decimals = 1 | 2
 
 export type ItemId =
-  'weigh-boat' | 'sphere' | 'cup' | 'empty-balloon' | 'inflated-balloon'
+  'weigh-boat' | 'sphere' | 'cup' | 'empty-balloon' | 'inflated-balloon' | 'pencil'
 
 /** What an item sits on when it is on the balance. */
 export type Holder = 'pan' | 'weigh-boat'
 
 export interface ItemDefinition {
   name: string
+  /**
+   * What a student would see if they picked it up. The worksheet asks them
+   * to "describe 3 properties of your sphere" and whether the weigh boat is
+   * light or heavy; with the site standing in for the bench, the page has to
+   * be lookable-at.
+   */
+  description: string
   holder: Holder
   /**
    * The item's usual mass in grams, to three decimals. These are the values the
@@ -57,19 +64,56 @@ const EMPTY_BALLOON = { nominal: 2.612, spread: 0.3 }
 
 export const ITEMS: Record<ItemId, ItemDefinition> = {
   // "Find the weighboat. Is it LIGHT or Heavy?" — a plastic one is a gram or two.
-  'weigh-boat': { name: 'Weigh boat', holder: 'pan', nominal: 2.347, spread: 0.4 },
+  'weigh-boat': {
+    name: 'Weigh boat',
+    description:
+      'A thin square dish of white plastic, about the size of your palm. Light — it weighs almost nothing in your hand.',
+    holder: 'pan',
+    nominal: 2.347,
+    spread: 0.4,
+  },
   // A glass marble.
-  sphere: { name: 'Sphere', holder: 'weigh-boat', nominal: 5.126, spread: 0.6 },
-  cup: { name: 'Cup', holder: 'pan', nominal: 8.214, spread: 1.2 },
-  'empty-balloon': { name: 'Empty balloon', holder: 'weigh-boat', ...EMPTY_BALLOON },
+  sphere: {
+    name: 'Sphere',
+    description:
+      'A glass marble: blue-green, smooth, shiny, about 16 mm across, and heavier than it looks for its size. It rolls, so it sits in the weigh boat.',
+    holder: 'weigh-boat',
+    nominal: 5.126,
+    spread: 0.6,
+  },
+  cup: {
+    name: 'Cup',
+    description:
+      'A small clear plastic cup, the kind used for rinsing. Holds about 100 mL.',
+    holder: 'pan',
+    nominal: 8.214,
+    spread: 1.2,
+  },
+  'empty-balloon': {
+    name: 'Empty balloon',
+    description: 'A red party balloon, uninflated: a limp strip of rubber.',
+    holder: 'weigh-boat',
+    ...EMPTY_BALLOON,
+  },
   // Rolled as the empty balloon plus the excess, so the excess stays a few
   // tenths of a gram whatever the balloon itself rolled. Its spread is
   // therefore the sum of the two.
   'inflated-balloon': {
     name: 'Inflated balloon',
+    description:
+      'The same red balloon blown up to about the size of your head and tied off. Full of air.',
     holder: 'weigh-boat',
     nominal: roundTo(EMPTY_BALLOON.nominal + BALLOON_EXCESS.nominal, 3),
     spread: EMPTY_BALLOON.spread + BALLOON_EXCESS.spread,
+  },
+  // Task 6.1: "write a brief procedure for how to mass a pencil — do it!"
+  pencil: {
+    name: 'Pencil',
+    description:
+      'An ordinary yellow wooden pencil, sharpened, with a pink eraser. Too long for the weigh boat, so it lies straight on the pan.',
+    holder: 'pan',
+    nominal: 6.183,
+    spread: 0.8,
   },
 }
 
@@ -257,6 +301,7 @@ export function randomize(
     'weigh-boat': around(ITEMS['weigh-boat']),
     sphere: around(ITEMS.sphere),
     cup: around(ITEMS.cup),
+    pencil: around(ITEMS.pencil),
     'empty-balloon': emptyBalloon,
     'inflated-balloon': roundTo(
       emptyBalloon + around(BALLOON_EXCESS),

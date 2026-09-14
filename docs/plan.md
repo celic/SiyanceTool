@@ -171,19 +171,17 @@ A student making the lab up has the paper worksheet in front of them and this pa
 of the bench. So the test of "done" is: **every blank on the worksheet that needs the
 equipment can be filled in from the page.** Most can already. These cannot:
 
-- [ ] **Task 1 — parts of the balance.** "Does your balance have a lid?", "one decimal
-      place or two?", "grams or milligrams?", "is the weigh boat light or heavy?". A student
-      at a real balance answers by looking; a student here needs the page to be lookable-at.
-      A short "your balance" note beside the housing stating what this balance is — no lid
-      (questions.md #35), reads in grams to two decimal places — and the weigh boat's mass
-      already answers "light". Not a quiz: the worksheet is the quiz.
-- [ ] **2A — "describe 3 properties of your sphere".** The sphere needs to be something: a
-      glass marble, with a colour and a size the student can see and describe. One sentence
-      on the bench item, and the drawing to match.
-- [ ] **Task 6 — "Do it! Record the mass" of a pencil.** There is no pencil on the bench.
-      Add one to the sandbox (a wooden pencil, ~6 g), so the "do it" can be done. A soda can,
-      full and empty, would let 6.2 be acted out too; optional, since 6.2 asks only for a
-      procedure.
+- [x] **Task 1 — parts of the balance** (2026-09-13). A "your balance" note under the
+      housing: no lid, reads in grams to 1 or 2 decimal places (from the option). Facts,
+      not answers: the worksheet is the quiz.
+- [x] **Every item is describable** (2026-09-13). Each bench item has a description a
+      student would give from picking it up — the sphere is a blue-green glass marble,
+      about 16 mm, heavier than it looks; the weigh boat is thin white plastic and light —
+      listed under the bench, so "describe 3 properties of your sphere" and "light or heavy"
+      can be answered from the page.
+- [x] **A pencil for Task 6** (2026-09-13), on the sandbox bench only: an ordinary wooden
+      pencil, ~6 g, lying straight on the pan since it is too long for the weigh boat. A soda
+      can, full and empty, is still optional; 6.2 asks only for a procedure.
 - [~] **Verify by eye.** Done: dark/normal, dark/projector, light/projector at 1024x768.
   Still to do: a phone-width viewport end to end, light/normal, 1920x1080, and a
   keyboard-only walk through all five tasks.

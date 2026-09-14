@@ -510,6 +510,42 @@ describe('MassBalance', () => {
     })
   })
 
+  describe('answering the worksheet from the page', () => {
+    it('states what this balance is, for Task 1', () => {
+      setup()
+
+      const facts = screen.getByText(/your balance/i).closest('p, div')
+      expect(facts).toHaveTextContent(/no lid/i)
+      expect(facts).toHaveTextContent(/grams/i)
+      expect(facts).toHaveTextContent(/2 decimal places/i)
+    })
+
+    it('says 1 decimal place on a one-decimal balance', () => {
+      setup({ decimals: 1 })
+
+      const facts = screen.getByText(/your balance/i).closest('p, div')
+      expect(facts).toHaveTextContent(/to 1 decimal place\./i)
+    })
+
+    it('describes the sphere, for "describe 3 properties of your sphere"', () => {
+      setup()
+
+      expect(screen.getByText(/glass marble/i)).toBeVisible()
+    })
+
+    it('has a pencil on the sandbox bench, for Task 6, and nowhere else', async () => {
+      const user = setup()
+      expect(screen.queryByRole('button', { name: /^pencil/i })).not.toBeInTheDocument()
+
+      await chooseTask(user, /sandbox/i)
+      await user.click(button(/power/i))
+      await user.click(item(/^pencil/i))
+
+      expect(item(/^pencil/i)).toHaveAccessibleName(/on the balance/i)
+      expect(display()).toHaveTextContent(/^[4-8]\.\d\d g$/)
+    })
+  })
+
   describe('options', () => {
     it('reads to one decimal place on a one-decimal balance', async () => {
       const user = setup({ decimals: 1 })

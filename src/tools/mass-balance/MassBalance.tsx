@@ -314,6 +314,14 @@ export function MassBalance({ options }: ToolProps) {
                 </button>
               </div>
             </div>
+            {/* Task 1 asks what the balance is like — lid, decimals, units.
+                A student at a real balance answers by looking; here the page
+                says. Kept to facts, not answers: the worksheet is the quiz. */}
+            <p className="balance__facts">
+              <strong>Your balance:</strong> no lid. It reads in grams (g), to{' '}
+              {settings.decimals} decimal {settings.decimals === 1 ? 'place' : 'places'}
+              .
+            </p>
             {value !== null && value < 0 && (
               <p className="balance__note">
                 Negative? The balance is still subtracting the tare, and what was tared
@@ -346,6 +354,16 @@ export function MassBalance({ options }: ToolProps) {
                 )
               })}
             </ul>
+            {/* What each thing on the bench is like, for "describe 3
+                properties of your sphere" and "is it light or heavy". */}
+            <dl className="bench__descriptions">
+              {benchItems.map((id) => (
+                <div key={id} className="bench__description">
+                  <dt>{ITEMS[id].name}</dt>
+                  <dd>{ITEMS[id].description}</dd>
+                </div>
+              ))}
+            </dl>
             {task.usesCylinder && (
               <p className="bench__water">
                 Water in the cup: <strong>{balance.waterVolume} mL</strong>

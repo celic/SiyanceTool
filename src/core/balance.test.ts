@@ -265,7 +265,24 @@ describe('containment', () => {
     expect(ITEMS.sphere.holder).toBe('weigh-boat')
     expect(ITEMS['empty-balloon'].holder).toBe('weigh-boat')
     expect(ITEMS['inflated-balloon'].holder).toBe('weigh-boat')
+    expect(ITEMS.pencil.holder).toBe('pan')
     for (const item of Object.values(ITEMS)) expect(item.name).not.toBe('')
+  })
+
+  it('describes every item, so a student can answer "describe 3 properties of your sphere"', () => {
+    expect(ITEMS.sphere.description).toMatch(/glass marble/i)
+    for (const item of Object.values(ITEMS))
+      expect(item.description.length).toBeGreaterThan(20)
+  })
+
+  it('has a pencil for Task 6, about the mass of a real wooden one', () => {
+    let balance = must(place(on(), 'pencil'))
+
+    expect(balance.masses.pencil).toBeGreaterThan(4)
+    expect(balance.masses.pencil).toBeLessThan(9)
+    expect(readout(balance)).toBe(ITEMS.pencil.nominal.toFixed(2))
+    balance = randomize(balance, () => 0.999999)
+    expect(balance.masses.pencil).toBeGreaterThan(ITEMS.pencil.nominal)
   })
 })
 
@@ -290,7 +307,7 @@ describe('reset and new problem', () => {
     expect(balance.onBalance).toEqual([])
     expect(balance.waterVolume).toBe(0)
     expect(balance.tareOffset).toBe(0)
-    expect(balance.masses).toEqual(MASSES)
+    expect(balance.masses).toMatchObject(MASSES)
   })
 
   it('new problem re-rolls every mass within a small spread of its usual value', () => {

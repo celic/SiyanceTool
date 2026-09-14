@@ -86,6 +86,16 @@ export function BalanceFigure({ state }: BalanceFigureProps) {
         </g>
       )}
 
+      {on('pencil') && (
+        <g className="balance-figure__item">
+          {/* Lying across the front of the pan, tip to the right. */}
+          <polygon points="62,121 132,117 138,119 132,123 62,127" />
+          <text x="54" y="144" textAnchor="end" className="balance-figure__label">
+            pencil
+          </text>
+        </g>
+      )}
+
       {on('cup') && (
         <g className="balance-figure__item" transform={`translate(${cupX} 0)`}>
           {state.waterVolume > 0 && (
