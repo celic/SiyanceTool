@@ -26,3 +26,8 @@ dist-ssr
 # Project
 .vite
 coverage
+
+# Working documents — kept locally, not in the repository
+docs/plan.md
+docs/questions.md
+docs/decisions.md

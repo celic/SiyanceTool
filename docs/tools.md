@@ -1,12 +1,12 @@
 # Tool Design
 
-Design proposals for every tool on the site. [plan.md](plan.md) is the actionable build
-sequence and consults this document for _what_ to build; this document holds the _why_ and
-the _what it does_, and does not track scheduling.
+Design entries for every tool on the site: the _why_ and the _what it does_. Scheduling is
+not tracked here — a working plan, kept out of the repository, consults this document for
+what to build.
 
-Everything here is **proposed** until reviewed with the teacher — see
-[questions.md](questions.md), which has several questions that could remove tools from this
-list entirely.
+Everything here is **proposed** until reviewed with the teacher. Open questions are
+tracked in a working document (`questions.md`, kept out of the repository) and are referred
+to below by number.
 
 Each tool has a stable `id`. That id is the route (`/gas-laws`), the source folder
 (`src/tools/gas-laws/`), and the key in the tool config file that turns it on or off.
